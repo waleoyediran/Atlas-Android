@@ -1,4 +1,4 @@
-package com.layer.atlas.adapter;
+package com.layer.atlas.viewholder;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -19,9 +19,9 @@ import android.view.View;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-abstract class BaseViewHolder<T> extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
-    private T mInteractionTarget;
-    private InteractionListener<T> mListener;
+public abstract class BaseViewHolder<Titem> extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
+    private Titem mInteractionTarget;
+    private InteractionListener<Titem> mListener;
 
     public BaseViewHolder(View itemView) {
         super(itemView);
@@ -34,7 +34,7 @@ abstract class BaseViewHolder<T> extends RecyclerView.ViewHolder implements View
      *
      * @param listener The listener to report user interactions.
      */
-    protected void setInteractionListener(InteractionListener<T> listener) {
+    public void setInteractionListener(InteractionListener<Titem> listener) {
         mListener = listener;
     }
 
@@ -43,7 +43,7 @@ abstract class BaseViewHolder<T> extends RecyclerView.ViewHolder implements View
      *
      * @param target The object to report as the target of interactions.
      */
-    protected void setInteractionTarget(T target) {
+    public void setInteractionTarget(Titem target) {
         mInteractionTarget = target;
     }
 

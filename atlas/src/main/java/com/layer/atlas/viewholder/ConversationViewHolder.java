@@ -1,4 +1,4 @@
-package com.layer.atlas.adapter;
+package com.layer.atlas.viewholder;
 
 import android.content.Context;
 import android.view.View;

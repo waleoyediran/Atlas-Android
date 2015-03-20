@@ -1,10 +1,10 @@
-package com.layer.atlas.impl;
+package com.layer.atlas.atlasdefault;
 
 import android.graphics.Bitmap;
 import android.text.TextUtils;
 
 import com.layer.atlas.AvatarItem;
-import com.layer.atlas.adapter.ConversationAdapter;
+import com.layer.atlas.queryadapter.ConversationAdapter;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.messaging.Conversation;
 

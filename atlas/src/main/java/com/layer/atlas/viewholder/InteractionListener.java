@@ -1,9 +1,4 @@
-package com.layer.atlas.adapter;
-
-import android.view.View;
-
-import com.layer.atlas.Participant;
-import com.layer.atlas.adapter.BaseViewHolder;
+package com.layer.atlas.viewholder;
 
 /**
  * Created by Steven Jones on 3/14/2015.
@@ -21,19 +16,11 @@ import com.layer.atlas.adapter.BaseViewHolder;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-public abstract class ParticipantViewHolder extends BaseViewHolder<Participant> {
-    public static enum SortType {
-        FIRST_NAME,
-        LAST_NAME
+public interface InteractionListener<T> {
+    public static enum InteractionType {
+        SHORT_CLICK,
+        LONG_CLICK
     }
 
-    protected ParticipantViewHolder(View itemView) {
-        super(itemView);
-    }
-
-    public abstract void setParticipant(Participant participant);
-
-    public abstract void setParticipantSortType(SortType sortType);
-
-    public abstract void setParticipantAvatarItemVisible(boolean visible);
+    public void onInteraction(T target, InteractionType interactionType);
 }

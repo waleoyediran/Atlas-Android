@@ -1,60 +1,36 @@
 package com.layer.atlas.sampleapp;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.layer.atlas.adapter.ConversationAdapter;
+import com.layer.atlas.queryadapter.ConversationAdapter;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.messaging.Conversation;
 
 import java.util.List;
 
 
-public class MainActivity extends ActionBarActivity
-        implements ConversationAdapter.Listener {
-    LayerClient mClient;
+public class ConversationListActivity extends BaseActivity implements ConversationAdapter.Listener {
     RecyclerView mRecyclerView;
     ConversationAdapter mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_conversation_list);
 
-        mClient = Utils.getLayerClient(this);
         mRecyclerView = (RecyclerView) findViewById(R.id.layer_conversations);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-        mAdapter = new ConversationAdapter(this, mClient, null, null, this);
+        mAdapter = new ConversationAdapter(this, getLayerClient(), null, null, this);
         mRecyclerView.setAdapter(mAdapter);
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-
-        if (!mClient.isAuthenticated()) {
-            Utils.authenticate(mClient, new Utils.Callback() {
-                @Override
-                public void onSuccess() {
-                    authenticatedResume();
-                }
-
-                @Override
-                public void onError() {
-
-                }
-            });
-        } else {
-            mClient.connect();
-            authenticatedResume();
-        }
-    }
-
-    private void authenticatedResume() {
+    void authenticatedResume() {
         mAdapter.refresh();
     }
 
@@ -87,7 +63,10 @@ public class MainActivity extends ActionBarActivity
 
     @Override
     public void onConversationSelected(ConversationAdapter adapter, Conversation conversation) {
-
+        Intent intent = new Intent(this, ConversationViewActivity.class);
+        intent.putExtra(Utils.EXTRA_CONVERSATION_ID, conversation.getId().toString());
+        intent.putExtra(Utils.EXTRA_PARTICIPANTS, conversation.getParticipants().toArray(new String[conversation.getParticipants().size()]));
+        startActivity(intent);
     }
 
     @Override

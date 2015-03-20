@@ -1,8 +1,11 @@
-package com.layer.atlas.adapter;
+package com.layer.atlas.queryadapter;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
 
+import com.layer.atlas.viewholder.BaseViewHolder;
+import com.layer.atlas.viewholder.BaseViewHolderFactory;
+import com.layer.atlas.viewholder.InteractionListener;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.query.Query;
 import com.layer.sdk.query.Queryable;
@@ -24,52 +27,77 @@ import com.layer.sdk.query.RecyclerViewController;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-abstract class BaseAdapter<Tquery extends Queryable, Tview extends RecyclerView.ViewHolder>
+abstract class BaseQueryAdapter<Tquery extends Queryable, Tview extends BaseViewHolder<Tquery>, Tfactory extends BaseViewHolderFactory<Tquery, Tview>>
         extends RecyclerView.Adapter<Tview>
-        implements RecyclerViewController.Callback {
-    private final RecyclerViewController<Tquery> mQueryController;
+        implements RecyclerViewController.Callback, InteractionListener<Tquery> {
 
-    public BaseAdapter(LayerClient client, Query<Tquery> query) {
-        mQueryController = client.newRecyclerViewController(query, null, this);
+    private final Tfactory mFactory;
+    private final RecyclerViewController<Tquery> mRecyclerViewController;
+
+    public BaseQueryAdapter(LayerClient client, Query<Tquery> query, Tfactory factory) {
+        mFactory = factory;
+        mRecyclerViewController = client.newRecyclerViewController(query, null, this);
         setHasStableIds(false);
     }
 
     public void refresh() {
-        mQueryController.execute();
+        mRecyclerViewController.execute();
     }
-
 
     @Override
     public int getItemCount() {
-        return mQueryController.getItemCount();
+        return mRecyclerViewController.getItemCount();
     }
 
     public int getPosition(Tquery queryable) {
-        return mQueryController.getPosition(queryable);
+        return mRecyclerViewController.getPosition(queryable);
     }
 
 
     //==============================================================================================
-    // ViewHolders
+    // ViewHolder
     //==============================================================================================
-
-    @Override
-    public abstract Tview onCreateViewHolder(ViewGroup viewGroup, int viewType);
-
-    @Override
-    public void onBindViewHolder(Tview viewHolder, int position) {
-        onBindViewHolder(viewHolder, mQueryController.getItem(position));
-    }
 
     public abstract void onBindViewHolder(Tview viewHolder, Tquery queryable);
 
+    @Override
+    public void onBindViewHolder(Tview viewHolder, int position) {
+        Tquery item = mRecyclerViewController.getItem(position);
+        viewHolder.setInteractionTarget(item);
+        onBindViewHolder(viewHolder, item);
+    }
+
+
+    //==============================================================================================
+    // ViewHolderFactory
+    //==============================================================================================
+
+    @Override
+    public Tview onCreateViewHolder(ViewGroup viewGroup, int viewType) {
+        Tview viewHolder = mFactory.createViewHolder(viewGroup, viewType);
+        viewHolder.setInteractionListener(this);
+        return viewHolder;
+    }
 
     @Override
     public int getItemViewType(int position) {
-        return getItemViewType(mQueryController.getItem(position));
+        return mFactory.getViewType(mRecyclerViewController.getItem(position));
     }
 
-    public abstract int getItemViewType(Tquery queryable);
+
+    //==============================================================================================
+    // InteractionListener
+    //==============================================================================================
+
+    /**
+     * Optionally override to handle interactions.
+     *
+     * @param target          The Tquery
+     * @param interactionType
+     */
+    @Override
+    public void onInteraction(Tquery target, InteractionType interactionType) {
+    }
 
 
     //==============================================================================================

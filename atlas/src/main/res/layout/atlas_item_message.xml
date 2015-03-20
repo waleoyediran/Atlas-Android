@@ -12,12 +12,12 @@
         android:layout_centerVertical="true"/>
 
     <TextView
-        android:id="@+id/atlas_title"
+        android:id="@+id/atlas_message"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/atlas_avatar"
         android:ellipsize="end"
         android:singleLine="true"
-        android:layout_toRightOf="@id/atlas_avatar"
         />
 
 </RelativeLayout>

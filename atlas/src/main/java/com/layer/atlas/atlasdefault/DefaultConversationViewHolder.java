@@ -1,4 +1,4 @@
-package com.layer.atlas.impl;
+package com.layer.atlas.atlasdefault;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -9,7 +9,7 @@ import android.widget.TextView;
 
 import com.layer.atlas.AvatarItem;
 import com.layer.atlas.R;
-import com.layer.atlas.adapter.ConversationViewHolder;
+import com.layer.atlas.viewholder.ConversationViewHolder;
 import com.layer.sdk.messaging.Conversation;
 
 public class DefaultConversationViewHolder extends ConversationViewHolder {

@@ -1,7 +1,5 @@
 package com.layer.atlas.sampleapp;
 
-import android.content.Context;
-
 import com.layer.atlas.sampleapp.provider.LoggedInContact;
 import com.layer.atlas.sampleapp.provider.Provider;
 import com.layer.atlas.sampleapp.provider.providers.RailsProvider;
@@ -13,29 +11,21 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class Utils {
-    private final static String APP_ID = "9ec30af8-5591-11e4-af9e-f7a201004a3b";
-    private final static String GCM_SENDER_ID = "565052870572";
-    private final static String PROVIDER_URL = "http://layer-identity-provider.herokuapp.com";
-    private final static String EMAIL = "dvorak10@layer.com";
-    private final static String PASSWORD = "password";
+    public final static String APP_ID = "9ec30af8-5591-11e4-af9e-f7a201004a3b";
+    public final static String GCM_SENDER_ID = "565052870572";
+    public final static String PROVIDER_URL = "http://layer-identity-provider.herokuapp.com";
+    public final static String EMAIL = "dvorak10@layer.com";
+    public final static String PASSWORD = "password";
+
+    public final static String EXTRA_PARTICIPANTS = "participants";
+    public final static String EXTRA_CONVERSATION_ID = "conversationId";
 
     private static RailsProvider sProvider;
-    private static LayerClient sClient;
 
     public static interface Callback {
         public void onSuccess();
 
         public void onError();
-    }
-
-    public static LayerClient getLayerClient(Context context) {
-        if (sClient == null) {
-            LayerClient.setLogLevel(LayerClient.LogLevel.VERBOSE);
-            sClient = LayerClient.newInstance(context, APP_ID,
-                    new LayerClient.Options()
-                            .googleCloudMessagingSenderId(GCM_SENDER_ID));
-        }
-        return sClient;
     }
 
     public static RailsProvider getProvider() {
@@ -50,7 +40,6 @@ public class Utils {
             @Override
             public void onAuthenticated(LayerClient client, String userId) {
                 callback.onSuccess();
-                //client.unregisterAuthenticationListener(this);
             }
 
             @Override
