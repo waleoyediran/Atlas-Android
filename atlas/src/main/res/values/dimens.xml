@@ -1,0 +1,4 @@
+<resources>
+    <dimen name="atlas_avatar_width">32dp</dimen>
+    <dimen name="atlas_avatar_height">32dp</dimen>
+</resources>
