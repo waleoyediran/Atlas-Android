@@ -21,6 +21,8 @@ public class Utils {
     public final static String EXTRA_CONVERSATION_ID = "conversationId";
 
     private static RailsProvider sProvider;
+    private static LayerClient sLayerClient;
+    private static LayerAuthenticationListener sChallengeResponder;
 
     public static interface Callback {
         public void onSuccess();
@@ -35,37 +37,45 @@ public class Utils {
         return sProvider;
     }
 
-    public static void authenticate(final LayerClient client, final Callback callback) {
-        LayerAuthenticationListener listener = new LayerAuthenticationListener() {
-            @Override
-            public void onAuthenticated(LayerClient client, String userId) {
-                callback.onSuccess();
-            }
+    public static void setLayerClient(LayerClient layerClient) {
+        if (sLayerClient == null) {
+            sLayerClient = layerClient;
+            sLayerClient.registerAuthenticationListener(getChallengeResponder());
+        }
+    }
 
-            @Override
-            public void onDeauthenticated(LayerClient client) {
-                callback.onError();
-            }
+    public static LayerAuthenticationListener getChallengeResponder() {
+        if (sChallengeResponder == null) {
+            sChallengeResponder = new LayerAuthenticationListener() {
+                @Override
+                public void onAuthenticated(LayerClient client, String s) {
 
-            @Override
-            public void onAuthenticationChallenge(final LayerClient client, final String nonce) {
-                Runnable r = new Runnable() {
-                    @Override
-                    public void run() {
-                        LoggedInContact login = onChallenge(nonce);
-                        client.answerAuthenticationChallenge(login.getIdentityToken());
-                    }
-                };
-                new Thread(r).start();
-            }
+                }
 
-            @Override
-            public void onAuthenticationError(LayerClient client, LayerException e) {
-                callback.onError();
-            }
-        };
-        client.registerAuthenticationListener(listener);
-        client.authenticate();
+                @Override
+                public void onDeauthenticated(LayerClient client) {
+
+                }
+
+                @Override
+                public void onAuthenticationChallenge(LayerClient client, final String nonce) {
+                    Runnable r = new Runnable() {
+                        @Override
+                        public void run() {
+                            LoggedInContact login = onChallenge(nonce);
+                            sLayerClient.answerAuthenticationChallenge(login.getIdentityToken());
+                        }
+                    };
+                    new Thread(r).start();
+                }
+
+                @Override
+                public void onAuthenticationError(LayerClient client, LayerException e) {
+
+                }
+            };
+        }
+        return sChallengeResponder;
     }
 
     public static LoggedInContact onChallenge(String nonce) {

@@ -2,11 +2,10 @@ package com.layer.atlas.sampleapp;
 
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.layer.atlas.activity.QueryAdapterActivity;
 import com.layer.atlas.queryadapter.MessageAdapter;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.messaging.Conversation;
@@ -16,15 +15,17 @@ import com.layer.sdk.messaging.Message;
 import java.util.List;
 
 
-public class ConversationViewActivity extends BaseActivity implements MessageAdapter.Listener {
-    RecyclerView mRecyclerView;
-    MessageAdapter mAdapter;
+public class ConversationViewActivity extends QueryAdapterActivity implements MessageAdapter.Listener {
     Conversation mConversation;
+
+    public ConversationViewActivity() {
+        super(Utils.APP_ID, Utils.GCM_SENDER_ID, R.layout.activity_conversation_view, R.id.conversation_view);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_conversation_view);
+        Utils.setLayerClient(getLayerClient());
 
         String conversationIdString = getIntent().getStringExtra(Utils.EXTRA_CONVERSATION_ID);
         String[] participants = getIntent().getStringArrayExtra(Utils.EXTRA_PARTICIPANTS);
@@ -39,15 +40,7 @@ public class ConversationViewActivity extends BaseActivity implements MessageAda
             mConversation = getLayerClient().getConversation(conversationId);
         }
 
-        mRecyclerView = (RecyclerView) findViewById(R.id.layer_messages);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-        mAdapter = new MessageAdapter(this, getLayerClient(), mConversation, null, null, this);
-        mRecyclerView.setAdapter(mAdapter);
-    }
-
-    @Override
-    void authenticatedResume() {
-        mAdapter.refresh();
+        setAdapter(new MessageAdapter(this, getLayerClient(), mConversation, null, null, this));
     }
 
     @Override

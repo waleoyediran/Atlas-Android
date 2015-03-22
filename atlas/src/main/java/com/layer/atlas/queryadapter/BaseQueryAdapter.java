@@ -27,7 +27,7 @@ import com.layer.sdk.query.RecyclerViewController;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-abstract class BaseQueryAdapter<Tquery extends Queryable, Tview extends BaseViewHolder<Tquery>, Tfactory extends BaseViewHolderFactory<Tquery, Tview>>
+public abstract class BaseQueryAdapter<Tquery extends Queryable, Tview extends BaseViewHolder<Tquery>, Tfactory extends BaseViewHolderFactory<Tquery, Tview>>
         extends RecyclerView.Adapter<Tview>
         implements RecyclerViewController.Callback, InteractionListener<Tquery> {
 

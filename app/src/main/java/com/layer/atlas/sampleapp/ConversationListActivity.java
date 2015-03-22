@@ -2,11 +2,10 @@ package com.layer.atlas.sampleapp;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.layer.atlas.activity.QueryAdapterActivity;
 import com.layer.atlas.queryadapter.ConversationAdapter;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.messaging.Conversation;
@@ -14,24 +13,18 @@ import com.layer.sdk.messaging.Conversation;
 import java.util.List;
 
 
-public class ConversationListActivity extends BaseActivity implements ConversationAdapter.Listener {
-    RecyclerView mRecyclerView;
-    ConversationAdapter mAdapter;
+public class ConversationListActivity extends QueryAdapterActivity implements ConversationAdapter.Listener {
+
+    public ConversationListActivity() {
+        super(Utils.APP_ID, Utils.GCM_SENDER_ID, R.layout.activity_conversation_list, R.id.conversation_list);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_conversation_list);
+        Utils.setLayerClient(getLayerClient());
 
-        mRecyclerView = (RecyclerView) findViewById(R.id.layer_conversations);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-        mAdapter = new ConversationAdapter(this, getLayerClient(), null, null, this);
-        mRecyclerView.setAdapter(mAdapter);
-    }
-
-    @Override
-    void authenticatedResume() {
-        mAdapter.refresh();
+        setAdapter(new ConversationAdapter(this, getLayerClient(), null, null, this));
     }
 
     @Override

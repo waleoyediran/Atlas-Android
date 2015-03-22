@@ -24,7 +24,7 @@ public class DefaultMessageViewHolder extends MessageViewHolder {
 
     @Override
     public void setMessage(Context context, Message message) {
-        List<String> strings = new ArrayList<>();
+        List<String> strings = new ArrayList<String>();
         for (MessagePart messagePart : message.getMessageParts()) {
             if (messagePart.getMimeType().startsWith("text/")) {
                 strings.add(new String(messagePart.getData()));
