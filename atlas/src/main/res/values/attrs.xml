@@ -1,3 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <declare-styleable name="SendBox">
+        <attr name="photoDrawable" format="reference" />
+        <attr name="sendDrawable" format="reference" />
+    </declare-styleable>
 </resources>
