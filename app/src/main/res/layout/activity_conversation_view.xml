@@ -9,7 +9,7 @@
                 android:paddingTop="@dimen/activity_vertical_margin"
                 tools:context=".MainActivity">
 
-    <android.support.v7.widget.RecyclerView
+    <com.layer.atlas.view.ConversationView
         android:id="@+id/conversation_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"

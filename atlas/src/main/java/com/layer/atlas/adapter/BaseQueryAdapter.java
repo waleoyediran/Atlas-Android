@@ -1,4 +1,4 @@
-package com.layer.atlas.queryadapter;
+package com.layer.atlas.adapter;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;

@@ -5,15 +5,15 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.layer.atlas.activity.QueryAdapterActivity;
-import com.layer.atlas.queryadapter.ConversationAdapter;
+import com.layer.atlas.sampleapp.activity.QueryViewActivity;
+import com.layer.atlas.adapter.ConversationAdapter;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.messaging.Conversation;
 
 import java.util.List;
 
 
-public class ConversationListActivity extends QueryAdapterActivity implements ConversationAdapter.Listener {
+public class ConversationListActivity extends QueryViewActivity implements ConversationAdapter.Listener {
 
     public ConversationListActivity() {
         super(Utils.APP_ID, Utils.GCM_SENDER_ID, R.layout.activity_conversation_list, R.id.conversation_list);

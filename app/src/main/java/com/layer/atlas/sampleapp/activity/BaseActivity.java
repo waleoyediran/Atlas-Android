@@ -1,4 +1,4 @@
-package com.layer.atlas.activity;
+package com.layer.atlas.sampleapp.activity;
 
 import android.support.v7.app.ActionBarActivity;
 

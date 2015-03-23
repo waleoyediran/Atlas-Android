@@ -5,8 +5,8 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.layer.atlas.activity.QueryAdapterActivity;
-import com.layer.atlas.queryadapter.MessageAdapter;
+import com.layer.atlas.sampleapp.activity.QueryViewActivity;
+import com.layer.atlas.adapter.MessageAdapter;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.messaging.Conversation;
 import com.layer.sdk.messaging.ConversationOptions;
@@ -15,7 +15,7 @@ import com.layer.sdk.messaging.Message;
 import java.util.List;
 
 
-public class ConversationViewActivity extends QueryAdapterActivity implements MessageAdapter.Listener {
+public class ConversationViewActivity extends QueryViewActivity implements MessageAdapter.Listener {
     Conversation mConversation;
 
     public ConversationViewActivity() {

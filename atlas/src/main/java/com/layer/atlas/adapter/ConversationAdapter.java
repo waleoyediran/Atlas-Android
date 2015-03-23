@@ -1,4 +1,4 @@
-package com.layer.atlas.queryadapter;
+package com.layer.atlas.adapter;
 
 import android.content.Context;
 

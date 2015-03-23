@@ -4,7 +4,7 @@ import android.text.Spannable;
 import android.text.SpannableString;
 
 import com.layer.atlas.Participant;
-import com.layer.atlas.queryadapter.MessageAdapter;
+import com.layer.atlas.adapter.MessageAdapter;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.messaging.Conversation;
 import com.layer.sdk.messaging.Message;
