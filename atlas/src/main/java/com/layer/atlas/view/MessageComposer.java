@@ -10,21 +10,21 @@ import android.widget.LinearLayout;
 
 import com.layer.atlas.R;
 
-public class SendBox extends LinearLayout {
+public class MessageComposer extends LinearLayout {
     ImageButton mPhotoButton;
     ImageButton mSendButton;
 
-    public SendBox(Context context) {
+    public MessageComposer(Context context) {
         super(context);
         init(context, null, 0);
     }
 
-    public SendBox(Context context, AttributeSet attrs) {
+    public MessageComposer(Context context, AttributeSet attrs) {
         super(context, attrs);
         init(context, attrs, 0);
     }
 
-    public SendBox(Context context, AttributeSet attrs, int defStyleAttr) {
+    public MessageComposer(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context, attrs, defStyleAttr);
     }
@@ -38,13 +38,13 @@ public class SendBox extends LinearLayout {
             return;
         }
 
-        TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.SendBox, defStyleAttr, 0);
+        TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.MessageComposer, defStyleAttr, 0);
 
         try {
-            Drawable photoDrawable = a.getDrawable(R.styleable.SendBox_photoDrawable);
+            Drawable photoDrawable = a.getDrawable(R.styleable.MessageComposer_photoDrawable);
             mPhotoButton.setImageDrawable(photoDrawable);
 
-            Drawable sendDrawable = a.getDrawable(R.styleable.SendBox_sendDrawable);
+            Drawable sendDrawable = a.getDrawable(R.styleable.MessageComposer_sendDrawable);
             mSendButton.setImageDrawable(sendDrawable);
         } finally {
             a.recycle();

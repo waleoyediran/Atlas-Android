@@ -17,7 +17,7 @@
         android:layout_alignParentTop="true"
         />
 
-    <com.layer.atlas.view.SendBox
+    <com.layer.atlas.view.MessageComposer
         android:id="@+id/sendbox"
         android:layout_width="match_parent"
         android:layout_height="@dimen/atlas_sendbox_height"
