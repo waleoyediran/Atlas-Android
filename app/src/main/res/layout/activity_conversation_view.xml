@@ -13,10 +13,10 @@
         android:id="@+id/conversation_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        atlas:conversationQueryViewGroupedMessageSpacing="@dimen/atlas_message_bubble_spacing_grouped"
-        atlas:conversationQueryViewUngroupedMessageSpacing="@dimen/atlas_message_bubble_spacing_ungrouped"
-        atlas:messageInputToolbarHint="message"
-        atlas:messageInputToolbarLeftButtonDrawable="@mipmap/ic_launcher"
-        atlas:messageInputToolbarRightButtonDrawable="@mipmap/ic_launcher"
+        atlas:groupedMessageSpacing="@dimen/atlas_message_bubble_spacing_grouped"
+        atlas:hint="message"
+        atlas:leftButtonDrawable="@mipmap/ic_launcher"
+        atlas:rightButtonDrawable="@mipmap/ic_launcher"
+        atlas:ungroupedMessageSpacing="@dimen/atlas_message_bubble_spacing_ungrouped"
         />
 </RelativeLayout>

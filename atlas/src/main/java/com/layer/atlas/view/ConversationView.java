@@ -67,14 +67,14 @@ public class ConversationView extends RelativeLayout implements MessageInputTool
         TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.ConversationView, defStyleAttr, 0);
         try {
             // ConversationQueryView
-            float groupedSpacing = a.getDimension(R.styleable.ConversationView_conversationQueryViewGroupedMessageSpacing, getResources().getDimension(R.dimen.atlas_message_bubble_spacing_grouped));
-            float ungroupedSpacing = a.getDimension(R.styleable.ConversationView_conversationQueryViewUngroupedMessageSpacing, getResources().getDimension(R.dimen.atlas_message_bubble_spacing_ungrouped));
+            float groupedSpacing = a.getDimension(R.styleable.ConversationView_groupedMessageSpacing, getResources().getDimension(R.dimen.atlas_message_bubble_spacing_grouped));
+            float ungroupedSpacing = a.getDimension(R.styleable.ConversationView_ungroupedMessageSpacing, getResources().getDimension(R.dimen.atlas_message_bubble_spacing_ungrouped));
             mConversationQueryView.setAttributes((int) groupedSpacing, (int) ungroupedSpacing);
 
             // MessageInputToolbar
-            Drawable leftDrawable = a.getDrawable(R.styleable.ConversationView_messageInputToolbarLeftButtonDrawable);
-            Drawable rightDrawable = a.getDrawable(R.styleable.ConversationView_messageInputToolbarRightButtonDrawable);
-            String hint = a.getString(R.styleable.ConversationView_messageInputToolbarHint);
+            Drawable leftDrawable = a.getDrawable(R.styleable.ConversationView_leftButtonDrawable);
+            Drawable rightDrawable = a.getDrawable(R.styleable.ConversationView_rightButtonDrawable);
+            String hint = a.getString(R.styleable.ConversationView_hint);
             mMessageInputToolbar.setAttributes(leftDrawable, rightDrawable, hint);
         } finally {
             a.recycle();
