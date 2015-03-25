@@ -1,5 +1,4 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:atlas="http://schemas.android.com/apk/res-auto"
                 xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -13,10 +12,5 @@
         android:id="@+id/conversation_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        atlas:groupedMessageSpacing="@dimen/atlas_message_bubble_spacing_grouped"
-        atlas:hint="message"
-        atlas:leftButtonDrawable="@mipmap/ic_launcher"
-        atlas:rightButtonDrawable="@mipmap/ic_launcher"
-        atlas:ungroupedMessageSpacing="@dimen/atlas_message_bubble_spacing_ungrouped"
         />
 </RelativeLayout>

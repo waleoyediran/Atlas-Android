@@ -24,7 +24,6 @@ public class MessageInputToolbar extends LinearLayout implements View.OnClickLis
     private ImageButton mLeftButton;
     private ImageButton mRightButton;
     private Callback mCallback;
-    private boolean mInitialized = false;
 
     /**
      * MessageInputToolbar.Callback allows an observer to receive callbacks for user interactions on
@@ -62,27 +61,16 @@ public class MessageInputToolbar extends LinearLayout implements View.OnClickLis
     //==============================================================================================
 
     public MessageInputToolbar(Context context) {
-        super(context);
-        if (!mInitialized) {
-            mInitialized = true;
-            init(context, null, 0);
-        }
+        this(context, null, R.attr.defaultMessageInputToolbarStyle);
     }
 
     public MessageInputToolbar(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        if (!mInitialized) {
-            mInitialized = true;
-            init(context, attrs, 0);
-        }
+        this(context, attrs, R.attr.defaultMessageInputToolbarStyle);
     }
 
     public MessageInputToolbar(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        if (!mInitialized) {
-            mInitialized = true;
-            init(context, attrs, defStyleAttr);
-        }
+        init(context, attrs, defStyleAttr);
     }
 
 
@@ -137,7 +125,7 @@ public class MessageInputToolbar extends LinearLayout implements View.OnClickLis
         }
 
         // Try populating attributes from the layout xml
-        TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.MessageInputToolbar, defStyleAttr, 0);
+        TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.MessageInputToolbar, defStyleAttr, R.style.AtlasMessageInputToolbar);
         try {
             Drawable leftDrawable = a.getDrawable(R.styleable.MessageInputToolbar_leftButtonDrawable);
             Drawable rightDrawable = a.getDrawable(R.styleable.MessageInputToolbar_rightButtonDrawable);

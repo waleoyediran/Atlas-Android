@@ -1,6 +1,27 @@
 <resources>
 
-    <style name="AtlasTheme" parent="Theme.AppCompat.Light">
-        <!-- TODO -->
+    <style name="AtlasMessageInputToolbar">
+        <item name="leftButtonDrawable">@drawable/atlas_arrow_left</item>
+        <item name="rightButtonDrawable">@drawable/atlas_arrow_left</item>
+        <item name="hint">hint</item>
+    </style>
+
+    <style name="AtlasConversationQueryView">
+        <item name="groupedMessageSpacing">@dimen/atlas_message_bubble_spacing_grouped</item>
+        <item name="ungroupedMessageSpacing">@dimen/atlas_message_bubble_spacing_ungrouped</item>
+    </style>
+
+    <style name="AtlasConversationView">
+        <item name="groupedMessageSpacing">@dimen/atlas_message_bubble_spacing_grouped</item>
+        <item name="ungroupedMessageSpacing">@dimen/atlas_message_bubble_spacing_ungrouped</item>
+        <item name="leftButtonDrawable">@drawable/atlas_arrow_left</item>
+        <item name="rightButtonDrawable">@drawable/atlas_arrow_left</item>
+        <item name="hint">hint</item>
+    </style>
+
+    <style name="Theme.Atlas" parent="Theme.AppCompat.Light">
+        <item name="defaultMessageInputToolbarStyle">@style/AtlasMessageInputToolbar</item>
+        <item name="defaultConversationQueryViewStyle">@style/AtlasConversationQueryView</item>
+        <item name="defaultConversationViewStyle">@style/AtlasConversationView</item>
     </style>
 </resources>

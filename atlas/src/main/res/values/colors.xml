@@ -2,4 +2,5 @@
 <resources>
     <color name="atlas_blue">#FF1CA7EB</color>
     <color name="atlas_message_bubble">#FF1CA7EB</color>
+    <color name="atlas_message_bubble_text">#FFFFFFFF</color>
 </resources>

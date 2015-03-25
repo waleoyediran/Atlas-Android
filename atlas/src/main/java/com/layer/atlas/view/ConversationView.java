@@ -29,30 +29,18 @@ public class ConversationView extends RelativeLayout implements MessageInputTool
     ConversationViewAdapter mConversationViewAdapter;
     LayerClient mLayerClient;
     Conversation mConversation;
-    boolean mInitialized = false;
 
     public ConversationView(Context context) {
-        super(context);
-        if (!mInitialized) {
-            mInitialized = true;
-            init(context, null, 0);
-        }
+        this(context, null, R.attr.defaultConversationViewStyle);
     }
 
     public ConversationView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        if (!mInitialized) {
-            mInitialized = true;
-            init(context, attrs, 0);
-        }
+        this(context, attrs, R.attr.defaultConversationViewStyle);
     }
 
     public ConversationView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        if (!mInitialized) {
-            mInitialized = true;
-            init(context, attrs, defStyleAttr);
-        }
+        init(context, attrs, defStyleAttr);
     }
 
     private void init(Context context, AttributeSet attrs, int defStyleAttr) {
@@ -64,7 +52,7 @@ public class ConversationView extends RelativeLayout implements MessageInputTool
         mMessageInputToolbar.setCallback(this);
 
         // Try populating attributes from the layout xml
-        TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.ConversationView, defStyleAttr, 0);
+        TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.ConversationView, defStyleAttr, R.style.AtlasConversationView);
         try {
             // ConversationQueryView
             float groupedSpacing = a.getDimension(R.styleable.ConversationView_groupedMessageSpacing, getResources().getDimension(R.dimen.atlas_message_bubble_spacing_grouped));
