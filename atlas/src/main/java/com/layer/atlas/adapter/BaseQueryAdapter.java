@@ -53,6 +53,10 @@ public abstract class BaseQueryAdapter<Tquery extends Queryable, Tview extends B
         return mRecyclerViewController.getPosition(queryable);
     }
 
+    public Tquery getItem(int position) {
+        return mRecyclerViewController.getItem(position);
+    }
+
 
     //==============================================================================================
     // ViewHolder

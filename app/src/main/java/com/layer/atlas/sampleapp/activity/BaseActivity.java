@@ -57,7 +57,7 @@ public abstract class BaseActivity extends ActionBarActivity implements LayerAut
     /**
      * Let this Activity know it is now authenticated and connected, after onResume().
      */
-    abstract void onAuthenticatedResume();
+    public abstract void onAuthenticatedResume();
 
     @Override
     public void onAuthenticated(LayerClient client, String s) {

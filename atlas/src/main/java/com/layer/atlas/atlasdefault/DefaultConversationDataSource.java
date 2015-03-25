@@ -3,15 +3,15 @@ package com.layer.atlas.atlasdefault;
 import android.graphics.Bitmap;
 import android.text.TextUtils;
 
-import com.layer.atlas.AvatarItem;
-import com.layer.atlas.adapter.ConversationAdapter;
+import com.layer.atlas.model.AvatarItem;
+import com.layer.atlas.adapter.ConversationListAdapter;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.messaging.Conversation;
 
 import java.util.List;
 import java.util.Map;
 
-public class DefaultConversationDataSource implements ConversationAdapter.DataSource {
+public class DefaultConversationDataSource implements ConversationListAdapter.DataSource {
     public static String METADATA_KEY_CONVERSATION_TITLE = "conversationName";
 
     private final LayerClient mClient;
@@ -21,7 +21,7 @@ public class DefaultConversationDataSource implements ConversationAdapter.DataSo
     }
 
     @Override
-    public String getConversationTitle(ConversationAdapter adapter, Conversation conversation) {
+    public String getConversationTitle(ConversationListAdapter adapter, Conversation conversation) {
         // Title by metadata
         Map<String, Object> metadata = conversation.getMetadata();
         if (metadata != null && metadata.containsKey(METADATA_KEY_CONVERSATION_TITLE)) {
@@ -35,7 +35,7 @@ public class DefaultConversationDataSource implements ConversationAdapter.DataSo
     }
 
     @Override
-    public AvatarItem getConversationAvatarItem(ConversationAdapter adapter, final Conversation conversation) {
+    public AvatarItem getConversationAvatarItem(ConversationListAdapter adapter, final Conversation conversation) {
         return new AvatarItem() {
             @Override
             public Bitmap getAvatarBitmap() {

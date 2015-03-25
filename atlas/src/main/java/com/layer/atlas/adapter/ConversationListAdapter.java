@@ -2,7 +2,7 @@ package com.layer.atlas.adapter;
 
 import android.content.Context;
 
-import com.layer.atlas.AvatarItem;
+import com.layer.atlas.model.AvatarItem;
 import com.layer.atlas.atlasdefault.DefaultConversationDataSource;
 import com.layer.atlas.atlasdefault.DefaultConversationViewHolderFactory;
 import com.layer.atlas.viewholder.ConversationViewHolder;
@@ -30,13 +30,13 @@ import java.util.List;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-public class ConversationAdapter extends BaseQueryAdapter<Conversation, ConversationViewHolder, ConversationViewHolderFactory> {
+public class ConversationListAdapter extends BaseQueryAdapter<Conversation, ConversationViewHolder, ConversationViewHolderFactory> {
     private final Context mContext;
 
     private final DataSource mDataSource;
     private final Listener mListener;
 
-    public ConversationAdapter(Context context, LayerClient client, ConversationViewHolderFactory factory, DataSource dataSource, Listener listener) {
+    public ConversationListAdapter(Context context, LayerClient client, ConversationViewHolderFactory factory, DataSource dataSource, Listener listener) {
         super(client, Query.builder(Conversation.class)
                         .sortDescriptor(new SortDescriptor(Conversation.Property.LAST_MESSAGE_RECEIVED_AT, SortDescriptor.Order.DESCENDING))
                         .build(),
@@ -70,11 +70,11 @@ public class ConversationAdapter extends BaseQueryAdapter<Conversation, Conversa
     public void onInteraction(Conversation target, InteractionType interactionType) {
         switch (interactionType) {
             case SHORT_CLICK:
-                mListener.onConversationSelected(ConversationAdapter.this, target);
+                mListener.onConversationSelected(ConversationListAdapter.this, target);
                 break;
 
             case LONG_CLICK:
-                mListener.onConversationDeleted(ConversationAdapter.this, target, LayerClient.DeletionMode.ALL_PARTICIPANTS);
+                mListener.onConversationDeleted(ConversationListAdapter.this, target, LayerClient.DeletionMode.ALL_PARTICIPANTS);
                 break;
         }
     }
@@ -88,20 +88,20 @@ public class ConversationAdapter extends BaseQueryAdapter<Conversation, Conversa
      * DataSource to for gathering information to supply to ViewHolders.
      */
     public static interface DataSource {
-        public String getConversationTitle(ConversationAdapter adapter, Conversation conversation);
+        public String getConversationTitle(ConversationListAdapter adapter, Conversation conversation);
 
-        public AvatarItem getConversationAvatarItem(ConversationAdapter adapter, Conversation conversation);
+        public AvatarItem getConversationAvatarItem(ConversationListAdapter adapter, Conversation conversation);
     }
 
     /**
      * Listener for providing user interaction feedback.
      */
     public interface Listener {
-        public void onConversationSelected(ConversationAdapter adapter, Conversation conversation);
+        public void onConversationSelected(ConversationListAdapter adapter, Conversation conversation);
 
-        public void onConversationDeleted(ConversationAdapter adapter, Conversation conversation, LayerClient.DeletionMode deletionMode);
+        public void onConversationDeleted(ConversationListAdapter adapter, Conversation conversation, LayerClient.DeletionMode deletionMode);
 
-        public List<String> onConversationTextSearch(ConversationAdapter adapter, String searchText);
+        public List<String> onConversationTextSearch(ConversationListAdapter adapter, String searchText);
     }
 
 }

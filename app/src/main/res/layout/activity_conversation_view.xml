@@ -12,19 +12,11 @@
     <com.layer.atlas.view.ConversationView
         android:id="@+id/conversation_view"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_above="@+id/sendbox"
-        android:layout_alignParentTop="true"
+        android:layout_height="match_parent"
+        atlas:conversationQueryViewGroupedMessageSpacing="@dimen/atlas_message_bubble_spacing_grouped"
+        atlas:conversationQueryViewUngroupedMessageSpacing="@dimen/atlas_message_bubble_spacing_ungrouped"
+        atlas:messageInputToolbarHint="message"
+        atlas:messageInputToolbarLeftButtonDrawable="@mipmap/ic_launcher"
+        atlas:messageInputToolbarRightButtonDrawable="@mipmap/ic_launcher"
         />
-
-    <com.layer.atlas.view.MessageComposer
-        android:id="@+id/sendbox"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/atlas_sendbox_height"
-        android:layout_alignParentBottom="true"
-        android:orientation="horizontal"
-        atlas:photoDrawable="@mipmap/ic_launcher"
-        atlas:sendDrawable="@mipmap/ic_launcher"
-        />
-
 </RelativeLayout>

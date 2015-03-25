@@ -3,7 +3,7 @@ package com.layer.atlas.viewholder;
 import android.content.Context;
 import android.view.View;
 
-import com.layer.atlas.Participant;
+import com.layer.atlas.model.Participant;
 import com.layer.sdk.messaging.Message;
 
 /**

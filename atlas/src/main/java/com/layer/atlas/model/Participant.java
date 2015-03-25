@@ -1,6 +1,4 @@
-package com.layer.atlas;
-
-import android.graphics.Bitmap;
+package com.layer.atlas.model;
 
 /**
  * Created by Steven Jones on 3/14/2015.
@@ -18,14 +16,12 @@ import android.graphics.Bitmap;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-public interface AvatarItem {
-    /**
-     * Returns the avatar image of the implementer.
-     */
-    public Bitmap getAvatarBitmap();
+public interface Participant extends AvatarItem {
+    public String getFirstName();
 
-    /**
-     * Returns the avatar initials of the implementer.
-     */
-    public String getAvatarInitials();
+    public String getLastName();
+
+    public String getFullName();
+
+    public String getParticipantIdentifier();
 }

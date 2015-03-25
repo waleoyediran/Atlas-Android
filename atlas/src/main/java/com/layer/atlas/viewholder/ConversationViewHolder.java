@@ -3,7 +3,7 @@ package com.layer.atlas.viewholder;
 import android.content.Context;
 import android.view.View;
 
-import com.layer.atlas.AvatarItem;
+import com.layer.atlas.model.AvatarItem;
 import com.layer.sdk.messaging.Conversation;
 
 /**

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/atlas_message_bubble"/>
+            <corners android:radius="@dimen/atlas_message_bubble_corner_radius"/>
+            <padding
+                android:bottom="@dimen/atlas_message_bubble_padding_bottom"
+                android:left="@dimen/atlas_message_bubble_padding_left"
+                android:right="@dimen/atlas_message_bubble_padding_right"
+                android:top="@dimen/atlas_message_bubble_padding_top"/>
+        </shape>
+    </item>
+</layer-list>

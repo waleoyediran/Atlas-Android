@@ -5,8 +5,9 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.layer.atlas.sampleapp.activity.QueryViewActivity;
-import com.layer.atlas.adapter.MessageAdapter;
+import com.layer.atlas.adapter.ConversationViewAdapter;
+import com.layer.atlas.sampleapp.activity.BaseActivity;
+import com.layer.atlas.view.ConversationView;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.messaging.Conversation;
 import com.layer.sdk.messaging.ConversationOptions;
@@ -15,21 +16,24 @@ import com.layer.sdk.messaging.Message;
 import java.util.List;
 
 
-public class ConversationViewActivity extends QueryViewActivity implements MessageAdapter.Listener {
+public class ConversationViewActivity extends BaseActivity implements ConversationViewAdapter.Listener {
     Conversation mConversation;
+    ConversationView mConversationView;
 
     public ConversationViewActivity() {
-        super(Utils.APP_ID, Utils.GCM_SENDER_ID, R.layout.activity_conversation_view, R.id.conversation_view);
+        super(Utils.APP_ID, Utils.GCM_SENDER_ID);
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Utils.setLayerClient(getLayerClient());
+        setContentView(R.layout.activity_conversation_view);
+        mConversationView = (ConversationView) findViewById(R.id.conversation_view);
 
+        // Which conversation?
         String conversationIdString = getIntent().getStringExtra(Utils.EXTRA_CONVERSATION_ID);
         String[] participants = getIntent().getStringArrayExtra(Utils.EXTRA_PARTICIPANTS);
-
         if (conversationIdString == null) {
             // New conversation
             ConversationOptions options = new ConversationOptions().deliveryReceipts(participants.length <= 5);
@@ -40,7 +44,7 @@ public class ConversationViewActivity extends QueryViewActivity implements Messa
             mConversation = getLayerClient().getConversation(conversationId);
         }
 
-        setAdapter(new MessageAdapter(this, getLayerClient(), mConversation, null, null, this));
+        mConversationView.set(getLayerClient(), mConversation, null, null, this);
     }
 
     @Override
@@ -65,33 +69,38 @@ public class ConversationViewActivity extends QueryViewActivity implements Messa
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onAuthenticatedResume() {
+        mConversationView.refresh();
+    }
+
 
     //==============================================================================================
     // Conversation listener
     //==============================================================================================
 
     @Override
-    public void onMessageSent(MessageAdapter adapter, Message message) {
+    public void onMessageSent(ConversationViewAdapter adapter, Message message) {
 
     }
 
     @Override
-    public void onMessageSelected(MessageAdapter adapter, Message message) {
+    public void onMessageSelected(ConversationViewAdapter adapter, Message message) {
 
     }
 
     @Override
-    public void onMessageDeleted(MessageAdapter adapter, Message message, LayerClient.DeletionMode deletionMode) {
+    public void onMessageDeleted(ConversationViewAdapter adapter, Message message, LayerClient.DeletionMode deletionMode) {
 
     }
 
     @Override
-    public int onRequestMessageItemHeight(MessageAdapter adapter, Message message) {
+    public int onRequestMessageItemHeight(ConversationViewAdapter adapter, Message message) {
         return 0;
     }
 
     @Override
-    public List<Message> onRequestMessagesForMediaAttachment(MessageAdapter adapter) {
+    public List<Message> onRequestMessagesForMediaAttachment(ConversationViewAdapter adapter) {
         return null;
     }
 }

@@ -3,8 +3,8 @@ package com.layer.atlas.atlasdefault;
 import android.text.Spannable;
 import android.text.SpannableString;
 
-import com.layer.atlas.Participant;
-import com.layer.atlas.adapter.MessageAdapter;
+import com.layer.atlas.model.Participant;
+import com.layer.atlas.adapter.ConversationViewAdapter;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.messaging.Conversation;
 import com.layer.sdk.messaging.Message;
@@ -13,7 +13,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 
-public class DefaultMessageDataSource implements MessageAdapter.DataSource {
+public class DefaultMessageDataSource implements ConversationViewAdapter.DataSource {
     private final LayerClient mClient;
 
     public DefaultMessageDataSource(LayerClient client) {
@@ -21,17 +21,17 @@ public class DefaultMessageDataSource implements MessageAdapter.DataSource {
     }
 
     @Override
-    public Participant getParticipant(MessageAdapter adapter, String participantId) {
+    public Participant getParticipant(ConversationViewAdapter adapter, String participantId) {
         return null;
     }
 
     @Override
-    public Spannable getFormattedDate(MessageAdapter adapter, Date date) {
+    public Spannable getFormattedDate(ConversationViewAdapter adapter, Date date) {
         return new SpannableString(date.toString());
     }
 
     @Override
-    public Spannable getFormattedReceipientStatus(MessageAdapter adapter, Map<String, Message.RecipientStatus> recipientStatus) {
+    public Spannable getFormattedReceipientStatus(ConversationViewAdapter adapter, Map<String, Message.RecipientStatus> recipientStatus) {
         return null;
     }
 

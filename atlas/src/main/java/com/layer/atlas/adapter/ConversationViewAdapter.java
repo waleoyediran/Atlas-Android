@@ -3,9 +3,10 @@ package com.layer.atlas.adapter;
 import android.content.Context;
 import android.text.Spannable;
 
-import com.layer.atlas.Participant;
+import com.layer.atlas.R;
 import com.layer.atlas.atlasdefault.DefaultMessageDataSource;
 import com.layer.atlas.atlasdefault.DefaultMessageViewHolderFactory;
+import com.layer.atlas.model.Participant;
 import com.layer.atlas.viewholder.MessageViewHolder;
 import com.layer.atlas.viewholder.MessageViewHolderFactory;
 import com.layer.sdk.LayerClient;
@@ -36,23 +37,34 @@ import java.util.Map;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-public class MessageAdapter extends BaseQueryAdapter<Message, MessageViewHolder, MessageViewHolderFactory> {
+public class ConversationViewAdapter extends BaseQueryAdapter<Message, MessageViewHolder, MessageViewHolderFactory> {
+    private static final long TIME_DELTA_GROUPED = 60 * 1000L;
+
     private final Context mContext;
 
-    private final Conversation mConversation;
     private final DataSource mDataSource;
     private final Listener mListener;
 
-    public MessageAdapter(Context context, LayerClient client, Conversation conversation, MessageViewHolderFactory factory, DataSource dataSource, Listener listener) {
+    private volatile int mGroupedSpacing;
+    private volatile int mUngroupedSpacing;
+
+    public ConversationViewAdapter(Context context, LayerClient client, Conversation conversation, MessageViewHolderFactory factory, DataSource dataSource, Listener listener) {
         super(client, Query.builder(Message.class)
                         .sortDescriptor(new SortDescriptor(Message.Property.POSITION, SortDescriptor.Order.ASCENDING))
                         .predicate(new Predicate(Message.Property.CONVERSATION, Predicate.Operator.EQUAL_TO, conversation))
                         .build(),
                 factory == null ? new DefaultMessageViewHolderFactory() : factory);
         mContext = context;
-        mConversation = conversation;
-        mDataSource = dataSource == null? new DefaultMessageDataSource(client) : dataSource;
+        mDataSource = dataSource == null ? new DefaultMessageDataSource(client) : dataSource;
         mListener = listener;
+
+        mGroupedSpacing = (int) context.getResources().getDimension(R.dimen.atlas_message_bubble_spacing_grouped);
+        mUngroupedSpacing = (int) context.getResources().getDimension(R.dimen.atlas_message_bubble_spacing_ungrouped);
+    }
+
+    public void setSpacing(int groupedSpacing, int ungroupedSpacing) {
+        mGroupedSpacing = groupedSpacing;
+        mUngroupedSpacing = ungroupedSpacing;
     }
 
     /**
@@ -64,6 +76,19 @@ public class MessageAdapter extends BaseQueryAdapter<Message, MessageViewHolder,
      */
     @Override
     public void onBindViewHolder(MessageViewHolder viewHolder, Message message) {
+        int position = getPosition(message);
+        long timeDelta = 0L;
+        if (position > 0) {
+            Message previousMessage = getItem(position - 1);
+            timeDelta = message.getReceivedAt().getTime() - previousMessage.getReceivedAt().getTime();
+        }
+
+        if (timeDelta <= TIME_DELTA_GROUPED) {
+            viewHolder.itemView.setPadding(0, mGroupedSpacing, 0, 0);
+        } else {
+            viewHolder.itemView.setPadding(0, mUngroupedSpacing, 0, 0);
+        }
+
         viewHolder.setMessage(mContext, message);
         viewHolder.setMessageAvatarItemVisible(mContext, true);
         viewHolder.setMessageSender(mContext, mDataSource.getParticipant(this, message.getSentByUserId()));
@@ -79,11 +104,11 @@ public class MessageAdapter extends BaseQueryAdapter<Message, MessageViewHolder,
     public void onInteraction(Message target, InteractionType interactionType) {
         switch (interactionType) {
             case SHORT_CLICK:
-                mListener.onMessageSelected(MessageAdapter.this, target);
+                mListener.onMessageSelected(ConversationViewAdapter.this, target);
                 break;
 
             case LONG_CLICK:
-                mListener.onMessageDeleted(MessageAdapter.this, target, LayerClient.DeletionMode.ALL_PARTICIPANTS);
+                mListener.onMessageDeleted(ConversationViewAdapter.this, target, LayerClient.DeletionMode.ALL_PARTICIPANTS);
                 break;
         }
     }
@@ -97,11 +122,11 @@ public class MessageAdapter extends BaseQueryAdapter<Message, MessageViewHolder,
      * DataSource to for gathering information to supply to ViewHolders.
      */
     public static interface DataSource {
-        public Participant getParticipant(MessageAdapter adapter, String participantId);
+        public Participant getParticipant(ConversationViewAdapter adapter, String participantId);
 
-        public Spannable getFormattedDate(MessageAdapter adapter, Date date);
+        public Spannable getFormattedDate(ConversationViewAdapter adapter, Date date);
 
-        public Spannable getFormattedReceipientStatus(MessageAdapter adapter, Map<String, Message.RecipientStatus> recipientStatus);
+        public Spannable getFormattedReceipientStatus(ConversationViewAdapter adapter, Map<String, Message.RecipientStatus> recipientStatus);
 
         public Conversation getConversation(Collection<Participant> participants);
     }
@@ -110,15 +135,15 @@ public class MessageAdapter extends BaseQueryAdapter<Message, MessageViewHolder,
      * Listener for providing user interaction feedback.
      */
     public interface Listener {
-        public void onMessageSent(MessageAdapter adapter, Message message);
+        public void onMessageSent(ConversationViewAdapter adapter, Message message);
 
-        public void onMessageSelected(MessageAdapter adapter, Message message);
+        public void onMessageSelected(ConversationViewAdapter adapter, Message message);
 
-        public void onMessageDeleted(MessageAdapter adapter, Message message, LayerClient.DeletionMode deletionMode);
+        public void onMessageDeleted(ConversationViewAdapter adapter, Message message, LayerClient.DeletionMode deletionMode);
 
-        public int onRequestMessageItemHeight(MessageAdapter adapter, Message message);
+        public int onRequestMessageItemHeight(ConversationViewAdapter adapter, Message message);
 
-        public List<Message> onRequestMessagesForMediaAttachment(MessageAdapter adapter);
+        public List<Message> onRequestMessagesForMediaAttachment(ConversationViewAdapter adapter);
     }
 
 }

@@ -2,8 +2,7 @@ package com.layer.atlas.viewholder;
 
 import android.view.View;
 
-import com.layer.atlas.Participant;
-import com.layer.atlas.viewholder.BaseViewHolder;
+import com.layer.atlas.model.Participant;
 
 /**
  * Created by Steven Jones on 3/14/2015.

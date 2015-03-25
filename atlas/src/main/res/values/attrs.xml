@@ -1,7 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <declare-styleable name="MessageComposer">
-        <attr name="photoDrawable" format="reference" />
-        <attr name="sendDrawable" format="reference" />
+
+    <!-- TODO: use global attr defs to reuse in children; library seems to have issues with it though
+    <attr name="leftButtonDrawable" format="reference"/>
+    <attr name="rightButtonDrawable" format="reference"/>
+    <attr name="hint" format="reference|string"/>
+    <attr name="groupedMessageSpacing" format="dimension"/>
+    <attr name="ungroupedMessageSpacing" format="dimension"/>
+    -->
+
+    <declare-styleable name="MessageInputToolbar">
+        <attr name="leftButtonDrawable" format="reference"/>
+        <attr name="rightButtonDrawable" format="reference"/>
+        <attr name="hint" format="reference|string"/>
     </declare-styleable>
+
+    <declare-styleable name="ConversationQueryView">
+        <attr name="groupedMessageSpacing" format="dimension"/>
+        <attr name="ungroupedMessageSpacing" format="dimension"/>
+    </declare-styleable>
+
+    <declare-styleable name="ConversationView">
+        <attr name="messageInputToolbarLeftButtonDrawable" format="reference"/>
+        <attr name="messageInputToolbarRightButtonDrawable" format="reference"/>
+        <attr name="messageInputToolbarHint" format="reference|string"/>
+
+        <attr name="conversationQueryViewGroupedMessageSpacing" format="dimension"/>
+        <attr name="conversationQueryViewUngroupedMessageSpacing" format="dimension"/>
+    </declare-styleable>
+
 </resources>

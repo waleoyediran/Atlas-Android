@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="atlas_blue">#FF0000FF</color>
+    <color name="atlas_blue">#FF1CA7EB</color>
+    <color name="atlas_message_bubble">#FF1CA7EB</color>
 </resources>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+       android:weightSum="1">
+
+    <com.layer.atlas.view.MessageInputToolbar
+        android:id="@+id/atlas_message_input_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/atlas_message_input_height"
+        android:layout_alignParentBottom="true"
+        android:layout_weight="0"
+        android:orientation="horizontal"
+        />
+
+    <com.layer.atlas.view.ConversationQueryView
+        android:id="@+id/atlas_conversation_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_above="@+id/atlas_message_input_toolbar"
+        android:layout_alignParentTop="true"
+        android:layout_weight="1"
+        />
+</merge>

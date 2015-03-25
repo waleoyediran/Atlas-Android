@@ -8,5 +8,4 @@ public abstract class BaseViewHolderFactory<Titem, Tview extends BaseViewHolder<
     }
 
     public abstract Tview createViewHolder(ViewGroup viewGroup, int viewType);
-
 }
