@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="atlas_avatar_width">32sp</dimen>
     <dimen name="atlas_avatar_height">32sp</dimen>

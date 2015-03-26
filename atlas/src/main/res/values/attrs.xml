@@ -4,8 +4,14 @@
     <attr name="leftButtonDrawable" format="reference"/>
     <attr name="rightButtonDrawable" format="reference"/>
     <attr name="hint" format="reference|string"/>
+
     <attr name="groupedMessageSpacing" format="dimension"/>
     <attr name="ungroupedMessageSpacing" format="dimension"/>
+
+    <attr name="messageBubbleCornerRadius" format="dimension"/>
+    <attr name="messageBubbleBackgroundColor" format="color"/>
+    <attr name="messageBubbleTextColor" format="color"/>
+    <attr name="messageBubbleArrow" format="reference"/>
 
     <declare-styleable name="MessageInputToolbar">
         <attr name="leftButtonDrawable"/>
@@ -16,6 +22,9 @@
     <declare-styleable name="ConversationQueryView">
         <attr name="groupedMessageSpacing"/>
         <attr name="ungroupedMessageSpacing"/>
+        <attr name="messageBubbleCornerRadius"/>
+        <attr name="messageBubbleBackgroundColor"/>
+        <attr name="messageBubbleTextColor"/>
     </declare-styleable>
 
     <declare-styleable name="ConversationView">
@@ -27,10 +36,13 @@
         <!--ConversationQueryView-->
         <attr name="groupedMessageSpacing"/>
         <attr name="ungroupedMessageSpacing"/>
+        <attr name="messageBubbleCornerRadius"/>
+        <attr name="messageBubbleBackgroundColor"/>
+        <attr name="messageBubbleTextColor"/>
     </declare-styleable>
 
 
-    <!-- Style references -->
+    <!-- Style references (from styles.xml)-->
     <declare-styleable name="AtlasTheme">
         <attr name="defaultMessageInputToolbarStyle" format="reference"/>
         <attr name="defaultConversationQueryViewStyle" format="reference"/>

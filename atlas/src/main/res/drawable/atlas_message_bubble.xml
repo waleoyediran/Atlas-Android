@@ -2,8 +2,8 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item>
         <shape android:shape="rectangle">
-            <solid android:color="@color/atlas_message_bubble"/>
             <corners android:radius="@dimen/atlas_message_bubble_corner_radius"/>
+            <solid android:color="@color/atlas_message_bubble_background"/>
             <padding
                 android:bottom="@dimen/atlas_message_bubble_padding_bottom"
                 android:left="@dimen/atlas_message_bubble_padding_left"

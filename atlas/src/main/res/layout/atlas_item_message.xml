@@ -10,29 +10,23 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
-        android:layout_marginBottom="@dimen/atlas_message_bubble_corner_radius"
         />
 
     <ImageView
         android:id="@+id/atlas_message_bubble_arrow"
+        style="@style/AtlasMessageBubbleArrow"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_toRightOf="@+id/atlas_avatar"
-        android:paddingBottom="@dimen/atlas_message_bubble_corner_radius"
-        android:src="@drawable/atlas_arrow_left"
-        android:tint="@color/atlas_message_bubble"
         />
 
     <TextView
         android:id="@+id/atlas_message"
+        style="@style/AtlasMessageBubbleText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/atlas_message_bubble_arrow"
-        android:background="@drawable/atlas_message_bubble"
-        android:ellipsize="end"
-        android:singleLine="true"
-        android:textColor="@color/atlas_message_bubble_text"
         />
 
 </RelativeLayout>
