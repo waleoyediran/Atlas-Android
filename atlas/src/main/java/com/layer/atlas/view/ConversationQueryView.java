@@ -8,15 +8,17 @@ import com.layer.atlas.R;
 import com.layer.atlas.adapter.ConversationViewAdapter;
 
 public class ConversationQueryView extends BaseQueryView {
+    private final static int DEF_STYLE = R.attr.defaultConversationQueryViewStyle;
+
     private int mGroupedSpacing;
     private int mUngroupedSpacing;
 
     public ConversationQueryView(Context context) {
-        this(context, null, R.attr.defaultConversationQueryViewStyle);
+        this(context, null, DEF_STYLE);
     }
 
     public ConversationQueryView(Context context, AttributeSet attrs) {
-        this(context, attrs, R.attr.defaultConversationQueryViewStyle);
+        this(context, attrs, DEF_STYLE);
     }
 
     public ConversationQueryView(Context context, AttributeSet attrs, int defStyle) {

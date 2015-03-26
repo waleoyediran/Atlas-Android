@@ -6,6 +6,7 @@
         <item name="defaultMessageInputToolbarStyle">@style/AtlasMessageInputToolbar</item>
         <item name="defaultConversationQueryViewStyle">@style/AtlasConversationQueryView</item>
         <item name="defaultConversationViewStyle">@style/AtlasConversationView</item>
+        <item name="defaultMessageItem">@style/AtlasMessageItem</item>
     </style>
 
     <!-- Used by MessageInputToolbar TypedArray defStyleResId -->
@@ -30,25 +31,17 @@
         <item name="ungroupedMessageSpacing">@dimen/atlas_message_bubble_spacing_ungrouped</item>
     </style>
 
-
-    <!-- TODO: ViewHolders currently don't have auto-applied themes like the above -->
-    <!-- TODO: Drawables can only refer to `dimen` and `color`; attrs with ? don't seem to work -->
-    <!-- Used by drawable/atlas_item_message -->
-    <style name="AtlasMessageBubbleArrow">
-        <item name="android:tint">@color/atlas_message_bubble_background</item>
-        <item name="android:paddingBottom">@dimen/atlas_message_bubble_corner_radius</item>
-        <item name="android:src">@drawable/atlas_arrow_left</item>
-    </style>
-
-    <style name="AtlasMessageBubbleText">
-        <item name="android:textColor">@color/atlas_message_bubble_text</item>
-        <item name="android:background">@drawable/atlas_message_bubble</item>
-        <item name="android:ellipsize">end</item>
-        <item name="android:singleLine">true</item>
-
-        <item name="messageBubbleCornerRadius">@dimen/atlas_message_bubble_corner_radius</item>
+    <!-- Used by MessageItem TypedArray defStyleResId -->
+    <style name="AtlasMessageItem">
+        <item name="messageBubbleCornerRadius">8dp</item>
         <item name="messageBubbleBackgroundColor">@color/atlas_message_bubble_background</item>
-    </style>
+        <item name="messageBubbleTextColor">@color/atlas_message_bubble_text</item>
+        <item name="messageBubbleArrow">@drawable/atlas_arrow_left</item>
 
+        <item name="messageBubblePaddingLeft">@dimen/atlas_message_bubble_padding_left</item>
+        <item name="messageBubblePaddingRight">@dimen/atlas_message_bubble_padding_right</item>
+        <item name="messageBubblePaddingTop">@dimen/atlas_message_bubble_padding_top</item>
+        <item name="messageBubblePaddingBottom">@dimen/atlas_message_bubble_padding_bottom</item>
+    </style>
 
 </resources>

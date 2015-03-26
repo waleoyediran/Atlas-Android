@@ -13,6 +13,11 @@
     <attr name="messageBubbleTextColor" format="color"/>
     <attr name="messageBubbleArrow" format="reference"/>
 
+    <attr name="messageBubblePaddingLeft" format="dimension"/>
+    <attr name="messageBubblePaddingRight" format="dimension"/>
+    <attr name="messageBubblePaddingTop" format="dimension"/>
+    <attr name="messageBubblePaddingBottom" format="dimension"/>
+
     <declare-styleable name="MessageInputToolbar">
         <attr name="leftButtonDrawable"/>
         <attr name="rightButtonDrawable"/>
@@ -41,12 +46,25 @@
         <attr name="messageBubbleTextColor"/>
     </declare-styleable>
 
+    <declare-styleable name="AtlasMessageItem">
+        <attr name="messageBubbleCornerRadius"/>
+        <attr name="messageBubbleBackgroundColor"/>
+        <attr name="messageBubbleArrow"/>
+        <attr name="messageBubbleTextColor"/>
+
+        <attr name="messageBubblePaddingLeft"/>
+        <attr name="messageBubblePaddingRight"/>
+        <attr name="messageBubblePaddingTop"/>
+        <attr name="messageBubblePaddingBottom"/>
+    </declare-styleable>
+
 
     <!-- Style references (from styles.xml)-->
     <declare-styleable name="AtlasTheme">
         <attr name="defaultMessageInputToolbarStyle" format="reference"/>
         <attr name="defaultConversationQueryViewStyle" format="reference"/>
         <attr name="defaultConversationViewStyle" format="reference"/>
+        <attr name="defaultMessageItem" format="reference"/>
     </declare-styleable>
 
 </resources>

@@ -24,6 +24,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ConversationView extends RelativeLayout implements MessageInputToolbar.Callback {
+    private final static int DEF_STYLE = R.attr.defaultConversationViewStyle;
+
     ConversationQueryView mConversationQueryView;
     MessageInputToolbar mMessageInputToolbar;
     ConversationViewAdapter mConversationViewAdapter;
@@ -31,11 +33,11 @@ public class ConversationView extends RelativeLayout implements MessageInputTool
     Conversation mConversation;
 
     public ConversationView(Context context) {
-        this(context, null, R.attr.defaultConversationViewStyle);
+        this(context, null, DEF_STYLE);
     }
 
     public ConversationView(Context context, AttributeSet attrs) {
-        this(context, attrs, R.attr.defaultConversationViewStyle);
+        this(context, attrs, DEF_STYLE);
     }
 
     public ConversationView(Context context, AttributeSet attrs, int defStyleAttr) {

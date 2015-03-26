@@ -21,6 +21,8 @@ import com.layer.atlas.R;
  * getText() and setText() to get and set the message input EditText value.
  */
 public class MessageInputToolbar extends LinearLayout implements View.OnClickListener, TextWatcher {
+    private final static int DEF_STYLE = R.attr.defaultMessageInputToolbarStyle;
+
     private EditText mMessageEditText;
     private ImageButton mLeftButton;
     private ImageButton mRightButton;
@@ -62,11 +64,11 @@ public class MessageInputToolbar extends LinearLayout implements View.OnClickLis
     //==============================================================================================
 
     public MessageInputToolbar(Context context) {
-        this(context, null, R.attr.defaultMessageInputToolbarStyle);
+        this(context, null, DEF_STYLE);
     }
 
     public MessageInputToolbar(Context context, AttributeSet attrs) {
-        this(context, attrs, R.attr.defaultMessageInputToolbarStyle);
+        this(context, attrs, DEF_STYLE);
     }
 
     public MessageInputToolbar(Context context, AttributeSet attrs, int defStyleAttr) {
