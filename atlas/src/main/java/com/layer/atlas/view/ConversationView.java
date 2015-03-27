@@ -23,14 +23,26 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * ConversationView is a default layout that combines a MessageRecyclerView with a MessageInputView.
+ */
 public class ConversationView extends RelativeLayout implements MessageInputView.Callback {
-    private final static int DEF_STYLE = R.attr.defaultConversationViewStyle;
+    private final static int DEF_STYLE = R.attr.conversationViewStyle;
+
+    Listener mListener;
 
     MessageRecyclerView mMessageRecyclerView;
     MessageInputView mMessageInputView;
     MessageQueryAdapter mMessageQueryAdapter;
     LayerClient mLayerClient;
     Conversation mConversation;
+
+    /**
+     * Listener for providing user interaction feedback.
+     */
+    public interface Listener extends MessageQueryAdapter.Listener {
+        public void onMessageSent(ConversationView view, Message message);
+    }
 
     public ConversationView(Context context) {
         this(context, null, DEF_STYLE);
@@ -54,7 +66,7 @@ public class ConversationView extends RelativeLayout implements MessageInputView
         mMessageInputView.setCallback(this);
 
         // Try populating attributes from the layout xml
-        TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.ConversationView, defStyleAttr, R.style.AtlasConversationView);
+        TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.ConversationView, defStyleAttr, R.style.ConversationView);
         try {
             // ConversationQueryView
             float groupedSpacing = a.getDimension(R.styleable.ConversationView_groupedMessageSpacing, getResources().getDimension(R.dimen.atlas_message_bubble_spacing_grouped));
@@ -71,9 +83,10 @@ public class ConversationView extends RelativeLayout implements MessageInputView
         }
     }
 
-    public void set(LayerClient layerClient, Conversation conversation, MessageViewHolderFactory factory, MessageQueryAdapter.DataSource dataSource, MessageQueryAdapter.Listener listener) {
+    public void set(LayerClient layerClient, Conversation conversation, MessageViewHolderFactory factory, MessageQueryAdapter.DataSource dataSource, Listener listener) {
         mLayerClient = layerClient;
         mConversation = conversation;
+        mListener = listener;
         mMessageQueryAdapter = new MessageQueryAdapter(getContext(), layerClient, conversation, factory, dataSource, listener);
         mMessageRecyclerView.setAdapter(mMessageQueryAdapter);
         mMessageRecyclerView.setLayout(RecyclerView.VERTICAL, false);
@@ -132,5 +145,9 @@ public class ConversationView extends RelativeLayout implements MessageInputView
         }
         mConversation.send(message);
         mConversation.send(LayerTypingIndicatorListener.TypingIndicator.FINISHED);
+        if (mListener != null) {
+            // TODO: async from isSent callback?
+            mListener.onMessageSent(this, message);
+        }
     }
 }

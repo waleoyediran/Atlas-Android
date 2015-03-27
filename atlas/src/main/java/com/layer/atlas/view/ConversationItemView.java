@@ -9,7 +9,7 @@ import android.widget.RelativeLayout;
 import com.layer.atlas.R;
 
 public class ConversationItemView extends RelativeLayout {
-    private final static int DEF_STYLE = R.attr.defaultConversationItem;
+    private final static int DEF_STYLE = R.attr.conversationItemViewStyle;
 
     public ConversationItemView(Context context) {
         this(context, null, DEF_STYLE);
@@ -28,7 +28,7 @@ public class ConversationItemView extends RelativeLayout {
         View.inflate(context, R.layout.atlas_item_conversation, this);
 
         // Try populating attributes from the layout xml
-        TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.AtlasConversationItem, defStyleAttr, R.style.AtlasConversationItem);
+        TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.ConversationItemView, defStyleAttr, R.style.ConversationItemView);
         try {
             // TODO
         } finally {

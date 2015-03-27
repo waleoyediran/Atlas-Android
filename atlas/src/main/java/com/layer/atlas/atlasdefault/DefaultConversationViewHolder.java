@@ -7,8 +7,8 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.layer.atlas.model.AvatarItem;
 import com.layer.atlas.R;
+import com.layer.atlas.model.AvatarItem;
 import com.layer.atlas.viewholder.ConversationViewHolder;
 import com.layer.sdk.messaging.Conversation;
 

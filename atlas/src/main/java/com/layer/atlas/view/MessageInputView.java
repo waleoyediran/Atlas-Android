@@ -20,7 +20,7 @@ import com.layer.atlas.R;
  * getText() and setText() to get and set the message input EditText value.
  */
 public class MessageInputView extends LinearLayout implements View.OnClickListener, TextWatcher {
-    private final static int DEF_STYLE = R.attr.defaultMessageInputToolbarStyle;
+    private final static int DEF_STYLE = R.attr.messageInputToolbarStyle;
 
     private EditText mMessageEditText;
     private ImageButton mLeftButton;
@@ -114,7 +114,7 @@ public class MessageInputView extends LinearLayout implements View.OnClickListen
     //==============================================================================================
 
     private void init(Context context, AttributeSet attrs, int defStyleAttr) {
-        View.inflate(context, R.layout.atlas_layout_message_input_toolbar, this);
+        View.inflate(context, R.layout.atlas_layout_message_input_view, this);
 
         mLeftButton = (ImageButton) findViewById(R.id.atlas_left_button);
         mLeftButton.setOnClickListener(this);
@@ -127,7 +127,7 @@ public class MessageInputView extends LinearLayout implements View.OnClickListen
         }
 
         // Try populating attributes from the layout xml
-        TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.MessageInputView, defStyleAttr, R.style.AtlasMessageInputToolbar);
+        TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.MessageInputView, defStyleAttr, R.style.MessageItemView);
         try {
             Drawable leftDrawable = a.getDrawable(R.styleable.MessageInputView_leftButtonDrawable);
             Drawable rightDrawable = a.getDrawable(R.styleable.MessageInputView_rightButtonDrawable);

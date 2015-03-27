@@ -36,7 +36,12 @@ public class DefaultMessageDataSource implements MessageQueryAdapter.DataSource 
     }
 
     @Override
-    public Conversation getConversation(Collection<Participant> participants) {
+    public int getMessageItemViewHeight(MessageQueryAdapter adapter, Message message) {
+        return 0;
+    }
+
+    @Override
+    public Conversation getConversation(MessageQueryAdapter adapter, Collection<Participant> participants) {
         return null;
     }
 }

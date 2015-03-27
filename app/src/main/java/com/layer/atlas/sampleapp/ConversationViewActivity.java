@@ -13,10 +13,8 @@ import com.layer.sdk.messaging.Conversation;
 import com.layer.sdk.messaging.ConversationOptions;
 import com.layer.sdk.messaging.Message;
 
-import java.util.List;
 
-
-public class ConversationViewActivity extends BaseActivity implements MessageQueryAdapter.Listener {
+public class ConversationViewActivity extends BaseActivity implements ConversationView.Listener {
     Conversation mConversation;
     ConversationView mConversationView;
 
@@ -80,7 +78,7 @@ public class ConversationViewActivity extends BaseActivity implements MessageQue
     //==============================================================================================
 
     @Override
-    public void onMessageSent(MessageQueryAdapter adapter, Message message) {
+    public void onMessageSent(ConversationView view, Message message) {
 
     }
 
@@ -92,15 +90,5 @@ public class ConversationViewActivity extends BaseActivity implements MessageQue
     @Override
     public void onMessageDeleted(MessageQueryAdapter adapter, Message message, LayerClient.DeletionMode deletionMode) {
 
-    }
-
-    @Override
-    public int onRequestMessageItemHeight(MessageQueryAdapter adapter, Message message) {
-        return 0;
-    }
-
-    @Override
-    public List<Message> onRequestMessagesForMediaAttachment(MessageQueryAdapter adapter) {
-        return null;
     }
 }

@@ -14,7 +14,7 @@ import com.layer.atlas.R;
 import com.layer.atlas.drawable.MessageBubbleDrawable;
 
 public class MessageItemView extends RelativeLayout {
-    private final static int DEF_STYLE = R.attr.defaultMessageItem;
+    private final static int DEF_STYLE = R.attr.messageItemViewStyle;
 
     private ImageView mBubbleArrow;
     private TextView mTextView;
@@ -39,17 +39,17 @@ public class MessageItemView extends RelativeLayout {
         mTextView = (TextView) findViewById(R.id.atlas_message);
 
         // Try populating attributes from the layout xml
-        TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.AtlasMessageItem, defStyleAttr, R.style.AtlasMessageItem);
+        TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.MessageItemView, defStyleAttr, R.style.MessageItemView);
         try {
             Resources r = context.getResources();
-            int backgroundColor = a.getColor(R.styleable.AtlasMessageItem_messageBubbleBackgroundColor, r.getColor(R.color.atlas_message_bubble_background));
-            int textColor = a.getColor(R.styleable.AtlasMessageItem_messageBubbleTextColor, r.getColor(R.color.atlas_message_bubble_text));
-            float radius = a.getDimension(R.styleable.AtlasMessageItem_messageBubbleCornerRadius, r.getDimension(R.dimen.atlas_message_bubble_corner_radius));
-            float paddingLeft = a.getDimension(R.styleable.AtlasMessageItem_messageBubblePaddingLeft, r.getDimension(R.dimen.atlas_message_bubble_padding_left));
-            float paddingRight = a.getDimension(R.styleable.AtlasMessageItem_messageBubblePaddingRight, r.getDimension(R.dimen.atlas_message_bubble_padding_right));
-            float paddingTop = a.getDimension(R.styleable.AtlasMessageItem_messageBubblePaddingTop, r.getDimension(R.dimen.atlas_message_bubble_padding_top));
-            float paddingBottom = a.getDimension(R.styleable.AtlasMessageItem_messageBubblePaddingBottom, r.getDimension(R.dimen.atlas_message_bubble_padding_bottom));
-            Drawable bubbleArrow = a.getDrawable(R.styleable.AtlasMessageItem_messageBubbleArrow);
+            int backgroundColor = a.getColor(R.styleable.MessageItemView_messageBubbleBackgroundColor, r.getColor(R.color.atlas_message_bubble_background));
+            int textColor = a.getColor(R.styleable.MessageItemView_messageBubbleTextColor, r.getColor(R.color.atlas_message_bubble_text));
+            float radius = a.getDimension(R.styleable.MessageItemView_messageBubbleCornerRadius, r.getDimension(R.dimen.atlas_message_bubble_corner_radius));
+            float paddingLeft = a.getDimension(R.styleable.MessageItemView_messageBubblePaddingLeft, r.getDimension(R.dimen.atlas_message_bubble_padding_left));
+            float paddingRight = a.getDimension(R.styleable.MessageItemView_messageBubblePaddingRight, r.getDimension(R.dimen.atlas_message_bubble_padding_right));
+            float paddingTop = a.getDimension(R.styleable.MessageItemView_messageBubblePaddingTop, r.getDimension(R.dimen.atlas_message_bubble_padding_top));
+            float paddingBottom = a.getDimension(R.styleable.MessageItemView_messageBubblePaddingBottom, r.getDimension(R.dimen.atlas_message_bubble_padding_bottom));
+            Drawable bubbleArrow = a.getDrawable(R.styleable.MessageItemView_messageBubbleArrow);
             setAttributes(backgroundColor, textColor, radius, paddingLeft, paddingRight, paddingTop, paddingBottom, bubbleArrow);
         } finally {
             a.recycle();

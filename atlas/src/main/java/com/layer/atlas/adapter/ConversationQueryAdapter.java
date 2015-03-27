@@ -2,9 +2,9 @@ package com.layer.atlas.adapter;
 
 import android.content.Context;
 
-import com.layer.atlas.model.AvatarItem;
 import com.layer.atlas.atlasdefault.DefaultConversationDataSource;
 import com.layer.atlas.atlasdefault.DefaultConversationViewHolderFactory;
+import com.layer.atlas.model.AvatarItem;
 import com.layer.atlas.viewholder.ConversationViewHolder;
 import com.layer.atlas.viewholder.ConversationViewHolderFactory;
 import com.layer.sdk.LayerClient;

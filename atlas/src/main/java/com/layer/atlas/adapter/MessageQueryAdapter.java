@@ -18,7 +18,6 @@ import com.layer.sdk.query.SortDescriptor;
 
 import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -128,22 +127,18 @@ public class MessageQueryAdapter extends BaseQueryAdapter<Message, MessageViewHo
 
         public Spannable getFormattedReceipientStatus(MessageQueryAdapter adapter, Map<String, Message.RecipientStatus> recipientStatus);
 
-        public Conversation getConversation(Collection<Participant> participants);
+        public Conversation getConversation(MessageQueryAdapter adapter, Collection<Participant> participants);
+
+        public int getMessageItemViewHeight(MessageQueryAdapter adapter, Message message);
     }
 
     /**
      * Listener for providing user interaction feedback.
      */
     public interface Listener {
-        public void onMessageSent(MessageQueryAdapter adapter, Message message);
-
         public void onMessageSelected(MessageQueryAdapter adapter, Message message);
 
         public void onMessageDeleted(MessageQueryAdapter adapter, Message message, LayerClient.DeletionMode deletionMode);
-
-        public int onRequestMessageItemHeight(MessageQueryAdapter adapter, Message message);
-
-        public List<Message> onRequestMessagesForMediaAttachment(MessageQueryAdapter adapter);
     }
 
 }
