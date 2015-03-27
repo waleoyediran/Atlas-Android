@@ -7,6 +7,7 @@
         <item name="defaultConversationQueryViewStyle">@style/AtlasConversationQueryView</item>
         <item name="defaultConversationViewStyle">@style/AtlasConversationView</item>
         <item name="defaultMessageItem">@style/AtlasMessageItem</item>
+        <item name="defaultConversationItem">@style/AtlasConversationItem</item>
     </style>
 
     <!-- Used by MessageInputToolbar TypedArray defStyleResId -->
@@ -33,7 +34,7 @@
 
     <!-- Used by MessageItem TypedArray defStyleResId -->
     <style name="AtlasMessageItem">
-        <item name="messageBubbleCornerRadius">8dp</item>
+        <item name="messageBubbleCornerRadius">@dimen/atlas_message_bubble_corner_radius</item>
         <item name="messageBubbleBackgroundColor">@color/atlas_message_bubble_background</item>
         <item name="messageBubbleTextColor">@color/atlas_message_bubble_text</item>
         <item name="messageBubbleArrow">@drawable/atlas_arrow_left</item>
@@ -42,6 +43,11 @@
         <item name="messageBubblePaddingRight">@dimen/atlas_message_bubble_padding_right</item>
         <item name="messageBubblePaddingTop">@dimen/atlas_message_bubble_padding_top</item>
         <item name="messageBubblePaddingBottom">@dimen/atlas_message_bubble_padding_bottom</item>
+    </style>
+
+    <!-- Used by ConversationItem TypedArray defStyleResId -->
+    <style name="AtlasConversationItem">
+        <!-- TODO -->
     </style>
 
 </resources>

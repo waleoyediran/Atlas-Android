@@ -6,18 +6,18 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.layer.atlas.adapter.ConversationListAdapter;
+import com.layer.atlas.adapter.ConversationQueryAdapter;
 import com.layer.atlas.sampleapp.activity.BaseActivity;
-import com.layer.atlas.view.ConversationListQueryView;
+import com.layer.atlas.view.ConversationRecyclerView;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.messaging.Conversation;
 
 import java.util.List;
 
 
-public class ConversationListActivity extends BaseActivity implements ConversationListAdapter.Listener {
-    ConversationListQueryView mConversationListQueryView;
-    ConversationListAdapter mConversationListAdapter;
+public class ConversationListActivity extends BaseActivity implements ConversationQueryAdapter.Listener {
+    ConversationRecyclerView mConversationRecyclerView;
+    ConversationQueryAdapter mConversationQueryAdapter;
 
     public ConversationListActivity() {
         super(Utils.APP_ID, Utils.GCM_SENDER_ID);
@@ -28,11 +28,11 @@ public class ConversationListActivity extends BaseActivity implements Conversati
         super.onCreate(savedInstanceState);
         Utils.setLayerClient(getLayerClient());
         setContentView(R.layout.activity_conversation_list);
-        mConversationListQueryView = (ConversationListQueryView) findViewById(R.id.conversation_list);
-        mConversationListQueryView.setLayout(LinearLayoutManager.VERTICAL, false);
+        mConversationRecyclerView = (ConversationRecyclerView) findViewById(R.id.conversation_list);
+        mConversationRecyclerView.setLayout(LinearLayoutManager.VERTICAL, false);
 
-        mConversationListAdapter = new ConversationListAdapter(this, getLayerClient(), null, null, this);
-        mConversationListQueryView.setAdapter(mConversationListAdapter);
+        mConversationQueryAdapter = new ConversationQueryAdapter(this, getLayerClient(), null, null, this);
+        mConversationRecyclerView.setAdapter(mConversationQueryAdapter);
     }
 
     @Override
@@ -59,8 +59,8 @@ public class ConversationListActivity extends BaseActivity implements Conversati
 
     @Override
     public void onAuthenticatedResume() {
-        if (mConversationListAdapter != null) {
-            mConversationListAdapter.refresh();
+        if (mConversationQueryAdapter != null) {
+            mConversationQueryAdapter.refresh();
         }
     }
 
@@ -70,7 +70,7 @@ public class ConversationListActivity extends BaseActivity implements Conversati
     //==============================================================================================
 
     @Override
-    public void onConversationSelected(ConversationListAdapter adapter, Conversation conversation) {
+    public void onConversationSelected(ConversationQueryAdapter adapter, Conversation conversation) {
         Intent intent = new Intent(this, ConversationViewActivity.class);
         intent.putExtra(Utils.EXTRA_CONVERSATION_ID, conversation.getId().toString());
         intent.putExtra(Utils.EXTRA_PARTICIPANTS, conversation.getParticipants().toArray(new String[conversation.getParticipants().size()]));
@@ -78,12 +78,12 @@ public class ConversationListActivity extends BaseActivity implements Conversati
     }
 
     @Override
-    public void onConversationDeleted(ConversationListAdapter adapter, Conversation conversation, LayerClient.DeletionMode deletionMode) {
+    public void onConversationDeleted(ConversationQueryAdapter adapter, Conversation conversation, LayerClient.DeletionMode deletionMode) {
 
     }
 
     @Override
-    public List<String> onConversationTextSearch(ConversationListAdapter adapter, String searchText) {
+    public List<String> onConversationTextSearch(ConversationQueryAdapter adapter, String searchText) {
         return null;
     }
 }

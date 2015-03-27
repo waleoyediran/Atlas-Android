@@ -12,7 +12,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.layer.atlas.R;
-import com.layer.atlas.adapter.ConversationViewAdapter;
+import com.layer.atlas.adapter.MessageQueryAdapter;
 import com.layer.atlas.viewholder.MessageViewHolderFactory;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.listeners.LayerTypingIndicatorListener;
@@ -23,12 +23,12 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ConversationView extends RelativeLayout implements MessageInputToolbar.Callback {
+public class ConversationView extends RelativeLayout implements MessageInputView.Callback {
     private final static int DEF_STYLE = R.attr.defaultConversationViewStyle;
 
-    ConversationQueryView mConversationQueryView;
-    MessageInputToolbar mMessageInputToolbar;
-    ConversationViewAdapter mConversationViewAdapter;
+    MessageRecyclerView mMessageRecyclerView;
+    MessageInputView mMessageInputView;
+    MessageQueryAdapter mMessageQueryAdapter;
     LayerClient mLayerClient;
     Conversation mConversation;
 
@@ -47,11 +47,11 @@ public class ConversationView extends RelativeLayout implements MessageInputTool
 
     private void init(Context context, AttributeSet attrs, int defStyleAttr) {
         View.inflate(context, R.layout.atlas_layout_conversation_view, this);
-        mConversationQueryView = (ConversationQueryView) findViewById(R.id.atlas_conversation_view);
-        mMessageInputToolbar = (MessageInputToolbar) findViewById(R.id.atlas_message_input_toolbar);
+        mMessageRecyclerView = (MessageRecyclerView) findViewById(R.id.atlas_conversation_view);
+        mMessageInputView = (MessageInputView) findViewById(R.id.atlas_message_input_toolbar);
 
-        mConversationQueryView.setLayout(LinearLayoutManager.VERTICAL, false);
-        mMessageInputToolbar.setCallback(this);
+        mMessageRecyclerView.setLayout(LinearLayoutManager.VERTICAL, false);
+        mMessageInputView.setCallback(this);
 
         // Try populating attributes from the layout xml
         TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.ConversationView, defStyleAttr, R.style.AtlasConversationView);
@@ -59,29 +59,29 @@ public class ConversationView extends RelativeLayout implements MessageInputTool
             // ConversationQueryView
             float groupedSpacing = a.getDimension(R.styleable.ConversationView_groupedMessageSpacing, getResources().getDimension(R.dimen.atlas_message_bubble_spacing_grouped));
             float ungroupedSpacing = a.getDimension(R.styleable.ConversationView_ungroupedMessageSpacing, getResources().getDimension(R.dimen.atlas_message_bubble_spacing_ungrouped));
-            mConversationQueryView.setAttributes((int) groupedSpacing, (int) ungroupedSpacing);
+            mMessageRecyclerView.setAttributes((int) groupedSpacing, (int) ungroupedSpacing);
 
             // MessageInputToolbar
             Drawable leftDrawable = a.getDrawable(R.styleable.ConversationView_leftButtonDrawable);
             Drawable rightDrawable = a.getDrawable(R.styleable.ConversationView_rightButtonDrawable);
             String hint = a.getString(R.styleable.ConversationView_hint);
-            mMessageInputToolbar.setAttributes(leftDrawable, rightDrawable, hint);
+            mMessageInputView.setAttributes(leftDrawable, rightDrawable, hint);
         } finally {
             a.recycle();
         }
     }
 
-    public void set(LayerClient layerClient, Conversation conversation, MessageViewHolderFactory factory, ConversationViewAdapter.DataSource dataSource, ConversationViewAdapter.Listener listener) {
+    public void set(LayerClient layerClient, Conversation conversation, MessageViewHolderFactory factory, MessageQueryAdapter.DataSource dataSource, MessageQueryAdapter.Listener listener) {
         mLayerClient = layerClient;
         mConversation = conversation;
-        mConversationViewAdapter = new ConversationViewAdapter(getContext(), layerClient, conversation, factory, dataSource, listener);
-        mConversationQueryView.setAdapter(mConversationViewAdapter);
-        mConversationQueryView.setLayout(RecyclerView.VERTICAL, false);
+        mMessageQueryAdapter = new MessageQueryAdapter(getContext(), layerClient, conversation, factory, dataSource, listener);
+        mMessageRecyclerView.setAdapter(mMessageQueryAdapter);
+        mMessageRecyclerView.setLayout(RecyclerView.VERTICAL, false);
     }
 
     public void refresh() {
-        if (mConversationViewAdapter != null) {
-            mConversationViewAdapter.refresh();
+        if (mMessageQueryAdapter != null) {
+            mMessageQueryAdapter.refresh();
         }
     }
 
@@ -90,19 +90,19 @@ public class ConversationView extends RelativeLayout implements MessageInputTool
     //==============================================================================================
 
     @Override
-    public void onLeftButtonClick(MessageInputToolbar toolbar, View button) {
+    public void onLeftButtonClick(MessageInputView toolbar, View button) {
 
     }
 
     @Override
-    public void onRightButtonClick(MessageInputToolbar toolbar, View button) {
-        CharSequence text = mMessageInputToolbar.getText();
+    public void onRightButtonClick(MessageInputView toolbar, View button) {
+        CharSequence text = mMessageInputView.getText();
         sendTextMessage(text.toString());
-        mMessageInputToolbar.setText("", TextView.BufferType.NORMAL);
+        mMessageInputView.setText("", TextView.BufferType.NORMAL);
     }
 
     @Override
-    public void onAfterTextChanged(MessageInputToolbar toolbar, Editable input) {
+    public void onAfterTextChanged(MessageInputView toolbar, Editable input) {
         if (input.length() > 0) {
             mConversation.send(LayerTypingIndicatorListener.TypingIndicator.STARTED);
         } else {

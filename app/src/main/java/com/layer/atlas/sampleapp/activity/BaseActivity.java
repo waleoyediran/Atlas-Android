@@ -21,7 +21,6 @@ public abstract class BaseActivity extends ActionBarActivity implements LayerAut
 
     public LayerClient getLayerClient() {
         if (sLayerClient == null) {
-            LayerClient.setLogLevel(LayerClient.LogLevel.VERBOSE);
             sLayerClient = LayerClient.newInstance(this, sAppId, new LayerClient.Options().googleCloudMessagingSenderId(sGcmSenderId));
         }
         return sLayerClient;

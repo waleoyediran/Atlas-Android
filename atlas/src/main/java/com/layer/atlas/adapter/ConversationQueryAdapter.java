@@ -30,13 +30,13 @@ import java.util.List;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-public class ConversationListAdapter extends BaseQueryAdapter<Conversation, ConversationViewHolder, ConversationViewHolderFactory> {
+public class ConversationQueryAdapter extends BaseQueryAdapter<Conversation, ConversationViewHolder, ConversationViewHolderFactory> {
     private final Context mContext;
 
     private final DataSource mDataSource;
     private final Listener mListener;
 
-    public ConversationListAdapter(Context context, LayerClient client, ConversationViewHolderFactory factory, DataSource dataSource, Listener listener) {
+    public ConversationQueryAdapter(Context context, LayerClient client, ConversationViewHolderFactory factory, DataSource dataSource, Listener listener) {
         super(client, Query.builder(Conversation.class)
                         .sortDescriptor(new SortDescriptor(Conversation.Property.LAST_MESSAGE_RECEIVED_AT, SortDescriptor.Order.DESCENDING))
                         .build(),
@@ -70,11 +70,11 @@ public class ConversationListAdapter extends BaseQueryAdapter<Conversation, Conv
     public void onInteraction(Conversation target, InteractionType interactionType) {
         switch (interactionType) {
             case SHORT_CLICK:
-                mListener.onConversationSelected(ConversationListAdapter.this, target);
+                mListener.onConversationSelected(ConversationQueryAdapter.this, target);
                 break;
 
             case LONG_CLICK:
-                mListener.onConversationDeleted(ConversationListAdapter.this, target, LayerClient.DeletionMode.ALL_PARTICIPANTS);
+                mListener.onConversationDeleted(ConversationQueryAdapter.this, target, LayerClient.DeletionMode.ALL_PARTICIPANTS);
                 break;
         }
     }
@@ -88,20 +88,20 @@ public class ConversationListAdapter extends BaseQueryAdapter<Conversation, Conv
      * DataSource to for gathering information to supply to ViewHolders.
      */
     public static interface DataSource {
-        public String getConversationTitle(ConversationListAdapter adapter, Conversation conversation);
+        public String getConversationTitle(ConversationQueryAdapter adapter, Conversation conversation);
 
-        public AvatarItem getConversationAvatarItem(ConversationListAdapter adapter, Conversation conversation);
+        public AvatarItem getConversationAvatarItem(ConversationQueryAdapter adapter, Conversation conversation);
     }
 
     /**
      * Listener for providing user interaction feedback.
      */
     public interface Listener {
-        public void onConversationSelected(ConversationListAdapter adapter, Conversation conversation);
+        public void onConversationSelected(ConversationQueryAdapter adapter, Conversation conversation);
 
-        public void onConversationDeleted(ConversationListAdapter adapter, Conversation conversation, LayerClient.DeletionMode deletionMode);
+        public void onConversationDeleted(ConversationQueryAdapter adapter, Conversation conversation, LayerClient.DeletionMode deletionMode);
 
-        public List<String> onConversationTextSearch(ConversationListAdapter adapter, String searchText);
+        public List<String> onConversationTextSearch(ConversationQueryAdapter adapter, String searchText);
     }
 
 }

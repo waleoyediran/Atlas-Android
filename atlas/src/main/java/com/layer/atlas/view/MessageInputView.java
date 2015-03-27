@@ -9,7 +9,6 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -20,7 +19,7 @@ import com.layer.atlas.R;
  * and a send button.  External listeners can attach a Callback to receive interaction events.  Use
  * getText() and setText() to get and set the message input EditText value.
  */
-public class MessageInputToolbar extends LinearLayout implements View.OnClickListener, TextWatcher {
+public class MessageInputView extends LinearLayout implements View.OnClickListener, TextWatcher {
     private final static int DEF_STYLE = R.attr.defaultMessageInputToolbarStyle;
 
     private EditText mMessageEditText;
@@ -39,7 +38,7 @@ public class MessageInputToolbar extends LinearLayout implements View.OnClickLis
          * @param toolbar This MessageInputToolbar.
          * @param button  The button clicked.
          */
-        public void onLeftButtonClick(MessageInputToolbar toolbar, View button);
+        public void onLeftButtonClick(MessageInputView toolbar, View button);
 
         /**
          * Notifies the callback of the user clicking on the right button.
@@ -47,7 +46,7 @@ public class MessageInputToolbar extends LinearLayout implements View.OnClickLis
          * @param toolbar This MessageInputToolbar.
          * @param button  The button clicked.
          */
-        public void onRightButtonClick(MessageInputToolbar toolbar, View button);
+        public void onRightButtonClick(MessageInputView toolbar, View button);
 
         /**
          * Notifies the callback of the user typing in the message input.
@@ -55,7 +54,7 @@ public class MessageInputToolbar extends LinearLayout implements View.OnClickLis
          * @param toolbar This MessageInputToolbar.
          * @param input   The changed message input.
          */
-        public void onAfterTextChanged(MessageInputToolbar toolbar, Editable input);
+        public void onAfterTextChanged(MessageInputView toolbar, Editable input);
     }
 
 
@@ -63,15 +62,15 @@ public class MessageInputToolbar extends LinearLayout implements View.OnClickLis
     // Constructor
     //==============================================================================================
 
-    public MessageInputToolbar(Context context) {
+    public MessageInputView(Context context) {
         this(context, null, DEF_STYLE);
     }
 
-    public MessageInputToolbar(Context context, AttributeSet attrs) {
+    public MessageInputView(Context context, AttributeSet attrs) {
         this(context, attrs, DEF_STYLE);
     }
 
-    public MessageInputToolbar(Context context, AttributeSet attrs, int defStyleAttr) {
+    public MessageInputView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context, attrs, defStyleAttr);
     }
@@ -128,11 +127,11 @@ public class MessageInputToolbar extends LinearLayout implements View.OnClickLis
         }
 
         // Try populating attributes from the layout xml
-        TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.MessageInputToolbar, defStyleAttr, R.style.AtlasMessageInputToolbar);
+        TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.MessageInputView, defStyleAttr, R.style.AtlasMessageInputToolbar);
         try {
-            Drawable leftDrawable = a.getDrawable(R.styleable.MessageInputToolbar_leftButtonDrawable);
-            Drawable rightDrawable = a.getDrawable(R.styleable.MessageInputToolbar_rightButtonDrawable);
-            String hint = a.getString(R.styleable.MessageInputToolbar_hint);
+            Drawable leftDrawable = a.getDrawable(R.styleable.MessageInputView_leftButtonDrawable);
+            Drawable rightDrawable = a.getDrawable(R.styleable.MessageInputView_rightButtonDrawable);
+            String hint = a.getString(R.styleable.MessageInputView_hint);
             setAttributes(leftDrawable, rightDrawable, hint);
         } finally {
             a.recycle();

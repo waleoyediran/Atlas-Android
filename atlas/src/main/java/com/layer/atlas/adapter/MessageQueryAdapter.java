@@ -37,7 +37,7 @@ import java.util.Map;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-public class ConversationViewAdapter extends BaseQueryAdapter<Message, MessageViewHolder, MessageViewHolderFactory> {
+public class MessageQueryAdapter extends BaseQueryAdapter<Message, MessageViewHolder, MessageViewHolderFactory> {
     private static final long TIME_DELTA_GROUPED = 60 * 1000L;
 
     private final Context mContext;
@@ -48,7 +48,7 @@ public class ConversationViewAdapter extends BaseQueryAdapter<Message, MessageVi
     private volatile int mGroupedSpacing;
     private volatile int mUngroupedSpacing;
 
-    public ConversationViewAdapter(Context context, LayerClient client, Conversation conversation, MessageViewHolderFactory factory, DataSource dataSource, Listener listener) {
+    public MessageQueryAdapter(Context context, LayerClient client, Conversation conversation, MessageViewHolderFactory factory, DataSource dataSource, Listener listener) {
         super(client, Query.builder(Message.class)
                         .sortDescriptor(new SortDescriptor(Message.Property.POSITION, SortDescriptor.Order.ASCENDING))
                         .predicate(new Predicate(Message.Property.CONVERSATION, Predicate.Operator.EQUAL_TO, conversation))
@@ -104,11 +104,11 @@ public class ConversationViewAdapter extends BaseQueryAdapter<Message, MessageVi
     public void onInteraction(Message target, InteractionType interactionType) {
         switch (interactionType) {
             case SHORT_CLICK:
-                mListener.onMessageSelected(ConversationViewAdapter.this, target);
+                mListener.onMessageSelected(MessageQueryAdapter.this, target);
                 break;
 
             case LONG_CLICK:
-                mListener.onMessageDeleted(ConversationViewAdapter.this, target, LayerClient.DeletionMode.ALL_PARTICIPANTS);
+                mListener.onMessageDeleted(MessageQueryAdapter.this, target, LayerClient.DeletionMode.ALL_PARTICIPANTS);
                 break;
         }
     }
@@ -122,11 +122,11 @@ public class ConversationViewAdapter extends BaseQueryAdapter<Message, MessageVi
      * DataSource to for gathering information to supply to ViewHolders.
      */
     public static interface DataSource {
-        public Participant getParticipant(ConversationViewAdapter adapter, String participantId);
+        public Participant getParticipant(MessageQueryAdapter adapter, String participantId);
 
-        public Spannable getFormattedDate(ConversationViewAdapter adapter, Date date);
+        public Spannable getFormattedDate(MessageQueryAdapter adapter, Date date);
 
-        public Spannable getFormattedReceipientStatus(ConversationViewAdapter adapter, Map<String, Message.RecipientStatus> recipientStatus);
+        public Spannable getFormattedReceipientStatus(MessageQueryAdapter adapter, Map<String, Message.RecipientStatus> recipientStatus);
 
         public Conversation getConversation(Collection<Participant> participants);
     }
@@ -135,15 +135,15 @@ public class ConversationViewAdapter extends BaseQueryAdapter<Message, MessageVi
      * Listener for providing user interaction feedback.
      */
     public interface Listener {
-        public void onMessageSent(ConversationViewAdapter adapter, Message message);
+        public void onMessageSent(MessageQueryAdapter adapter, Message message);
 
-        public void onMessageSelected(ConversationViewAdapter adapter, Message message);
+        public void onMessageSelected(MessageQueryAdapter adapter, Message message);
 
-        public void onMessageDeleted(ConversationViewAdapter adapter, Message message, LayerClient.DeletionMode deletionMode);
+        public void onMessageDeleted(MessageQueryAdapter adapter, Message message, LayerClient.DeletionMode deletionMode);
 
-        public int onRequestMessageItemHeight(ConversationViewAdapter adapter, Message message);
+        public int onRequestMessageItemHeight(MessageQueryAdapter adapter, Message message);
 
-        public List<Message> onRequestMessagesForMediaAttachment(ConversationViewAdapter adapter);
+        public List<Message> onRequestMessagesForMediaAttachment(MessageQueryAdapter adapter);
     }
 
 }

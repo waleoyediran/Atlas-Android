@@ -13,21 +13,21 @@ import android.widget.TextView;
 import com.layer.atlas.R;
 import com.layer.atlas.drawable.MessageBubbleDrawable;
 
-public class MessageItem extends RelativeLayout {
+public class MessageItemView extends RelativeLayout {
     private final static int DEF_STYLE = R.attr.defaultMessageItem;
 
     private ImageView mBubbleArrow;
     private TextView mTextView;
 
-    public MessageItem(Context context) {
+    public MessageItemView(Context context) {
         this(context, null, DEF_STYLE);
     }
 
-    public MessageItem(Context context, AttributeSet attrs) {
+    public MessageItemView(Context context, AttributeSet attrs) {
         this(context, attrs, DEF_STYLE);
     }
 
-    public MessageItem(Context context, AttributeSet attrs, int defStyleAttr) {
+    public MessageItemView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context, attrs, defStyleAttr);
     }
@@ -51,8 +51,6 @@ public class MessageItem extends RelativeLayout {
             float paddingBottom = a.getDimension(R.styleable.AtlasMessageItem_messageBubblePaddingBottom, r.getDimension(R.dimen.atlas_message_bubble_padding_bottom));
             Drawable bubbleArrow = a.getDrawable(R.styleable.AtlasMessageItem_messageBubbleArrow);
             setAttributes(backgroundColor, textColor, radius, paddingLeft, paddingRight, paddingTop, paddingBottom, bubbleArrow);
-        } catch (Exception e) {
-            e.printStackTrace();
         } finally {
             a.recycle();
         }

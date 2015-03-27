@@ -5,16 +5,16 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 
-public abstract class BaseQueryView extends RecyclerView {
-    public BaseQueryView(Context context) {
+public abstract class BaseRecyclerView extends RecyclerView {
+    public BaseRecyclerView(Context context) {
         super(context);
     }
 
-    public BaseQueryView(Context context, AttributeSet attrs) {
+    public BaseRecyclerView(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public BaseQueryView(Context context, AttributeSet attrs, int defStyle) {
+    public BaseRecyclerView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
     }
 

@@ -18,13 +18,13 @@
     <attr name="messageBubblePaddingTop" format="dimension"/>
     <attr name="messageBubblePaddingBottom" format="dimension"/>
 
-    <declare-styleable name="MessageInputToolbar">
+    <declare-styleable name="MessageInputView">
         <attr name="leftButtonDrawable"/>
         <attr name="rightButtonDrawable"/>
         <attr name="hint"/>
     </declare-styleable>
 
-    <declare-styleable name="ConversationQueryView">
+    <declare-styleable name="MessageRecyclerView">
         <attr name="groupedMessageSpacing"/>
         <attr name="ungroupedMessageSpacing"/>
         <attr name="messageBubbleCornerRadius"/>
@@ -58,6 +58,10 @@
         <attr name="messageBubblePaddingBottom"/>
     </declare-styleable>
 
+    <declare-styleable name="AtlasConversationItem">
+        <!-- TODO -->
+    </declare-styleable>
+
 
     <!-- Style references (from styles.xml)-->
     <declare-styleable name="AtlasTheme">
@@ -65,6 +69,7 @@
         <attr name="defaultConversationQueryViewStyle" format="reference"/>
         <attr name="defaultConversationViewStyle" format="reference"/>
         <attr name="defaultMessageItem" format="reference"/>
+        <attr name="defaultConversationItem" format="reference"/>
     </declare-styleable>
 
 </resources>

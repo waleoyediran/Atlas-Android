@@ -2,7 +2,7 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
        android:weightSum="1">
 
-    <com.layer.atlas.view.MessageInputToolbar
+    <com.layer.atlas.view.MessageInputView
         android:id="@+id/atlas_message_input_toolbar"
         android:layout_width="match_parent"
         android:layout_height="@dimen/atlas_message_input_height"
@@ -11,7 +11,7 @@
         android:orientation="horizontal"
         />
 
-    <com.layer.atlas.view.ConversationQueryView
+    <com.layer.atlas.view.MessageRecyclerView
         android:id="@+id/atlas_conversation_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"

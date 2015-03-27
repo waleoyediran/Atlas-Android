@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.layer.atlas.adapter.ConversationViewAdapter;
+import com.layer.atlas.adapter.MessageQueryAdapter;
 import com.layer.atlas.sampleapp.activity.BaseActivity;
 import com.layer.atlas.view.ConversationView;
 import com.layer.sdk.LayerClient;
@@ -16,7 +16,7 @@ import com.layer.sdk.messaging.Message;
 import java.util.List;
 
 
-public class ConversationViewActivity extends BaseActivity implements ConversationViewAdapter.Listener {
+public class ConversationViewActivity extends BaseActivity implements MessageQueryAdapter.Listener {
     Conversation mConversation;
     ConversationView mConversationView;
 
@@ -80,27 +80,27 @@ public class ConversationViewActivity extends BaseActivity implements Conversati
     //==============================================================================================
 
     @Override
-    public void onMessageSent(ConversationViewAdapter adapter, Message message) {
+    public void onMessageSent(MessageQueryAdapter adapter, Message message) {
 
     }
 
     @Override
-    public void onMessageSelected(ConversationViewAdapter adapter, Message message) {
+    public void onMessageSelected(MessageQueryAdapter adapter, Message message) {
 
     }
 
     @Override
-    public void onMessageDeleted(ConversationViewAdapter adapter, Message message, LayerClient.DeletionMode deletionMode) {
+    public void onMessageDeleted(MessageQueryAdapter adapter, Message message, LayerClient.DeletionMode deletionMode) {
 
     }
 
     @Override
-    public int onRequestMessageItemHeight(ConversationViewAdapter adapter, Message message) {
+    public int onRequestMessageItemHeight(MessageQueryAdapter adapter, Message message) {
         return 0;
     }
 
     @Override
-    public List<Message> onRequestMessagesForMediaAttachment(ConversationViewAdapter adapter) {
+    public List<Message> onRequestMessagesForMediaAttachment(MessageQueryAdapter adapter) {
         return null;
     }
 }
