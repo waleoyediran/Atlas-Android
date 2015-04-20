@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.layer.atlas.messenger"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk
+        android:minSdkVersion="14"
+        android:targetSdkVersion="14" />
+
+    <!--
+         Required to perform connection to server. 
+         If not set LayerClient.connect() doesn't trigger callback
+    -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <!-- GCM -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+
+    <application
+        android:name=".App101"
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
+        
+        <activity
+            android:name=".AtlasConversationsScreen"
+            android:label="@string/app_name" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        
+        <activity
+            android:name=".AtlasMessagesScreen"
+            android:configChanges="orientation|keyboardHidden"
+            android:label="@string/atlas_messages_screen_title" >
+        </activity>
+        
+        <activity
+            android:name=".AtlasTestScreen"
+            android:configChanges="orientation|keyboardHidden"
+            android:label="ScreenTest: remove me from manifest" >
+        </activity>
+        
+        <activity
+            android:name=".ChatScreen"
+            android:configChanges="orientation|keyboardHidden"
+            android:label="@string/title_chat_screen" >
+        </activity>
+        
+        <activity
+            android:name=".PrevedActivity"
+            android:label="@string/title_activity_preved" >
+        </activity>
+
+        <!-- Receive all kinds of Push events from Layer (native push, GCM, etc) -->
+
+        <receiver android:name=".App101PushReceiver" >
+            <intent-filter>
+                <action android:name="com.layer.sdk.PUSH" />
+                <category android:name="com.layer.android101" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <category android:name="com.layer.android101" />
+            </intent-filter>
+        </receiver>
+
+        <!-- GCM permission for your app (replace [com.myapp.newstandalone] with your package name) -->
+        <!--
+        <uses-permission    android:name="com.layer.android101.permission.C2D_MESSAGE" />
+        <permission         android:name="com.layer.android101.permission.C2D_MESSAGE" android:protectionLevel="signature" />
+        -->
+
+        <receiver
+            android:name="com.layer.sdk.services.GcmBroadcastReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND" >
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <category android:name="com.layer.android101" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Layer SDK has these for monitoring network, boot, and GCM -->
+        <receiver android:name="com.layer.sdk.services.LayerReceiver" >
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+                <action android:name="android.intent.action.ANY_DATA_STATE" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <service android:name="com.layer.sdk.services.GcmIntentService" />
+
+        <activity
+            android:name=".AtlasSettingsScreen"
+            android:label="@string/title_activity_atlas_settings_screen" >
+        </activity>
+    </application>
+
+</manifest>

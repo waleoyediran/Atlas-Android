@@ -1,0 +1,62 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/color0_background"
+    android:orientation="horizontal" >
+
+    <!--  android:background="#D1FFF1" - blue -->
+
+    <!-- 
+    <TextView
+        android:id="@+id/chat_screen_list_convert_text_buddy"
+        android:layout_width="wrap_content"
+        android:layout_height="36dp"
+        android:background="#E9FFD8"
+        android:gravity="center"
+        android:maxHeight="48dp"
+        android:maxWidth="96dp"
+        android:minWidth="48dp"
+        android:padding="8dp"
+        android:text="HH"
+        android:textSize="16sp" />
+    
+    <View
+        android:layout_width="1dp"
+        android:layout_height="24dp"
+        android:layout_marginTop="6dp"
+        android:background="#E5E5E5" />
+        
+    -->
+    
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="right"
+        android:orientation="horizontal"
+        android:padding="8dp"
+        >
+        
+        <TextView
+            android:id="@+id/chat_screen_list_convert_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Very long line from me. It&apos;s interesting how it would be handled"
+            android:textSize="16sp" />
+        
+    </LinearLayout>
+
+    <View
+        android:layout_width="1px"
+        android:layout_height="24dp"
+        android:layout_marginTop="6dp"
+        android:background="#E5E5E5" />
+    
+    <View
+        android:layout_width="48dp"
+        android:layout_height="32dp"
+        android:minWidth="48dp"
+        />
+    
+</LinearLayout>

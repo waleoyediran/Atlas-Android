@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Atlas (Android 101)</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_preved">PrevedActivity</string>
+    <string name="title_chat_screen">Chat</string>
+    <string name="title_activity_atlas_settings_screen">Settings</string>
+
+</resources>
