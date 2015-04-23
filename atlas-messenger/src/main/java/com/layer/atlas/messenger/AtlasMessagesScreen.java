@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
@@ -28,7 +29,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.layer.atlas.messenger.App101.Contact;
 import com.layer.atlas.messenger.App101.keys;
@@ -39,6 +39,10 @@ import com.layer.sdk.messaging.Conversation;
 import com.layer.sdk.messaging.Message;
 import com.layer.sdk.messaging.MessagePart;
 
+/**
+ * @author Oleg Orlov
+ * @since 14 Apr 2015
+ */
 public class AtlasMessagesScreen extends Activity {
 
     private static final String TAG = AtlasMessagesScreen.class.getSimpleName();
@@ -46,6 +50,8 @@ public class AtlasMessagesScreen extends Activity {
     
     public static final String EXTRA_CONVERSATION_IS_NEW = "conversation.new";
     public static final String EXTRA_CONVERSATION_URI = keys.CONVERSATION_URI;
+    
+    public static final int REQUEST_CODE_SETTINGS = 101;
     
     private Conversation conv;
     private ArrayList<Message> messages = new ArrayList<Message>();
@@ -81,13 +87,14 @@ public class AtlasMessagesScreen extends Activity {
         settingsBtn.setImageResource(R.drawable.atlas_ctl_btn_detail);
         settingsBtn.setVisibility(View.VISIBLE);
         settingsBtn.setOnClickListener(new OnClickListener() {
-            @Override
             public void onClick(View v) {
-                Toast.makeText(v.getContext(), "Waiting for design from Dunstan", Toast.LENGTH_LONG).show();
+                if (conv == null) return; 
+                AtlasConversationSettingsScreen.conv = conv;
+                Intent intent = new Intent(v.getContext(), AtlasConversationSettingsScreen.class);
+                startActivityForResult(intent, REQUEST_CODE_SETTINGS);
             }
         });
         
-        if (false) Log.w(TAG, "onCreate() action: " + getIntent().getAction() + ", extras: " + Log.toString(getIntent().getExtras(), "\n","\n"));
         String convUri = getIntent().getStringExtra(EXTRA_CONVERSATION_URI);
         if (convUri != null) {
             Uri uri = Uri.parse(convUri);

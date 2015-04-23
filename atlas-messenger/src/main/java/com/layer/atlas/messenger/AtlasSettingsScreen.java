@@ -8,6 +8,10 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
 
+/**
+ * @author Oleg Orlov
+ * @since 17 Apr 2015
+ */
 public class AtlasSettingsScreen extends Activity {
 
     @Override

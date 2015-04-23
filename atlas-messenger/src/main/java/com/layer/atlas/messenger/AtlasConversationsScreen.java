@@ -39,6 +39,10 @@ import com.layer.sdk.listeners.LayerChangeEventListener;
 import com.layer.sdk.messaging.Conversation;
 import com.layer.sdk.messaging.Message;
 
+/**
+ * @author Oleg Orlov
+ * @since 14 Apr 2015
+ */
 public class AtlasConversationsScreen extends Activity {
     private static final String TAG = AtlasConversationsScreen.class.getSimpleName();
     private static final boolean debug = true;
