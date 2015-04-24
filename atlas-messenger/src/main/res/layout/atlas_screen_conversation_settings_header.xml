@@ -22,7 +22,11 @@
         android:layout_height="48dp"
         android:textSize="@dimen/atlas_text_size_bigger"
         android:textColor="@color/atlas_text_black"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:layout_marginRight="@dimen/activity_horizontal_margin"
+        
         android:hint="Group Name"
+        android:background="@drawable/atlas_ctl_edit_text"
         />
     
     <LinearLayout 

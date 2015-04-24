@@ -32,6 +32,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="48dp"
                 style="@android:style/Widget.EditText"
+                android:background="@drawable/atlas_ctl_edit_text"
                 android:addStatesFromChildren="true" 
                 android:minHeight="48dp" 
                 android:orientation="horizontal" 
