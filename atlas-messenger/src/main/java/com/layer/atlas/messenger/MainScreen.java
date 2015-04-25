@@ -150,8 +150,9 @@ public class MainScreen extends Activity {
     private void updateValues() {
         App101 app = (App101) getApplication();
         if (app.getLayerClient().isAuthenticated()) {
-            Contact contact = app.contactsMap.get(app.userId);
-            userIdText.setText(contact != null ? app.getContactFirstAndL(contact) : app.userId);
+            String userId = app.getLayerClient().getAuthenticatedUserId();
+            Contact contact = app.contactsMap.get(userId);
+            userIdText.setText(contact != null ? app.getContactFirstAndL(contact) : app.login);
             
             final List<Conversation> convs = app.getLayerClient().getConversations();
             if (debug) Log.d(TAG, "updateValues() conv: " + convs.size());

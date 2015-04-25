@@ -264,6 +264,16 @@ public class AtlasMessagesScreen extends Activity {
             public void onClick(View v) {
                 String text = messageText.getText().toString();
                 if (text.trim().length() > 0) {
+                    
+                    if (conv == null) { // create new one
+                        String[] userIds = new String[selectedContacts.size()];
+                        for (int i = 0; i < selectedContacts.size(); i++) {
+                            userIds[i] = selectedContacts.get(i).userId;
+                        }
+                        conv = app.getLayerClient().newConversation(userIds);
+                        participantsPicker.setVisibility(View.GONE);
+                    }
+                    
                     MessagePart mp = app.getLayerClient().newMessagePart(text);
                     Message msg = app.getLayerClient().newMessage(Arrays.asList(new MessagePart[] {mp}));
                     conv.send(msg);
@@ -293,7 +303,7 @@ public class AtlasMessagesScreen extends Activity {
                 String userId = msg.getSentByUserId();
                 Contact contact = app.contactsMap.get(userId);
                 
-                int viewType = app.userId.equals(contact.userId) ? TYPE_ME : TYPE_OTHER;
+                int viewType = app.getLayerClient().getAuthenticatedUserId().equals(contact.userId) ? TYPE_ME : TYPE_OTHER;
                 
                 if (convertView == null) { 
                     convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.atlas_view_messages_convert, parent, false);
@@ -388,8 +398,11 @@ public class AtlasMessagesScreen extends Activity {
         // update buddies:
         StringBuilder sb = new StringBuilder();
         for (String userId : conv.getParticipants()) {
-            String initials = App101.getContactFirstAndL(app.contactsMap.get(userId));
-            sb.append(initials != null ? initials : userId).append(", ");
+            if (app.getLayerClient().getAuthenticatedUserId().equals(userId)) continue;
+            Contact contact = app.contactsMap.get(userId);
+            String initials = conv.getParticipants().size() > 2 ? App101.getContactFirstAndL(contact) : App101.getContactFirstAndLast(contact);
+            if (sb.length() > 0) sb.append(", ");
+            sb.append(initials != null ? initials : userId);
         }
         TextView titleText = (TextView) findViewById(R.id.atlas_actionbar_title_text);
         titleText.setText(sb);

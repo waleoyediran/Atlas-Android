@@ -27,7 +27,6 @@ import com.layer.sdk.changes.LayerChangeEvent;
 import com.layer.sdk.exceptions.LayerException;
 import com.layer.sdk.internal.config.DefaultConfig;
 import com.layer.sdk.internal.utils.Log;
-import com.layer.sdk.listeners.LayerAuthenticationListener;
 import com.layer.sdk.listeners.LayerChangeEventListener;
 import com.layer.sdk.listeners.LayerConnectionListener;
 import com.layer.sdk.messaging.Message;
@@ -69,8 +68,8 @@ public class App101 extends Application {
     
     private LayerClient layerClient;
 
-    public String userId = "[no user]";
-    private String authToken;
+    public String login;
+    public String authToken;
     public HashMap<String, Contact> contactsMap = new HashMap<String, Contact>();
     
     @Override
@@ -80,6 +79,10 @@ public class App101 extends Application {
         loadPreferences();
     }
 
+    public boolean isAuthenticated() {
+        return authToken != null;
+    }
+    
     public LayerClient getLayerClient() {
         if (layerClient == null) {
             layerClient = initLayerClient();
@@ -108,77 +111,7 @@ public class App101 extends Application {
                 Log.e(TAG, "onConnectionError() ", exception);
             }
         });
-        
-        resultClient.registerAuthenticationListener(new LayerAuthenticationListener() {
-            public void onAuthenticationChallenge(final LayerClient client, final String nonce) {
-                if (debug) Log.w(TAG, "onAuthenticationChallenge() nonce: " + nonce);
-                new Thread(new Runnable() {
-                    public void run() {
-                        try {
-                            if (false) {
-                                HttpPost post = new HttpPost("https://layer-identity-provider.herokuapp.com/identity_tokens");
-                                post.setHeader("Content-Type", "application/json");
-                                post.setHeader("Accept", "application/json");
-                                
-                                JSONObject json = new JSONObject()
-                                .put("app_id", "33112c72-5fd7-11e4-a8b3-689e03003c2c")
-                                .put("user_id", "54573ee5bb92e4161f80f95c")
-                                .put("nonce", nonce );
-                                post.setEntity(new StringEntity(json.toString()));
-                                
-                                HttpResponse response = (new DefaultHttpClient()).execute(post);
-                                String eit1 = (new JSONObject(EntityUtils.toString(response.getEntity())))
-                                        .optString("identity_token");
-                                
-                                client.answerAuthenticationChallenge(eit1);
-                                return;
-                            }
-                            JSONObject rootObject = new JSONObject();
-                            rootObject.put("nonce", nonce);
-                            rootObject.put("user", new JSONObject()
-                            .put("email", USER_EMAIL)
-                            .put("password", USER_PASSW));
-                            
-                            String responseEntity = requestJson(URL_SIGN_IN_RAILS, 
-                                    new String[][] {{"X_LAYER_APP_ID", APP_ID}}, rootObject.toString());
-                            
-                            if (debug) Log.d(TAG, "onAuthenticationChallenge() responseEntity:\n" + responseEntity);
-                            
-                            final JSONObject jsonResp = new JSONObject(responseEntity);
-                            
-                            String eit = jsonResp.optString("layer_identity_token");
-                            if (debug) Log.w(TAG, "onAuthenticationChallenge() token: \n" + eit + "\n");
-                            
-                            authToken = jsonResp.optString("authentication_token");
-                            savePref(keys.AUTH_TOKEN, authToken);
-                            
-                            // 3. Submit identity token to Layer for validation
-                            resultClient.answerAuthenticationChallenge(eit);
-                            
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }).start();
                 
-            }
-            
-            public void onAuthenticated(LayerClient client, String userId) {
-                if (debug) Log.w(TAG, "onAuthenticated() userID: " + userId);
-                App101.this.userId = userId;
-                savePref(keys.USER_ID, userId);
-            }
-            
-            public void onDeauthenticated(LayerClient client) {
-                if (debug) Log.e(TAG, "onDeauthenticated() ");
-            }
-            
-            public void onAuthenticationError(LayerClient client, LayerException exception) {
-                Log.e(TAG, "onAuthenticationError() ", exception);
-            }
-            
-        });
-        
         resultClient.registerEventListener(new LayerChangeEventListener.MainThread() {
             public void onEventMainThread(LayerChangeEvent event) {
                 if (debug) Log.w(TAG, "onEventMainThread() event: " + event);
@@ -206,7 +139,7 @@ public class App101 extends Application {
                             "https://layer-identity-provider.herokuapp.com/users.json", new String[][] {
                             {"X_LAYER_APP_ID", APP_ID}, 
                             {"X_AUTH_TOKEN", authToken}, 
-                            {"X_AUTH_EMAIL", USER_EMAIL}});
+                            {"X_AUTH_EMAIL", login}});
                     if (debug) Log.w(TAG, "contacts() result: " + responseString);
                     savePref(keys.CONTACTS, responseString);
                     
@@ -239,11 +172,15 @@ public class App101 extends Application {
         prefs.edit().putString(key, value).commit();
         return this;
     }
+    public void savePrefs() {
+        savePref(keys.AUTH_TOKEN, authToken);
+        savePref(keys.USER_ID, login);
+    }
     
     private void loadPreferences() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         authToken = prefs.getString(keys.AUTH_TOKEN, null);
-        userId = prefs.getString(keys.USER_ID, "[no user]");
+        login = prefs.getString(keys.USER_ID, null);
         String contactsJson = prefs.getString(keys.CONTACTS, null); 
         if (contactsJson != null) {
             loadContacts(contactsJson, contactsMap);
@@ -251,6 +188,34 @@ public class App101 extends Application {
         
     }
     
+    /**
+     * 
+     * @return [ eit, authToken, error ]
+     */
+    public static String[] requestToken(String userEmail, String userPassw, final String nonce) throws JSONException {
+        JSONObject rootObject = new JSONObject();
+        rootObject.put("nonce", nonce);
+        rootObject.put("user", new JSONObject()
+        .put("email", userEmail)
+        .put("password", userPassw));
+        
+        String responseEntity = requestJson(URL_SIGN_IN_RAILS, 
+                new String[][] {{"X_LAYER_APP_ID", APP_ID}}, rootObject.toString());
+        
+        if (debug) Log.d(TAG, "onAuthenticationChallenge() responseEntity:\n" + responseEntity);
+        
+        final JSONObject jsonResp = new JSONObject(responseEntity);
+        
+        String eit = jsonResp.optString("layer_identity_token");
+        if (debug) Log.w(TAG, "onAuthenticationChallenge() token: \n" + eit + "\n");
+        
+        String authToken = jsonResp.optString("authentication_token");
+        
+        String error = jsonResp.optString("error", null);
+        
+        return new String[] {eit, authToken, error};
+    }
+
     // -------    Tools   -----
     //
     //

@@ -47,6 +47,8 @@ public class AtlasConversationsScreen extends Activity {
     private static final String TAG = AtlasConversationsScreen.class.getSimpleName();
     private static final boolean debug = true;
 
+    private static final int REQUEST_CODE_LOGIN = 999;
+    
     private TextView filterText;
     private TextView userIdText;
     private ListView conversationsList;
@@ -61,7 +63,7 @@ public class AtlasConversationsScreen extends Activity {
         setContentView(R.layout.atlas_screen_conversations);
         
         final App101 app = (App101) getApplication();
-        LayerClient client = app.getLayerClient();
+        final LayerClient client = app.getLayerClient();
         if (debug) Log.i(TAG, "onCreate() layerClient: " + client);
 
         // setup actionBar
@@ -103,23 +105,30 @@ public class AtlasConversationsScreen extends Activity {
                 if (false) Log.d(TAG, "getView() " + position + ", conv:" + convId + ": convert: " + convertView + ", total: " + id2converts.size());
                 
                 Conversation conv = app.getLayerClient().getConversation(convId);
+                
+                TreeSet<String> allButMe = new TreeSet<String>(conv.getParticipants());
+                allButMe.remove(client.getAuthenticatedUserId());
+                
                 StringBuilder sb = new StringBuilder();
                 for (String userId : conv.getParticipants()) {
-                    String initials = App101.getContactFirstAndL(app.contactsMap.get(userId));
-                    sb.append(initials != null ? initials : userId).append(", ");
+                    if (client.getAuthenticatedUserId().equals(userId)) {
+                        continue;
+                    }
+                    Contact contact = app.contactsMap.get(userId);
+                    String name = allButMe.size() > 1 ? App101.getContactFirstAndL(contact) : App101.getContactFirstAndLast(contact);
+                    if (sb.length() > 0) sb.append(", ");
+                    sb.append(name != null ? name : userId);
                 }
+                TextView participants = (TextView) convertView.findViewById(R.id.atlas_conversation_view_convert_participant);
+                participants.setText(sb);
                 
                 TextView textInitials = (TextView) convertView.findViewById(R.id.atlas_conversation_view_convert_initials);
-                TreeSet<String> allButMe = new TreeSet<String>(conv.getParticipants());
-                allButMe.remove(app.userId);
                 if (allButMe.size() == 1) {
                     String conterpartyUserId = allButMe.iterator().next();
                     Contact counterParty = app.contactsMap.get(conterpartyUserId);
                     textInitials.setText(App101.getContactInitials(counterParty));
                 }
                 
-                TextView text = (TextView) convertView.findViewById(R.id.atlas_conversation_view_convert_participant);
-                text.setText(sb);
                 return convertView;
             }
             public long getItemId(int position) {
@@ -181,13 +190,26 @@ public class AtlasConversationsScreen extends Activity {
             }
         });
         
+        
+        if (!app.getLayerClient().isAuthenticated()) {
+            Intent intent = new Intent(this, AtlasLoginScreen.class);
+            startActivityForResult(intent, 0);
+        }
     }
     
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_CODE_LOGIN) {
+            
+        }
+    }
+
     private void updateValues() {
         App101 app = (App101) getApplication();
+        LayerClient client = app.getLayerClient();
         if (app.getLayerClient().isAuthenticated()) {
-            Contact contact = app.contactsMap.get(app.userId);
-            userIdText.setText(contact != null ? app.getContactFirstAndL(contact) : app.userId);
+            Contact contact = app.contactsMap.get(client.getAuthenticatedUserId());
+            userIdText.setText(contact != null ? app.getContactFirstAndL(contact) : app.login);
             
             final List<Conversation> convs = app.getLayerClient().getConversations();
             if (debug) Log.d(TAG, "updateValues() conv: " + convs.size());

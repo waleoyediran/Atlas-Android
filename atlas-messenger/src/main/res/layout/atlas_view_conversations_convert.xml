@@ -39,7 +39,6 @@
 		android:orientation="vertical" 
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_weight="1"
 		android:layout_gravity="center"
 		android:paddingRight="16dp"
 		>
@@ -57,18 +56,21 @@
     			android:layout_width="0dp"
     			android:layout_height="wrap_content"
     			android:layout_weight="1"
+                android:singleLine="true"
+    			android:textSize="@dimen/atlas_text_size_bigger"
     			android:text="Tomaz Stolfa" 
-    			android:textSize="16sp"
     			/>
 		    
 		    <TextView
     			android:id="@+id/atlas_conversation_view_convert_time"
     			android:layout_width="wrap_content"
     			android:layout_height="wrap_content"
-    			android:layout_gravity="center_vertical" 
-    			android:text="16:43" 
-    			android:textSize="12sp"
+    			android:layout_gravity="center_vertical"
+                android:paddingLeft="8dp"
+                android:singleLine="true" 
+    			android:textSize="@dimen/atlas_text_size_smaller"
     			android:textColor="@color/atlas_text_blue"
+    			android:text="16:43" 
     			/>
 		    
 		</LinearLayout>
@@ -78,10 +80,10 @@
 	        android:layout_width="wrap_content"
 	        android:layout_height="0dp"
 	        android:layout_weight="1"
+	        android:singleLine="true"
 	        
 	        android:text="You did it! When are we going to see the..."
-	        android:textSize="14sp"
-	        android:maxLines="1"
+	        android:textSize="@dimen/atlas_text_size_general"
 	        />
 		
 	    

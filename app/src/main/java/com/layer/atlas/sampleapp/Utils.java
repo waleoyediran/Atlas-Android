@@ -80,7 +80,7 @@ public class Utils {
 
     public static LoggedInContact onChallenge(String nonce) {
         final CountDownLatch latch = new CountDownLatch(1);
-        final AtomicReference<LoggedInContact> login = new AtomicReference<>(null);
+        final AtomicReference<LoggedInContact> login = new AtomicReference<LoggedInContact>(null);
         getProvider().providerLogin(EMAIL, PASSWORD, nonce, new Provider.LoginCallback() {
             @Override
             public void onLoginSuccess(LoggedInContact loggedInContact) {

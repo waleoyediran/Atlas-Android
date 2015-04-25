@@ -86,7 +86,7 @@ public class ChatScreen extends Activity {
                 String userId = msg.getSentByUserId();
                 Contact contact = app.contactsMap.get(userId);
                 
-                int typeRequired = app.userId.equals(contact.userId) ? TYPE_ME : TYPE_OTHER;
+                int typeRequired = app.getLayerClient().getAuthenticatedUserId().equals(contact.userId) ? TYPE_ME : TYPE_OTHER;
                 
                 if (convertView == null || ((ViewTag)convertView.getTag()).type != typeRequired) { 
                     convertView = LayoutInflater.from(parent.getContext()).inflate(

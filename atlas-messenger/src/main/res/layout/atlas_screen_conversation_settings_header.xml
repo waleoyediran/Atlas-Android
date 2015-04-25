@@ -127,4 +127,12 @@
         android:textColor="@color/atlas_text_blue"
         android:text="Attachments"/>
     
+    <ImageView 
+        android:id="@+id/atlas_screen_conversation_settings_gallery"
+        android:layout_width="match_parent"
+        android:layout_height="800dp"
+        android:adjustViewBounds="true"
+        android:scaleType="centerCrop"
+        />
+    
 </LinearLayout>

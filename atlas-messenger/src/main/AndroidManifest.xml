@@ -56,6 +56,11 @@
         </activity>
         
         <activity
+            android:name=".AtlasLoginScreen"
+            android:label="@string/title_activity_atlas_settings_screen" >
+        </activity>
+        
+        <activity
             android:name=".AtlasTestScreen"
             android:configChanges="orientation|keyboardHidden"
             android:label="ScreenTest: remove me from manifest" >

@@ -49,6 +49,7 @@
                 android:paddingRight="20dp"
                 android:textColor="@color/atlas_text_white"
                 android:textSize="@dimen/atlas_text_size_title"
+                android:singleLine="true"
                 android:text="Atlas"
                 />
             

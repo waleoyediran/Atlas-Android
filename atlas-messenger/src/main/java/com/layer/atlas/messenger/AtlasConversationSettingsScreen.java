@@ -1,9 +1,12 @@
 package com.layer.atlas.messenger;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -11,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -59,15 +63,29 @@ public class AtlasConversationSettingsScreen extends Activity {
         
         View blockPersonView = findViewById(R.id.atlas_screen_conversation_settings_block_person);
         View leaveGroupView = findViewById(R.id.atlas_screen_conversation_settings_leave_group);
+        EditText groupNameText = (EditText) findViewById(R.id.atlas_screen_conversation_settings_groupname_text);
         
         HashSet<String> participants = new HashSet<String>(conv.getParticipants());
         participants.remove(app101.getLayerClient().getAuthenticatedUserId());
         if (participants.size() == 1) { // one-on-one
             blockPersonView.setVisibility(View.VISIBLE);
             leaveGroupView.setVisibility(View.GONE);
+            groupNameText.setVisibility(View.GONE);
         } else {                        // multi
             blockPersonView.setVisibility(View.GONE);
             leaveGroupView.setVisibility(View.VISIBLE);
+            groupNameText.setVisibility(View.VISIBLE);
+        }
+        
+        ImageView galleryView = (ImageView) findViewById(R.id.atlas_screen_conversation_settings_gallery);
+        Bitmap bmp;
+        try {
+            bmp = BitmapFactory.decodeStream(getAssets().open("gallery.png"));
+            galleryView.setImageBitmap(bmp);
+            galleryView.getLayoutParams().height = getWindowManager().getDefaultDisplay().getWidth();
+            galleryView.setLayoutParams(galleryView.getLayoutParams());
+        } catch (IOException e) {
+            Log.e(TAG, "onCreate() Cannot show gallery", e);
         }
         
         this.namesList = (ViewGroup) findViewById(R.id.atlas_screen_conversation_settings_participants_list);
