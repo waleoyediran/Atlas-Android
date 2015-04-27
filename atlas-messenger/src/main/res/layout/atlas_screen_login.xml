@@ -20,6 +20,7 @@
         android:layout_gravity="center_horizontal"
         android:singleLine="true"
         android:background="@drawable/atlas_ctl_edit_text"
+        android:inputType="textNoSuggestions"
         android:hint="Login"
         />
     <EditText 

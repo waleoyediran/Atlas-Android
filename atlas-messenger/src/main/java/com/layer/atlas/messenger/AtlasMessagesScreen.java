@@ -19,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.google.android.gms.internal.ms;
 import com.layer.atlas.ParticipantPicker;
 import com.layer.atlas.messenger.App101.Contact;
 import com.layer.atlas.messenger.App101.keys;
@@ -28,6 +29,7 @@ import com.layer.sdk.listeners.LayerChangeEventListener;
 import com.layer.sdk.messaging.Conversation;
 import com.layer.sdk.messaging.Message;
 import com.layer.sdk.messaging.MessagePart;
+import com.layer.sdk.messaging.Message.RecipientStatus;
 
 /**
  * @author Oleg Orlov
@@ -90,7 +92,7 @@ public class AtlasMessagesScreen extends Activity {
         final View participantsPickerRoot = findViewById(R.id.atlas_screen_messages_participants_picker);
         final ParticipantPicker pp = new ParticipantPicker(this, participantsPickerRoot, app, null);
         if (convIsNew) {
-            participantsPickerRoot.setVisibility(View.VISIBLE);
+            pp.setVisibility(View.VISIBLE);
         }
         
         messageText = (TextView) findViewById(R.id.atlas_messages_composer_text);
@@ -151,17 +153,22 @@ public class AtlasMessagesScreen extends Activity {
                 TextView textAvatar = (TextView) convertView.findViewById(R.id.atlas_view_messages_convert_initials);
                 if (viewType == TYPE_OTHER) {
                     textOther.setVisibility(View.VISIBLE);
-                    textOther.setText(AtlasMessagesScreen.toString(msg));
+                    textOther.setText(App101.toString(msg));
                     String displayText = App101.getContactInitials(contact);
                     textAvatar.setText(displayText);
                     textAvatar.setVisibility(View.VISIBLE);
                     textMy.setVisibility(View.GONE);
                 } else {
                     textMy.setVisibility(View.VISIBLE);
-                    textMy.setText(AtlasMessagesScreen.toString(msg));
+                    textMy.setText(App101.toString(msg));
                     textOther.setVisibility(View.GONE);
                     textAvatar.setVisibility(View.GONE);
                 }
+                // mark displayed message as read
+                if (!msg.getSentByUserId().equals(app.getLayerClient().getAuthenticatedUserId())) {
+                    msg.markAsRead();
+                }
+                
                 return convertView;
             }
             public long getItemId(int position) {
@@ -176,16 +183,6 @@ public class AtlasMessagesScreen extends Activity {
         });
     }
     
-    private static String toString(Message msg) {
-        StringBuilder sb = new StringBuilder();
-        for (MessagePart mp : msg.getMessageParts()) {
-            if ("text/plain".equals(mp.getMimeType())) {
-                sb.append(new String(mp.getData()));
-            }
-        }
-        return sb.toString();
-    }
-
     /**  */
     private void updateValues() {
         if (debug) Log.w(TAG, "updateValues() called from: " + Log.printStackTrace());

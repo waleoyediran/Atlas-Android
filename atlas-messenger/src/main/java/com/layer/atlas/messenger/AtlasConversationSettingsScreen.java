@@ -11,6 +11,7 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -18,6 +19,7 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.layer.atlas.messenger.App101.Contact;
 import com.layer.sdk.internal.utils.Log;
@@ -64,20 +66,20 @@ public class AtlasConversationSettingsScreen extends Activity {
             }
         });
         
-        View blockPersonView = findViewById(R.id.atlas_screen_conversation_settings_block_person);
-        View leaveGroupView = findViewById(R.id.atlas_screen_conversation_settings_leave_group);
-        EditText groupNameText = (EditText) findViewById(R.id.atlas_screen_conversation_settings_groupname_text);
+        View btnBlockPerson = findViewById(R.id.atlas_screen_conversation_settings_block_person);
+        View btnLeaveGroup = findViewById(R.id.atlas_screen_conversation_settings_leave_group);
+        EditText textGroupName = (EditText) findViewById(R.id.atlas_screen_conversation_settings_groupname_text);
         
         HashSet<String> participants = new HashSet<String>(conv.getParticipants());
         participants.remove(app101.getLayerClient().getAuthenticatedUserId());
         if (participants.size() == 1) { // one-on-one
-            blockPersonView.setVisibility(View.VISIBLE);
-            leaveGroupView.setVisibility(View.GONE);
-            groupNameText.setVisibility(View.GONE);
+            btnBlockPerson.setVisibility(View.VISIBLE);
+            btnLeaveGroup.setVisibility(View.GONE);
+            textGroupName.setVisibility(View.GONE);
         } else {                        // multi
-            blockPersonView.setVisibility(View.GONE);
-            leaveGroupView.setVisibility(View.VISIBLE);
-            groupNameText.setVisibility(View.VISIBLE);
+            btnBlockPerson.setVisibility(View.GONE);
+            btnLeaveGroup.setVisibility(View.VISIBLE);
+            textGroupName.setVisibility(View.VISIBLE);
         }
         
         ImageView galleryView = (ImageView) findViewById(R.id.atlas_screen_conversation_settings_gallery);
@@ -126,13 +128,27 @@ public class AtlasConversationSettingsScreen extends Activity {
             TextView nameText = (TextView) convert.findViewById(R.id.atlas_screen_conversation_settings_convert_name);
             nameText.setText(App101.getContactFirstAndLast(contacts[iContact]));
             
+            convert.setTag(contacts[iContact]);
+            convert.setOnLongClickListener(contactLongClickListener);
+            
             namesList.addView(convert);
         }
         
     }
+    
+    private OnLongClickListener contactLongClickListener = new OnLongClickListener() {
+        public boolean onLongClick(View v) {
+            Contact contact = (Contact) v.getTag();
+            conv.removeParticipants(contact.userId);
+            Toast.makeText(v.getContext(), "Removing " + App101.getContactFirstAndLast(contact), Toast.LENGTH_LONG).show();
+            updateValues();
+            return true;
+        }
+    };
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (debug) Log.w(TAG, "onActivityResult() requestCode: " + requestCode + ", resultCode: " + requestCode + ", data: " + Log.toString(data.getExtras()));
         if (requestCode == REQUEST_CODE_ADD_PARTICIPANT && resultCode == RESULT_OK) {
             String[] addedParticipants = data.getStringArrayExtra(AtlasParticipantPickersScreen.EXTRA_KEY_USERIDS_SELECTED);
             conv.addParticipants(addedParticipants);
@@ -140,4 +156,11 @@ public class AtlasConversationSettingsScreen extends Activity {
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (debug) Log.w(TAG, "onResume() ");
+        updateValues();
+    }
+    
 }

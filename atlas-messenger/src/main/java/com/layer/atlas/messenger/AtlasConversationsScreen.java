@@ -13,6 +13,7 @@ import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -38,6 +39,7 @@ import com.layer.sdk.internal.utils.Log;
 import com.layer.sdk.listeners.LayerChangeEventListener;
 import com.layer.sdk.messaging.Conversation;
 import com.layer.sdk.messaging.Message;
+import com.layer.sdk.messaging.Message.RecipientStatus;
 
 /**
  * @author Oleg Orlov
@@ -129,6 +131,28 @@ public class AtlasConversationsScreen extends Activity {
                     textInitials.setText(App101.getContactInitials(counterParty));
                 }
                 
+                TextView textLastMessage = (TextView) convertView.findViewById(R.id.atlas_conversation_view_last_message);
+                TextView timeView = (TextView) convertView.findViewById(R.id.atlas_conversation_view_convert_time);
+                if (conv.getLastMessage() != null ) {
+                    Message last = conv.getLastMessage();
+                    String lastMessageText = App101.toString(last);
+                    
+                    textLastMessage.setText(lastMessageText);
+                    
+                    Date sentAt = last.getSentAt();
+                    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+                    timeView.setText(sdf.format(sentAt));
+                    
+                    if (!last.getSentByUserId().equals(app.getLayerClient().getAuthenticatedUserId())
+                            && last.getRecipientStatus(app.getLayerClient().getAuthenticatedUserId()) != RecipientStatus.READ) {
+                        textLastMessage.setTypeface(null, Typeface.BOLD);
+                        participants.setTypeface(null, Typeface.BOLD);
+                    } else {
+                        textLastMessage.setTypeface(null, Typeface.NORMAL);
+                        participants.setTypeface(null, Typeface.NORMAL);
+                    }
+                }
+                
                 return convertView;
             }
             public long getItemId(int position) {
@@ -168,28 +192,12 @@ public class AtlasConversationsScreen extends Activity {
         btnNewConversation = findViewById(R.id.atlas_conversation_screen_new_conversation);
         btnNewConversation.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-                App101 app = (App101) getApplication();
-                if (true) {
-                    Intent intent = new Intent(v.getContext(), AtlasMessagesScreen.class);
-                    intent.putExtra(AtlasMessagesScreen.EXTRA_CONVERSATION_IS_NEW, true);
-                    startActivity(intent);
-                    return;
-                }
-                String[] codeNames = new String[] {"bear", "rabbit", "fish", "cat"};
-                Contact lady = app.contactsMap.get("ulady@layer.com");
-                Conversation conv = app.getLayerClient().newConversation(
-                        /*dad.userId,*/ lady.userId /*, mom.userId*/
-                );
-                long now = System.currentTimeMillis();
-                int second = (int) (now / 1000) % 60;
-                String codeName = codeNames[second % codeNames.length];
-                final Message message = App101.message("Conversation opened: [" + codeName + "-" + second + "]"
-                        + "\n at: " + new SimpleDateFormat("yyyy-MM-dd/HH:mm:ss").format(new Date(now)), app.getLayerClient());
-                conv.send(message);
-                openChatScreen(conv, false);
+                Intent intent = new Intent(v.getContext(), AtlasMessagesScreen.class);
+                intent.putExtra(AtlasMessagesScreen.EXTRA_CONVERSATION_IS_NEW, true);
+                startActivity(intent);
+                return;
             }
         });
-        
         
         if (!app.getLayerClient().isAuthenticated()) {
             Intent intent = new Intent(this, AtlasLoginScreen.class);
@@ -209,23 +217,26 @@ public class AtlasConversationsScreen extends Activity {
         LayerClient client = app.getLayerClient();
         if (app.getLayerClient().isAuthenticated()) {
             Contact contact = app.contactsMap.get(client.getAuthenticatedUserId());
-            userIdText.setText(contact != null ? app.getContactFirstAndL(contact) : app.login);
+            userIdText.setText(contact != null ? App101.getContactFirstAndL(contact) : app.login);
             
             final List<Conversation> convs = app.getLayerClient().getConversations();
             if (debug) Log.d(TAG, "updateValues() conv: " + convs.size());
             conversations.clear();
-            conversations.addAll(convs);
+            for (Conversation conv : convs) {
+                // no participants means we are removed from conversation
+                if (conv.getParticipants().size() == 0) continue;
+                conversations.add(conv);
+            }
             Collections.sort(conversations, new Comparator<Conversation>() {
                 public int compare(Conversation lhs, Conversation rhs) {
                     long leftRecievedAt = 0;
                     if (lhs != null && lhs.getLastMessage() != null) {
-                        leftRecievedAt = lhs.getLastMessage().getReceivedAt().getTime();
+                        leftRecievedAt = lhs.getLastMessage().getSentAt().getTime();
                     }
                     long rightReceivedAt = 0;
                     if (rhs != null && rhs.getLastMessage() != null) {
-                        rightReceivedAt = rhs.getLastMessage().getReceivedAt().getTime();
+                        rightReceivedAt = rhs.getLastMessage().getSentAt().getTime();
                     }
-                    
                     return (int) (rightReceivedAt - leftRecievedAt);
                 }
             });

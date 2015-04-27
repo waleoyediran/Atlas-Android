@@ -188,6 +188,16 @@ public class App101 extends Application {
         
     }
     
+    public static String toString(Message msg) {
+        StringBuilder sb = new StringBuilder();
+        for (MessagePart mp : msg.getMessageParts()) {
+            if ("text/plain".equals(mp.getMimeType())) {
+                sb.append(new String(mp.getData()));
+            }
+        }
+        return sb.toString();
+    }
+
     /**
      * 
      * @return [ eit, authToken, error ]
