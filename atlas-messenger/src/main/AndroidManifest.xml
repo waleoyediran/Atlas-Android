@@ -61,7 +61,7 @@
         </activity>
         
         <activity
-            android:name=".AtlasTestScreen"
+            android:name=".AtlasParticipantPickersScreen"
             android:configChanges="orientation|keyboardHidden"
             android:label="ScreenTest: remove me from manifest" >
         </activity>

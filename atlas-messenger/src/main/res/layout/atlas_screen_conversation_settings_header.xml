@@ -51,13 +51,14 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:button="@drawable/atlas_ctl_switch"
+            android:checked="true"
             />
         
     </LinearLayout>
     
     <TextView
         android:id="@+id/atlas_screen_conversation_settings_block_person"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="48dp"
         android:gravity="center_vertical"
         android:paddingLeft="@dimen/activity_horizontal_margin"
@@ -68,7 +69,7 @@
     
     <TextView
         android:id="@+id/atlas_screen_conversation_settings_leave_group"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="48dp"
         android:gravity="center_vertical"
         android:paddingLeft="@dimen/activity_horizontal_margin"
@@ -105,15 +106,15 @@
     </LinearLayout>
     
     <TextView
-        android:id="@+id/atlas_screen_conversation_settings_participants_add"
-        android:layout_width="wrap_content"
+        android:id="@+id/atlas_screen_conversation_settings_add_participant"
+        android:layout_width="match_parent"
         android:layout_height="48dp"
         android:gravity="center_vertical"
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin"
         android:textSize="@dimen/atlas_text_size_bigger"
         android:textColor="@color/atlas_text_black"
-        android:text="Add someone else"/>
+        android:text="Add People"/>
 
     <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/atlas_background_gray"/>            
     

@@ -280,7 +280,7 @@ public class AtlasConversationsScreen extends Activity {
                 return true;
             } 
             case R.id.menu_action_atlas_conversations_stub : {
-                startActivity(new Intent(this, AtlasTestScreen.class));
+                startActivity(new Intent(this, AtlasParticipantPickersScreen.class));
                 return true;
             } 
             case R.id.action_settings : return true; 

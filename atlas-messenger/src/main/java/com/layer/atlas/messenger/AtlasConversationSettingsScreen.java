@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -30,6 +31,8 @@ public class AtlasConversationSettingsScreen extends Activity {
     private static final String TAG = AtlasConversationSettingsScreen.class.getSimpleName();
     private static final boolean debug = true;
 
+    private static final int REQUEST_CODE_ADD_PARTICIPANT = 999;
+    
     public static Conversation conv;
     
     private ViewGroup namesList;
@@ -88,12 +91,23 @@ public class AtlasConversationSettingsScreen extends Activity {
             Log.e(TAG, "onCreate() Cannot show gallery", e);
         }
         
+        View btnAddParticipant = findViewById(R.id.atlas_screen_conversation_settings_add_participant);
+        btnAddParticipant.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                Intent intent = new Intent(AtlasConversationSettingsScreen.this, AtlasParticipantPickersScreen.class);
+                final String[] skipUserIds = conv.getParticipants().toArray(new String[0]);
+                intent.putExtra(AtlasParticipantPickersScreen.EXTRA_KEY_USERIDS_SKIP, skipUserIds);
+                startActivityForResult(intent, REQUEST_CODE_ADD_PARTICIPANT);
+            }
+        });
+        
         this.namesList = (ViewGroup) findViewById(R.id.atlas_screen_conversation_settings_participants_list);
-        refreshNamesList();
+        updateValues();
     }
     
-    private void refreshNamesList() {
+    private void updateValues() {
         
+        // refresh names screen
         namesList.removeAllViews();
         
         Contact[] contacts = new Contact[conv.getParticipants().size()];
@@ -115,6 +129,15 @@ public class AtlasConversationSettingsScreen extends Activity {
             namesList.addView(convert);
         }
         
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_CODE_ADD_PARTICIPANT && resultCode == RESULT_OK) {
+            String[] addedParticipants = data.getStringArrayExtra(AtlasParticipantPickersScreen.EXTRA_KEY_USERIDS_SELECTED);
+            conv.addParticipants(addedParticipants);
+            updateValues();
+        }
     }
 
 }
