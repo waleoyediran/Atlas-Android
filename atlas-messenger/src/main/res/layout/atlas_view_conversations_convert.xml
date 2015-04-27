@@ -9,15 +9,56 @@
     	android:layout_height="72dp"
     	android:layout_width="72dp"
     	>
-    	<TextView 
+    	
+        <TextView 
     		android:id="@+id/atlas_conversation_view_convert_initials"
     		android:layout_width="40dp"
     		android:layout_height="40dp"
     		android:layout_gravity="center"
     		android:background="@drawable/atlas_shape_circle_gray"
-    		android:text="TS"
     		android:gravity="center"
+            android:textSize="@dimen/atlas_text_size_general"
+    		android:text="TS"
     		/>
+        
+        <FrameLayout 
+            android:id="@+id/atlas_conversation_view_convert_initials_multi"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            >
+            <TextView
+                android:id="@+id/atlas_conversation_view_convert_initials_left" 
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/atlas_shape_circle_gray"
+                android:gravity="center"
+                android:textSize="@dimen/atlas_text_size_tiny"
+                android:text="ZF"
+                />
+            <View 
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_marginLeft="29dp"
+                android:layout_marginTop="29dp"
+                android:background="@drawable/atlas_shape_circle_white"
+                />
+            <TextView 
+                android:id="@+id/atlas_conversation_view_convert_initials_right"
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:layout_marginLeft="30dp"
+                android:layout_marginTop="30dp"
+                android:background="@drawable/atlas_shape_circle_gray"
+                android:gravity="center"
+                android:textSize="@dimen/atlas_text_size_tiny"
+                android:text="AB"
+                />
+        </FrameLayout>
+        
+            
     </FrameLayout>
     
     <!-- right content part -->

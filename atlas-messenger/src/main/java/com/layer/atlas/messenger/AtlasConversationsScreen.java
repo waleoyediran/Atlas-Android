@@ -7,7 +7,6 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.TreeSet;
 
 import android.app.Activity;
 import android.app.PendingIntent;
@@ -108,7 +107,7 @@ public class AtlasConversationsScreen extends Activity {
                 
                 Conversation conv = app.getLayerClient().getConversation(convId);
                 
-                TreeSet<String> allButMe = new TreeSet<String>(conv.getParticipants());
+                ArrayList<String> allButMe = new ArrayList<String>(conv.getParticipants());
                 allButMe.remove(client.getAuthenticatedUserId());
                 
                 StringBuilder sb = new StringBuilder();
@@ -124,11 +123,28 @@ public class AtlasConversationsScreen extends Activity {
                 TextView participants = (TextView) convertView.findViewById(R.id.atlas_conversation_view_convert_participant);
                 participants.setText(sb);
                 
+                // avatar icons... 
                 TextView textInitials = (TextView) convertView.findViewById(R.id.atlas_conversation_view_convert_initials);
-                if (allButMe.size() == 1) {
-                    String conterpartyUserId = allButMe.iterator().next();
+                View textInitialsMulti = convertView.findViewById(R.id.atlas_conversation_view_convert_initials_multi);
+                if (allButMe.size() < 2) {
+                    String conterpartyUserId = allButMe.get(0);
                     Contact counterParty = app.contactsMap.get(conterpartyUserId);
                     textInitials.setText(App101.getContactInitials(counterParty));
+                    textInitials.setVisibility(View.VISIBLE);
+                    textInitialsMulti.setVisibility(View.GONE);
+                } else {
+                    TextView textInitialsLeft = (TextView) convertView.findViewById(R.id.atlas_conversation_view_convert_initials_left);
+                    String leftUserId = allButMe.get(0);
+                    Contact left = app.contactsMap.get(leftUserId);
+                    textInitialsLeft.setText(App101.getContactInitials(left));
+                    
+                    TextView textInitialsRight = (TextView) convertView.findViewById(R.id.atlas_conversation_view_convert_initials_right);
+                    String rightUserId = allButMe.get(1);
+                    Contact right = app.contactsMap.get(rightUserId);
+                    textInitialsRight.setText(App101.getContactInitials(right));
+                    
+                    textInitials.setVisibility(View.GONE);
+                    textInitialsMulti.setVisibility(View.VISIBLE);
                 }
                 
                 TextView textLastMessage = (TextView) convertView.findViewById(R.id.atlas_conversation_view_last_message);

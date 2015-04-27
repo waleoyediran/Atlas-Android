@@ -8,5 +8,6 @@
     <dimen name="atlas_text_size_bigger">16sp</dimen>
     <dimen name="atlas_text_size_general">14sp</dimen>
     <dimen name="atlas_text_size_smaller">12sp</dimen>
+    <dimen name="atlas_text_size_tiny">8sp</dimen>
 
 </resources>
