@@ -148,7 +148,8 @@ public class AtlasConversationSettingsScreen extends Activity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (debug) Log.w(TAG, "onActivityResult() requestCode: " + requestCode + ", resultCode: " + requestCode + ", data: " + Log.toString(data.getExtras()));
+        if (debug) Log.w(TAG, "onActivityResult() requestCode: " + requestCode + ", resultCode: " + requestCode 
+                + ", data: " + (data != null ? Log.toString(data.getExtras()) : "null"));
         if (requestCode == REQUEST_CODE_ADD_PARTICIPANT && resultCode == RESULT_OK) {
             String[] addedParticipants = data.getStringArrayExtra(AtlasParticipantPickersScreen.EXTRA_KEY_USERIDS_SELECTED);
             conv.addParticipants(addedParticipants);
