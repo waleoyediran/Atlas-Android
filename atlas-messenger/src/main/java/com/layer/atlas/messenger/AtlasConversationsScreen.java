@@ -239,21 +239,27 @@ public class AtlasConversationsScreen extends Activity {
             if (debug) Log.d(TAG, "updateValues() conv: " + convs.size());
             conversations.clear();
             for (Conversation conv : convs) {
-                // no participants means we are removed from conversation
+                // no participants means we are removed from conversation (disconnected conversation)
                 if (conv.getParticipants().size() == 0) continue;
+                // only ourselves in participant list is possible to happen, but there is nothing to do with it
+                // behave like conversation is disconnected
+                if (conv.getParticipants().size() == 1 
+                        && conv.getParticipants().contains(client.getAuthenticatedUserId())) continue;
+                
                 conversations.add(conv);
             }
             Collections.sort(conversations, new Comparator<Conversation>() {
                 public int compare(Conversation lhs, Conversation rhs) {
-                    long leftRecievedAt = 0;
-                    if (lhs != null && lhs.getLastMessage() != null) {
-                        leftRecievedAt = lhs.getLastMessage().getSentAt().getTime();
+                    long now = System.currentTimeMillis();
+                    long leftSentAt = now;
+                    if (lhs != null && lhs.getLastMessage() != null && lhs.getLastMessage().getSentAt() != null) {
+                        leftSentAt = lhs.getLastMessage().getSentAt().getTime();
                     }
-                    long rightReceivedAt = 0;
-                    if (rhs != null && rhs.getLastMessage() != null) {
-                        rightReceivedAt = rhs.getLastMessage().getSentAt().getTime();
+                    long rightSentdAt = now;
+                    if (rhs != null && rhs.getLastMessage() != null && rhs.getLastMessage().getSentAt() != null) {
+                        rightSentdAt = rhs.getLastMessage().getSentAt().getTime();
                     }
-                    return (int) (rightReceivedAt - leftRecievedAt);
+                    return (int) (rightSentdAt - leftSentAt);
                 }
             });
             conversationsAdapter.notifyDataSetChanged();

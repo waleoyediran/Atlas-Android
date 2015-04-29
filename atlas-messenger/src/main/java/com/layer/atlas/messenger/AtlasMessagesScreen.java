@@ -1,25 +1,30 @@
 package com.layer.atlas.messenger;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.MeasureSpec;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.PopupWindow;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.google.android.gms.internal.ms;
 import com.layer.atlas.ParticipantPicker;
 import com.layer.atlas.messenger.App101.Contact;
 import com.layer.atlas.messenger.App101.keys;
@@ -29,7 +34,6 @@ import com.layer.sdk.listeners.LayerChangeEventListener;
 import com.layer.sdk.messaging.Conversation;
 import com.layer.sdk.messaging.Message;
 import com.layer.sdk.messaging.MessagePart;
-import com.layer.sdk.messaging.Message.RecipientStatus;
 
 /**
  * @author Oleg Orlov
@@ -52,6 +56,7 @@ public class AtlasMessagesScreen extends Activity {
     private TextView messageText;
     private ListView messagesList;
     private View btnSend;
+    private View btnUpload;
     private BaseAdapter messagesAdapter;
         
     @Override
@@ -95,9 +100,49 @@ public class AtlasMessagesScreen extends Activity {
             pp.setVisibility(View.VISIBLE);
         }
         
-        messageText = (TextView) findViewById(R.id.atlas_messages_composer_text);
+        btnUpload = findViewById(R.id.atlas_view_message_composer_upload);
+        btnUpload.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                final PopupWindow popupWindow = new PopupWindow(v.getContext());
+                popupWindow.setWindowLayoutMode(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                LayoutInflater inflater = LayoutInflater.from(v.getContext());
+                LinearLayout menu = (LinearLayout) inflater.inflate(R.layout.atlas_view_message_composer_menu, null);
+                popupWindow.setContentView(menu);
+                
+                View convert = inflater.inflate(R.layout.atlas_view_message_composer_menu_convert, menu, false);
+                ((TextView)convert.findViewById(R.id.altas_view_message_composer_convert_text)).setText("Location");
+                menu.addView(convert);
+                convert.setOnClickListener(new OnClickListener() {
+                    public void onClick(View v) {
+                        Toast.makeText(v.getContext(), "Inserting Location: ", Toast.LENGTH_SHORT).show();
+                        popupWindow.dismiss();
+                    }
+                });
+                
+                convert = inflater.inflate(R.layout.atlas_view_message_composer_menu_convert, menu, false);
+                ((TextView)convert.findViewById(R.id.altas_view_message_composer_convert_text)).setText("Photo");
+                menu.addView(convert, 0);
+                convert.setOnClickListener(new OnClickListener() {
+                    public void onClick(View v) {
+                        Toast.makeText(v.getContext(), "Photo-photo", Toast.LENGTH_SHORT).show();
+                        popupWindow.dismiss();
+                    }
+                });
+                
+                popupWindow.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                popupWindow.setOutsideTouchable(true);
+                int[] viewXYWindow = new int[2];  
+                v.getLocationInWindow(viewXYWindow);
+                
+                menu.measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
+                int menuHeight = menu.getMeasuredHeight();
+                popupWindow.showAtLocation(v, Gravity.NO_GRAVITY, viewXYWindow[0], viewXYWindow[1] - menuHeight);
+            }
+        });
         
-        btnSend = findViewById(R.id.atlas_messages_composer_send);
+        messageText = (TextView) findViewById(R.id.atlas_view_message_composer_text);
+        
+        btnSend = findViewById(R.id.atlas_view_message_composer_send);
         btnSend.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 String text = messageText.getText().toString();
@@ -108,9 +153,12 @@ public class AtlasMessagesScreen extends Activity {
                         conv = app.getLayerClient().newConversation(userIds);
                         participantsPickerRoot.setVisibility(View.GONE);
                     }
-                    
-                    MessagePart mp = app.getLayerClient().newMessagePart(text);
-                    Message msg = app.getLayerClient().newMessage(Arrays.asList(new MessagePart[] {mp}));
+                    ArrayList<MessagePart> parts = new ArrayList<MessagePart>();
+                    String[] lines = text.split("\n+");
+                    for (String line : lines) {
+                        parts.add(app.getLayerClient().newMessagePart(line));
+                    }
+                    Message msg = app.getLayerClient().newMessage(parts);
                     conv.send(msg);
                     messageText.setText("");
                 }
