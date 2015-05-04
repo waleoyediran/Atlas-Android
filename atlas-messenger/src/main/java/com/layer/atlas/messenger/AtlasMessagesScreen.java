@@ -1,5 +1,9 @@
 package com.layer.atlas.messenger;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -7,10 +11,12 @@ import java.util.List;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,9 +31,11 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.internal.le;
 import com.layer.atlas.ParticipantPicker;
 import com.layer.atlas.messenger.App101.Contact;
 import com.layer.atlas.messenger.App101.keys;
+import com.layer.sdk.LayerClient;
 import com.layer.sdk.changes.LayerChangeEvent;
 import com.layer.sdk.internal.utils.Log;
 import com.layer.sdk.listeners.LayerChangeEventListener;
@@ -48,10 +56,11 @@ public class AtlasMessagesScreen extends Activity {
     public static final String EXTRA_CONVERSATION_URI = keys.CONVERSATION_URI;
     
     public static final int REQUEST_CODE_SETTINGS = 101;
+    public static final int REQUEST_CODE_GALLERY  = 111;
+    public static final int REQUEST_CODE_CAMERA   = 112;
     
     private Conversation conv;
     private ArrayList<Message> messages = new ArrayList<Message>();
-    private BaseAdapter msgAdapter;
     
     private TextView messageText;
     private ListView messagesList;
@@ -126,6 +135,12 @@ public class AtlasMessagesScreen extends Activity {
                     public void onClick(View v) {
                         Toast.makeText(v.getContext(), "Photo-photo", Toast.LENGTH_SHORT).show();
                         popupWindow.dismiss();
+
+                        // in onCreate or any event where your want the user to select a file
+                        Intent intent = new Intent();
+                        intent.setType("image/*");
+                        intent.setAction(Intent.ACTION_GET_CONTENT);
+                        startActivityForResult(Intent.createChooser(intent, "Select Picture"), REQUEST_CODE_GALLERY);
                     }
                 });
                 
@@ -233,7 +248,7 @@ public class AtlasMessagesScreen extends Activity {
     
     /**  */
     private void updateValues() {
-        if (debug) Log.w(TAG, "updateValues() called from: " + Log.printStackTrace());
+        Log.w(TAG, "updateValues() called from: " + Log.printStackTrace());
         App101 app = (App101) getApplication();
         
         if (conv == null) {
@@ -259,6 +274,91 @@ public class AtlasMessagesScreen extends Activity {
         titleText.setText(sb);
     }
     
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (debug) Log.w(TAG, "onActivityResult() requestCode: " + requestCode
+                    + ", resultCode: " + resultCode 
+                    + ", uri: "  + (data == null ? "" : data.getData())  
+                    + ", data: " + (data == null ? "" : Log.toString(data.getExtras())) );
+        
+        if (resultCode != Activity.RESULT_OK) return;
+        
+        switch (requestCode) {
+            case REQUEST_CODE_GALLERY :
+                // first check media gallery
+                if (data == null) {
+                    if (debug) Log.w(TAG, "onActivityResult() no data... :( ");
+                    return;
+                }
+                Uri selectedImageUri = data.getData();
+                String selectedImagePath = getGalleryImagePath(selectedImageUri);
+                String resultFileName = selectedImagePath;
+                if (selectedImagePath != null) {
+                    if (debug) Log.w(TAG, "onActivityResult() image from gallery selected: " + selectedImagePath);
+                } else if (selectedImageUri.getPath() != null) { 
+                    if (debug) Log.w(TAG, "onActivityResult() image from file picker appears... "  + selectedImageUri.getPath());
+                    resultFileName = selectedImageUri.getPath();
+                }
+                
+                if (resultFileName != null) {
+                    // create message and upload content
+                    File fileToUpload = new File(resultFileName);
+                    if (!fileToUpload.exists()) {
+                        if (debug) Log.w(TAG, "onActivityResult() file to upload doesn't exist, path: " + resultFileName);
+                        return;
+                    }
+                    
+                    String mimeType = "image/jpeg";
+                    if (resultFileName.endsWith(".png")) mimeType = "image/png";
+                    
+                    // test file copy locally
+                    try {
+                        FileInputStream fisExternal = new FileInputStream(fileToUpload);
+                        String testFileName = "copy" + String.format("%04d", System.currentTimeMillis()/1000L % 3600) + "-" + fileToUpload.getName();  
+                        FileOutputStream fos = openFileOutput(testFileName, 0);
+                        byte[] buffer = new byte[65536];
+                        int bytesRead = 0;
+                        int totalBytes = 0;
+                        for (; (bytesRead = fisExternal.read(buffer)) != -1; totalBytes += bytesRead) {
+                            fos.write(buffer, 0, bytesRead);
+                        }
+                        fos.close();
+                        fisExternal.close();
+                        if (debug) Log.w(TAG, "onActivityResult() copied " + totalBytes + " bytes into " + testFileName);
+                        
+                        FileInputStream fis;
+                        fis = openFileInput(testFileName);
+                        LayerClient layerClient = ((App101) getApplication()).getLayerClient();
+                        Message msg = layerClient.newMessage(layerClient.newMessagePart(mimeType, fis, fileToUpload.length()));
+                        conv.send(msg);
+                        fis.close();
+                    } catch (Exception e) {
+                        Log.e(TAG, "onActivityResult() cannot upload file: " + resultFileName, e);
+                        return;
+                    }
+                    if (debug) Log.w(TAG, "onActivityResult() uploaded " + fileToUpload.length() + " bytes");
+                }
+                break;
+
+            default :
+                break;
+        }
+    }
+    
+    /**
+     * pick file name from content provider with Gallery-flavor format
+     */
+    public String getGalleryImagePath(Uri uri) {
+        String[] projection = { MediaStore.Images.Media.DATA };
+        Cursor cursor = managedQuery(uri, projection, null, null, null);
+        if (cursor == null) {
+            return null;        // uri could be not suitable for ContentProviders, i.e. points to file 
+        }
+        int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+        cursor.moveToFirst();
+        return cursor.getString(column_index);
+    }
+
     private LayerChangeEventListener.MainThread eventTracker;
     
     @Override
