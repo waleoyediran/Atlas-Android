@@ -42,6 +42,7 @@ import com.layer.sdk.listeners.LayerChangeEventListener;
 import com.layer.sdk.messaging.Conversation;
 import com.layer.sdk.messaging.Message;
 import com.layer.sdk.messaging.MessagePart;
+import com.layer.transport.util.Streams;
 
 /**
  * @author Oleg Orlov
@@ -291,6 +292,7 @@ public class AtlasMessagesScreen extends Activity {
                     return;
                 }
                 Uri selectedImageUri = data.getData();
+                // TODO: Mi4 requires READ_EXTERNAL_STORAGE permission for such operation
                 String selectedImagePath = getGalleryImagePath(selectedImageUri);
                 String resultFileName = selectedImagePath;
                 if (selectedImagePath != null) {
@@ -326,17 +328,23 @@ public class AtlasMessagesScreen extends Activity {
                         fisExternal.close();
                         if (debug) Log.w(TAG, "onActivityResult() copied " + totalBytes + " bytes into " + testFileName);
                         
+                        LayerClient layerClient = ((App101) getApplication()).getLayerClient();
+                        
                         FileInputStream fis;
                         fis = openFileInput(testFileName);
-                        LayerClient layerClient = ((App101) getApplication()).getLayerClient();
-                        Message msg = layerClient.newMessage(layerClient.newMessagePart(mimeType, fis, fileToUpload.length()));
+                        //Message msg = layerClient.newMessage(layerClient.newMessagePart(mimeType, fis, fileToUpload.length()));
+                        byte[] content = Streams.readFully(fis);
+                        Message msg = layerClient.newMessage(layerClient.newMessagePart(mimeType, content));
                         conv.send(msg);
                         fis.close();
+                        File dir = getFilesDir();
+                        File file = new File(dir, testFileName);
+                        boolean deleted = file.delete();
+                        if (debug) Log.w(TAG, "onActivityResult() uploaded " + fileToUpload.length() + " bytes. Tmp file " + testFileName + (deleted ? " " : " is not") + " deleted");
                     } catch (Exception e) {
                         Log.e(TAG, "onActivityResult() cannot upload file: " + resultFileName, e);
                         return;
                     }
-                    if (debug) Log.w(TAG, "onActivityResult() uploaded " + fileToUpload.length() + " bytes");
                 }
                 break;
 
