@@ -24,7 +24,7 @@
                 android:gravity="center_vertical"
                 android:paddingLeft="@dimen/activity_horizontal_margin"
                 android:paddingRight="@dimen/activity_horizontal_margin"
-                android:textSize="@dimen/atlas_text_size_general"
+                android:textSize="@dimen/atlas_text_size_smaller"
                 android:textColor="@color/atlas_text_blue"
                 android:text="Account"/>
             
@@ -41,7 +41,7 @@
                     android:layout_height="0dp"
                     android:layout_weight="1"
                     android:gravity="bottom"
-                    android:textSize="@dimen/atlas_text_size_bigger"
+                    android:textSize="@dimen/atlas_text_size_general"
                     android:textColor="@color/atlas_text_black"
                     android:text="Dunstan Orchard"/>
                 
@@ -51,7 +51,7 @@
                     android:layout_height="0dp"
                     android:layout_weight="1"
                     android:gravity="top"
-                    android:textSize="@dimen/atlas_text_size_general"
+                    android:textSize="@dimen/atlas_text_size_smaller"
                     android:textColor="@color/atlas_text_gray"
                     android:text="Connected"/>
                 
@@ -63,7 +63,7 @@
                 android:gravity="center_vertical"
                 android:paddingLeft="@dimen/activity_horizontal_margin"
                 android:paddingRight="@dimen/activity_horizontal_margin"
-                android:textSize="@dimen/atlas_text_size_bigger"
+                android:textSize="@dimen/atlas_text_size_general"
                 android:textColor="@color/atlas_text_black"
                 android:text="Log Out"/>
             
@@ -76,7 +76,7 @@
                 android:gravity="center_vertical"
                 android:paddingLeft="@dimen/activity_horizontal_margin"
                 android:paddingRight="@dimen/activity_horizontal_margin"
-                android:textSize="@dimen/atlas_text_size_general"
+                android:textSize="@dimen/atlas_text_size_smaller"
                 android:textColor="@color/atlas_text_blue"
                 android:text="Notifications"/>
             
@@ -93,7 +93,7 @@
                     android:layout_height="48dp"
                     android:layout_weight="1"
                     android:gravity="center_vertical"
-                    android:textSize="@dimen/atlas_text_size_bigger"
+                    android:textSize="@dimen/atlas_text_size_general"
                     android:textColor="@color/atlas_text_black"
                     android:text="Send Push Notifications"/>
                 
@@ -119,7 +119,7 @@
                     android:layout_height="48dp"
                     android:layout_weight="1"
                     android:gravity="center_vertical"
-                    android:textSize="@dimen/atlas_text_size_bigger"
+                    android:textSize="@dimen/atlas_text_size_general"
                     android:textColor="@color/atlas_text_black"
                     android:text="Show Local Notifications"/>
                 
@@ -140,7 +140,7 @@
                 android:gravity="center_vertical"
                 android:paddingLeft="@dimen/activity_horizontal_margin"
                 android:paddingRight="@dimen/activity_horizontal_margin"
-                android:textSize="@dimen/atlas_text_size_general"
+                android:textSize="@dimen/atlas_text_size_smaller"
                 android:textColor="@color/atlas_text_blue"
                 android:text="Debug"/>
             
@@ -157,7 +157,7 @@
                     android:layout_height="48dp"
                     android:layout_weight="1"
                     android:gravity="center_vertical"
-                    android:textSize="@dimen/atlas_text_size_bigger"
+                    android:textSize="@dimen/atlas_text_size_general"
                     android:textColor="@color/atlas_text_black"
                     android:text="Debugging"/>
                 
@@ -183,7 +183,7 @@
                     android:layout_height="0dp"
                     android:layout_weight="1"
                     android:gravity="bottom"
-                    android:textSize="@dimen/atlas_text_size_bigger"
+                    android:textSize="@dimen/atlas_text_size_general"
                     android:textColor="@color/atlas_text_black"
                     android:text="Synchronization Interval"/>
                 
@@ -193,7 +193,7 @@
                     android:layout_height="0dp"
                     android:layout_weight="1"
                     android:gravity="top"
-                    android:textSize="@dimen/atlas_text_size_general"
+                    android:textSize="@dimen/atlas_text_size_smaller"
                     android:textColor="@color/atlas_text_gray"
                     android:text="30 seconds"/>
                 
@@ -212,7 +212,7 @@
                     android:layout_height="0dp"
                     android:layout_weight="1"
                     android:gravity="bottom"
-                    android:textSize="@dimen/atlas_text_size_bigger"
+                    android:textSize="@dimen/atlas_text_size_general"
                     android:textColor="@color/atlas_text_black"
                     android:text="Version"/>
                 
@@ -220,7 +220,7 @@
                     android:id="@+id/atlas_settings_debug_version_app_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="@dimen/atlas_text_size_general"
+                    android:textSize="@dimen/atlas_text_size_smaller"
                     android:textColor="@color/atlas_text_gray"
                     android:text="LayerAtlas v0.1"/>
                 
@@ -230,7 +230,7 @@
                     android:layout_height="0dp"
                     android:layout_weight="1"
                     android:gravity="top"
-                    android:textSize="@dimen/atlas_text_size_general"
+                    android:textSize="@dimen/atlas_text_size_smaller"
                     android:textColor="@color/atlas_text_gray"
                     android:text="LayerSDK v0.11.3"/>
                 
@@ -249,7 +249,7 @@
                     android:layout_height="0dp"
                     android:layout_weight="1"
                     android:gravity="bottom"
-                    android:textSize="@dimen/atlas_text_size_bigger"
+                    android:textSize="@dimen/atlas_text_size_general"
                     android:textColor="@color/atlas_text_black"
                     android:text="LayerKit Version"/>
                 
@@ -259,7 +259,7 @@
                     android:layout_height="0dp"
                     android:layout_weight="1"
                     android:gravity="top"
-                    android:textSize="@dimen/atlas_text_size_general"
+                    android:textSize="@dimen/atlas_text_size_smaller"
                     android:textColor="@color/atlas_text_gray"
                     android:text="LayerSDK v0.11.3"/>
                 
@@ -278,7 +278,7 @@
                     android:layout_height="0dp"
                     android:layout_weight="1"
                     android:gravity="bottom"
-                    android:textSize="@dimen/atlas_text_size_bigger"
+                    android:textSize="@dimen/atlas_text_size_general"
                     android:textColor="@color/atlas_text_black"
                     android:text="Build"/>
                 
@@ -286,7 +286,7 @@
                     android:id="@+id/atlas_settings_debug_build1_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="@dimen/atlas_text_size_general"
+                    android:textSize="@dimen/atlas_text_size_smaller"
                     android:textColor="@color/atlas_text_gray"
                     android:text="LayerAtlas v0.1"/>
                 
@@ -296,7 +296,7 @@
                     android:layout_height="0dp"
                     android:layout_weight="1"
                     android:gravity="top"
-                    android:textSize="@dimen/atlas_text_size_general"
+                    android:textSize="@dimen/atlas_text_size_smaller"
                     android:textColor="@color/atlas_text_gray"
                     android:text="LayerSDK v0.11.3"/>
                 
@@ -315,7 +315,7 @@
                     android:layout_height="0dp"
                     android:layout_weight="1"
                     android:gravity="bottom"
-                    android:textSize="@dimen/atlas_text_size_bigger"
+                    android:textSize="@dimen/atlas_text_size_general"
                     android:textColor="@color/atlas_text_black"
                     android:text="Host"/>
                 
@@ -325,7 +325,7 @@
                     android:layout_height="0dp"
                     android:layout_weight="1"
                     android:gravity="top"
-                    android:textSize="@dimen/atlas_text_size_general"
+                    android:textSize="@dimen/atlas_text_size_smaller"
                     android:textColor="@color/atlas_text_gray"
                     android:text="conf.lyr8.net"/>
                 
@@ -344,7 +344,7 @@
                     android:layout_height="0dp"
                     android:layout_weight="1"
                     android:gravity="bottom"
-                    android:textSize="@dimen/atlas_text_size_bigger"
+                    android:textSize="@dimen/atlas_text_size_general"
                     android:textColor="@color/atlas_text_black"
                     android:text="User ID"/>
                 
@@ -354,7 +354,7 @@
                     android:layout_height="0dp"
                     android:layout_weight="1"
                     android:gravity="top"
-                    android:textSize="@dimen/atlas_text_size_general"
+                    android:textSize="@dimen/atlas_text_size_smaller"
                     android:textColor="@color/atlas_text_gray"
                     android:text="c2129afd-f535-4c9f-ba92-4a2c67ff94c1"/>
                 
@@ -373,7 +373,7 @@
                     android:layout_height="0dp"
                     android:layout_weight="1"
                     android:gravity="bottom"
-                    android:textSize="@dimen/atlas_text_size_bigger"
+                    android:textSize="@dimen/atlas_text_size_general"
                     android:textColor="@color/atlas_text_black"
                     android:text="Device Token"/>
                 
@@ -383,7 +383,7 @@
                     android:layout_height="0dp"
                     android:layout_weight="1"
                     android:gravity="top"
-                    android:textSize="@dimen/atlas_text_size_general"
+                    android:textSize="@dimen/atlas_text_size_smaller"
                     android:textColor="@color/atlas_text_gray"
                     android:text="15158hggc 98sdf98 98sf 7sd8f 89fsdf 8sdf98 sdf asdas kk787876djkj kjhkjasd"/>
                 
@@ -397,7 +397,7 @@
                 android:gravity="center_vertical"
                 android:paddingLeft="@dimen/activity_horizontal_margin"
                 android:paddingRight="@dimen/activity_horizontal_margin"
-                android:textSize="@dimen/atlas_text_size_general"
+                android:textSize="@dimen/atlas_text_size_smaller"
                 android:textColor="@color/atlas_text_blue"
                 android:text="Statistics"/>
     
@@ -414,7 +414,7 @@
                     android:layout_height="0dp"
                     android:layout_weight="1"
                     android:gravity="bottom"
-                    android:textSize="@dimen/atlas_text_size_bigger"
+                    android:textSize="@dimen/atlas_text_size_general"
                     android:textColor="@color/atlas_text_black"
                     android:text="Conversations"/>
                 
@@ -424,7 +424,7 @@
                     android:layout_height="0dp"
                     android:layout_weight="1"
                     android:gravity="top"
-                    android:textSize="@dimen/atlas_text_size_general"
+                    android:textSize="@dimen/atlas_text_size_smaller"
                     android:textColor="@color/atlas_text_gray"
                     android:text="0"/>
                 
@@ -443,7 +443,7 @@
                     android:layout_height="0dp"
                     android:layout_weight="1"
                     android:gravity="bottom"
-                    android:textSize="@dimen/atlas_text_size_bigger"
+                    android:textSize="@dimen/atlas_text_size_general"
                     android:textColor="@color/atlas_text_black"
                     android:text="Messages"/>
                 
@@ -453,7 +453,7 @@
                     android:layout_height="0dp"
                     android:layout_weight="1"
                     android:gravity="top"
-                    android:textSize="@dimen/atlas_text_size_general"
+                    android:textSize="@dimen/atlas_text_size_smaller"
                     android:textColor="@color/atlas_text_gray"
                     android:text="0"/>
                 
@@ -472,7 +472,7 @@
                     android:layout_height="0dp"
                     android:layout_weight="1"
                     android:gravity="bottom"
-                    android:textSize="@dimen/atlas_text_size_bigger"
+                    android:textSize="@dimen/atlas_text_size_general"
                     android:textColor="@color/atlas_text_black"
                     android:text="Unread Messages"/>
                 
@@ -482,7 +482,7 @@
                     android:layout_height="0dp"
                     android:layout_weight="1"
                     android:gravity="top"
-                    android:textSize="@dimen/atlas_text_size_general"
+                    android:textSize="@dimen/atlas_text_size_smaller"
                     android:textColor="@color/atlas_text_gray"
                     android:text="0"/>
                 
@@ -496,7 +496,7 @@
                 android:gravity="center_vertical"
                 android:paddingLeft="@dimen/activity_horizontal_margin"
                 android:paddingRight="@dimen/activity_horizontal_margin"
-                android:textSize="@dimen/atlas_text_size_general"
+                android:textSize="@dimen/atlas_text_size_smaller"
                 android:textColor="@color/atlas_text_blue"
                 android:text="External Content"/>
     
@@ -513,7 +513,7 @@
                     android:layout_height="0dp"
                     android:layout_weight="1"
                     android:gravity="bottom"
-                    android:textSize="@dimen/atlas_text_size_bigger"
+                    android:textSize="@dimen/atlas_text_size_general"
                     android:textColor="@color/atlas_text_black"
                     android:text="Current Disk Utilization"/>
                 
@@ -523,7 +523,7 @@
                     android:layout_height="0dp"
                     android:layout_weight="1"
                     android:gravity="top"
-                    android:textSize="@dimen/atlas_text_size_general"
+                    android:textSize="@dimen/atlas_text_size_smaller"
                     android:textColor="@color/atlas_text_gray"
                     android:text="1.75 Mb"/>
                 
@@ -542,7 +542,7 @@
                     android:layout_height="0dp"
                     android:layout_weight="1"
                     android:gravity="bottom"
-                    android:textSize="@dimen/atlas_text_size_bigger"
+                    android:textSize="@dimen/atlas_text_size_general"
                     android:textColor="@color/atlas_text_black"
                     android:text="Disk Capacity Allowance"/>
                 
@@ -552,7 +552,7 @@
                     android:layout_height="0dp"
                     android:layout_weight="1"
                     android:gravity="top"
-                    android:textSize="@dimen/atlas_text_size_general"
+                    android:textSize="@dimen/atlas_text_size_smaller"
                     android:textColor="@color/atlas_text_gray"
                     android:text="Unlimited"/>
                 

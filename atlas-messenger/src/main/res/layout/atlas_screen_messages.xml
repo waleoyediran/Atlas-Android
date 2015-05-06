@@ -69,7 +69,7 @@
                 android:maxLines="1"
                 android:paddingLeft="12dp"
                 android:paddingRight="12dp"
-                android:textSize="@dimen/atlas_text_size_bigger" 
+                android:textSize="@dimen/atlas_text_size_general" 
                 android:textColor="@color/atlas_text_gray"
                 android:text="SEND"
                 />

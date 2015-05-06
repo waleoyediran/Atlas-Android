@@ -11,7 +11,7 @@
         android:gravity="center_vertical"
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin"
-        android:textSize="@dimen/atlas_text_size_general"
+        android:textSize="@dimen/atlas_text_size_smaller"
         android:textColor="@color/atlas_text_blue"
         android:text="Options"/>
     
@@ -20,7 +20,7 @@
         android:id="@+id/atlas_screen_conversation_settings_groupname_text" 
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:textSize="@dimen/atlas_text_size_bigger"
+        android:textSize="@dimen/atlas_text_size_general"
         android:textColor="@color/atlas_text_black"
         android:layout_marginLeft="@dimen/activity_horizontal_margin"
         android:layout_marginRight="@dimen/activity_horizontal_margin"
@@ -42,7 +42,7 @@
             android:layout_height="48dp"
             android:layout_weight="1"
             android:gravity="center_vertical"
-            android:textSize="@dimen/atlas_text_size_bigger"
+            android:textSize="@dimen/atlas_text_size_general"
             android:textColor="@color/atlas_text_black"
             android:text="Notifications"/>
         
@@ -63,7 +63,7 @@
         android:gravity="center_vertical"
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin"
-        android:textSize="@dimen/atlas_text_size_bigger"
+        android:textSize="@dimen/atlas_text_size_general"
         android:textColor="@color/atlas_text_black"
         android:text="Block this person"/>
     
@@ -74,7 +74,7 @@
         android:gravity="center_vertical"
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin"
-        android:textSize="@dimen/atlas_text_size_bigger"
+        android:textSize="@dimen/atlas_text_size_general"
         android:textColor="@color/atlas_text_black"
         android:text="Leave this Group"/>
     
@@ -86,7 +86,7 @@
         android:gravity="center_vertical"
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin"
-        android:textSize="@dimen/atlas_text_size_general"
+        android:textSize="@dimen/atlas_text_size_smaller"
         android:textColor="@color/atlas_text_blue"
         android:text="Participants"/>
     
@@ -112,7 +112,7 @@
         android:gravity="center_vertical"
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin"
-        android:textSize="@dimen/atlas_text_size_bigger"
+        android:textSize="@dimen/atlas_text_size_general"
         android:textColor="@color/atlas_text_black"
         android:text="Add People"/>
 
@@ -124,7 +124,7 @@
         android:gravity="center_vertical"
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin"
-        android:textSize="@dimen/atlas_text_size_general"
+        android:textSize="@dimen/atlas_text_size_smaller"
         android:textColor="@color/atlas_text_blue"
         android:text="Attachments"/>
     

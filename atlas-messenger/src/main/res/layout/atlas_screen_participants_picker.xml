@@ -34,7 +34,7 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:textColor="@color/atlas_text_blue"
-                android:textSize="@dimen/atlas_text_size_general"
+                android:textSize="@dimen/atlas_text_size_smaller"
                 android:text="CANCEL"
                 />
             <TextView 
@@ -44,7 +44,7 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:textColor="@color/atlas_text_blue"
-                android:textSize="@dimen/atlas_text_size_general"
+                android:textSize="@dimen/atlas_text_size_smaller"
                 android:text="ADD"
                 />
         </LinearLayout>

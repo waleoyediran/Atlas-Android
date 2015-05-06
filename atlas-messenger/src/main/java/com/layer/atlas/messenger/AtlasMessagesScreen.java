@@ -2,10 +2,10 @@ package com.layer.atlas.messenger;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Calendar;
 import java.util.List;
 
 import android.app.Activity;
@@ -31,7 +31,6 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.internal.le;
 import com.layer.atlas.ParticipantPicker;
 import com.layer.atlas.messenger.App101.Contact;
 import com.layer.atlas.messenger.App101.keys;
@@ -60,8 +59,10 @@ public class AtlasMessagesScreen extends Activity {
     public static final int REQUEST_CODE_GALLERY  = 111;
     public static final int REQUEST_CODE_CAMERA   = 112;
     
+    public static final String MIME_TYPE_TEXT = "text/plain";
+    
     private Conversation conv;
-    private ArrayList<Message> messages = new ArrayList<Message>();
+    private ArrayList<ViewItem> viewItems = new ArrayList<ViewItem>();
     
     private TextView messageText;
     private ListView messagesList;
@@ -180,55 +181,109 @@ public class AtlasMessagesScreen extends Activity {
                 }
             }
         });
+        
+        // --- message view
+        final SimpleDateFormat sdf = new SimpleDateFormat("HH:mm a"); // TODO: localization required
+        final SimpleDateFormat sdfDayOfWeek = new SimpleDateFormat("EEEE"); // TODO: localization required
         messagesList = (ListView) findViewById(R.id.atlas_messages_view);
         messagesList.setAdapter(messagesAdapter = new BaseAdapter() {
-            private int nextId = 0;
-            private final HashMap id2converts = new HashMap();
             
             private static final int TYPE_ME = 0; 
             private static final int TYPE_OTHER = 1;
             
-            class ViewTag {
-                int id;
-                int type;
-                ViewTag(int id, int type) {
-                    this.id = id;
-                    this.type = type;
-                }
-            }
-            
             public View getView(int position, View convertView, ViewGroup parent) {
-                Message msg = messages.get(position);
-                String userId = msg.getSentByUserId();
+                ViewItem viewItem = viewItems.get(position);
+                MessagePart part = viewItem.messagePart;
+                String userId = part.getMessage().getSentByUserId();
                 Contact contact = app.contactsMap.get(userId);
                 
                 int viewType = app.getLayerClient().getAuthenticatedUserId().equals(contact.userId) ? TYPE_ME : TYPE_OTHER;
                 
                 if (convertView == null) { 
                     convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.atlas_view_messages_convert, parent, false);
-                    ViewTag tag = new ViewTag(nextId++, viewType);
-                    convertView.setTag(tag);
-                    id2converts.put(tag.id, convertView);
                 }
-                if (false) Log.d(TAG, "getView() " + position + ", msg:" + msg + ": convert: " + convertView + ", total: " + id2converts.size());
                 
                 TextView textMy = (TextView) convertView.findViewById(R.id.atlas_view_messages_convert_text);
                 TextView textOther = (TextView) convertView.findViewById(R.id.atlas_view_messages_convert_text_counterparty);
                 TextView textAvatar = (TextView) convertView.findViewById(R.id.atlas_view_messages_convert_initials);
+                View spacerRight = convertView.findViewById(R.id.atlas_view_messages_convert_spacer_right);
+                String messagePartText = null;
+                if (MIME_TYPE_TEXT.equals(part.getMimeType())) {
+                    messagePartText = new String(part.getData());
+                } else {
+                    messagePartText = "attach, type: " + part.getMimeType() + ", size: " + part.getSize();
+                }
                 if (viewType == TYPE_OTHER) {
                     textOther.setVisibility(View.VISIBLE);
-                    textOther.setText(App101.toString(msg));
+                    textOther.setText(messagePartText);
                     String displayText = App101.getContactInitials(contact);
                     textAvatar.setText(displayText);
                     textAvatar.setVisibility(View.VISIBLE);
+                    spacerRight.setVisibility(View.VISIBLE);
                     textMy.setVisibility(View.GONE);
+                    
+                    textOther.setBackgroundResource(R.drawable.atlas_shape_rounded16_gray);
+                    
+                    if (viewItem.clusterHeadItemId == viewItem.clusterItemId && !viewItem.clusterTail) {
+                        textOther.setBackgroundResource(R.drawable.atlas_shape_rounded16_gray_no_bottom_left);
+                    } else if (viewItem.clusterTail && viewItem.clusterHeadItemId != viewItem.clusterItemId) {
+                        textOther.setBackgroundResource(R.drawable.atlas_shape_rounded16_gray_no_top_left);
+                    } else if (viewItem.clusterHeadItemId != viewItem.clusterItemId && !viewItem.clusterTail) {
+                        textOther.setBackgroundResource(R.drawable.atlas_shape_rounded16_gray_no_left);
+                    }
+
                 } else {
                     textMy.setVisibility(View.VISIBLE);
-                    textMy.setText(App101.toString(msg));
+                    textMy.setText(messagePartText);
                     textOther.setVisibility(View.GONE);
-                    textAvatar.setVisibility(View.GONE);
+                    textAvatar.setVisibility(View.INVISIBLE);
+                    spacerRight.setVisibility(View.GONE);
+                    
+                    textMy.setBackgroundResource(R.drawable.atlas_shape_rounded16_blue);
+                    
+                    if (viewItem.clusterHeadItemId == viewItem.clusterItemId && !viewItem.clusterTail) {
+                        textMy.setBackgroundResource(R.drawable.atlas_shape_rounded16_blue_no_bottom_right);
+                    } else if (viewItem.clusterTail && viewItem.clusterHeadItemId != viewItem.clusterItemId) {
+                        textMy.setBackgroundResource(R.drawable.atlas_shape_rounded16_blue_no_top_right);
+                    } else if (viewItem.clusterHeadItemId != viewItem.clusterItemId && !viewItem.clusterTail) {
+                        textMy.setBackgroundResource(R.drawable.atlas_shape_rounded16_blue_no_right);
+                    }
                 }
+                
+                View spacerTop = convertView.findViewById(R.id.atlas_view_messages_convert_spacer_top);
+                spacerTop.setVisibility(viewItem.clusterItemId == viewItem.clusterHeadItemId && !viewItem.timeHeader ? View.VISIBLE : View.GONE); 
+                
+                View spacerBottom = convertView.findViewById(R.id.atlas_view_messages_convert_spacer_bottom);
+                spacerBottom.setVisibility(viewItem.clusterTail ? View.VISIBLE : View.GONE); 
+                
+                // format date
+                View timeBar = convertView.findViewById(R.id.atlas_view_messages_convert_timebar);
+                TextView timeBarDay = (TextView) convertView.findViewById(R.id.atlas_view_messages_convert_timebar_day);
+                TextView timeBarTime = (TextView) convertView.findViewById(R.id.atlas_view_messages_convert_timebar_time);
+                if (viewItem.timeHeader) {
+                    timeBar.setVisibility(View.VISIBLE);
+
+                    Calendar cal = Calendar.getInstance();
+                    cal.set(Calendar.HOUR_OF_DAY, 0);
+                    cal.set(Calendar.MINUTE, 0);
+                    cal.set(Calendar.SECOND, 0);
+                    long todayMidnight = cal.getTimeInMillis();
+                    long yesterMidnight = todayMidnight - (24 * 60 * 60 * 1000); // 24h less
+                    if (viewItem.messagePart.getMessage().getSentAt().getTime() > todayMidnight) {
+                        timeBarDay.setText("Today"); 
+                    } else if (viewItem.messagePart.getMessage().getSentAt().getTime() > yesterMidnight) {
+                        timeBarDay.setText("Yesterday");
+                    } else {
+                        timeBarDay.setText(sdfDayOfWeek.format(viewItem.messagePart.getMessage().getSentAt()));
+                    }
+                    timeBarTime.setText(sdf.format(viewItem.messagePart.getMessage().getSentAt().getTime()));
+                     
+                } else {
+                    timeBar.setVisibility(View.GONE);
+                }
+                
                 // mark displayed message as read
+                Message msg = part.getMessage();
                 if (!msg.getSentByUserId().equals(app.getLayerClient().getAuthenticatedUserId())) {
                     msg.markAsRead();
                 }
@@ -239,17 +294,38 @@ public class AtlasMessagesScreen extends Activity {
                 return position;
             }
             public Object getItem(int position) {
-                return messages.get(position);
+                return viewItems.get(position);
             }
             public int getCount() {
-                return messages.size();
+                return viewItems.size();
             }
         });
+        // --- end of messageView
     }
     
-    /**  */
+    static class ViewItem {
+        MessagePart messagePart;
+        int clusterHeadItemId;
+        int clusterItemId;
+        boolean clusterTail;
+        boolean timeHeader;
+        
+        @Override
+        public String toString() {
+            StringBuilder builder = new StringBuilder();
+            builder.append("[ ")
+                .append("messagePart: ").append(messagePart.getData() != null ? new String(messagePart.getData()): "null")
+                .append(", clusterId: ").append(clusterHeadItemId)
+                .append(", clusterItem: ").append(clusterItemId)
+                .append(", clusterTail: ").append(clusterTail)
+                .append(", timeHeader: ").append(timeHeader).append(" ]");
+            return builder.toString();
+        }
+        
+        
+    }
+
     private void updateValues() {
-        Log.w(TAG, "updateValues() called from: " + Log.printStackTrace());
         App101 app = (App101) getApplication();
         
         if (conv == null) {
@@ -257,9 +333,63 @@ public class AtlasMessagesScreen extends Activity {
             return;
         }
         
+        long started = System.currentTimeMillis();
+        
         List<Message> messages = app.getLayerClient().getMessages(conv);
-        this.messages.clear();
-        this.messages.addAll(messages);
+        viewItems.clear();
+        for (Message message : messages) {
+            List<MessagePart> parts = message.getMessageParts();
+            for (MessagePart messagePart : parts) {
+                ViewItem item = new ViewItem();
+                item.messagePart = messagePart;
+                viewItems.add(item);
+            }
+        }
+        
+        // calculate heads/tails
+        int currentItem = 0;
+        int clusterId = currentItem;
+        String currentUser = null;
+        long lastMessageTime = 0;
+        Calendar calLastMessage = Calendar.getInstance();
+        Calendar calCurrent = Calendar.getInstance();
+        long clusterTimeSpan = 60 * 1000; // 1 minute
+        long oneHourSpan = 60 * 60 * 1000; // 1 hour
+        for (int i = 0; i < viewItems.size(); i++) {
+            ViewItem item = viewItems.get(i);
+            boolean newCluster = false;
+            if (!item.messagePart.getMessage().getSentByUserId().equals(currentUser)) {
+                newCluster = true;
+            }
+            if (item.messagePart.getMessage().getSentAt().getTime() - lastMessageTime > clusterTimeSpan) {
+                newCluster = true;
+            }
+            
+            if (newCluster) {
+                clusterId = currentItem;
+                if (i > 0) viewItems.get(i - 1).clusterTail = true;
+            }
+            
+            // check time header is needed
+            if (item.messagePart.getMessage().getSentAt().getTime() - lastMessageTime > oneHourSpan) {
+                item.timeHeader = true;
+            }
+            calCurrent.setTime(item.messagePart.getMessage().getSentAt());
+            if (calCurrent.get(Calendar.DAY_OF_YEAR) != calLastMessage.get(Calendar.DAY_OF_YEAR)) {
+                item.timeHeader = true;
+            }
+            
+            item.clusterHeadItemId = clusterId;
+            item.clusterItemId = currentItem++;
+            
+            currentUser = item.messagePart.getMessage().getSentByUserId();
+            lastMessageTime = item.messagePart.getMessage().getSentAt().getTime();
+            calLastMessage.setTime(item.messagePart.getMessage().getSentAt());
+            if (debug) Log.d(TAG, "updateValues() item: " + item);
+        }
+        viewItems.get(viewItems.size() - 1).clusterTail = true; // last one is always a tail
+        
+        Log.d(TAG, "updateValues() parts finished in: " + (System.currentTimeMillis() - started));
         messagesAdapter.notifyDataSetChanged();
         
         // update buddies:
@@ -399,7 +529,5 @@ public class AtlasMessagesScreen extends Activity {
         updateValues();
         messagesList.smoothScrollToPosition(messagesAdapter.getCount() - 1);
     }
-    
-    
 
 }

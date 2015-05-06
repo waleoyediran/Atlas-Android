@@ -40,7 +40,7 @@
         android:layout_height="36dp"
         android:layout_gravity="center_horizontal"
         android:gravity="center"
-        android:textSize="@dimen/atlas_text_size_bigger"
+        android:textSize="@dimen/atlas_text_size_general"
         android:textColor="@color/atlas_background_white"
         android:background="@drawable/atlas_shape_btn_rectangle_blue"
         android:text="login"

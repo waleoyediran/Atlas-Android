@@ -25,7 +25,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:textSize="@dimen/atlas_text_size_bigger"
+        android:textSize="@dimen/atlas_text_size_general"
         android:textColor="@color/atlas_text_black87"
         android:text="Item"
         />

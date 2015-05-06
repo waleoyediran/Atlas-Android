@@ -17,7 +17,7 @@
     		android:layout_gravity="center"
     		android:background="@drawable/atlas_shape_circle_gray"
     		android:gravity="center"
-            android:textSize="@dimen/atlas_text_size_general"
+            android:textSize="@dimen/atlas_text_size_smaller"
     		android:text="TS"
     		/>
         
@@ -98,7 +98,7 @@
     			android:layout_height="wrap_content"
     			android:layout_weight="1"
                 android:singleLine="true"
-    			android:textSize="@dimen/atlas_text_size_bigger"
+    			android:textSize="@dimen/atlas_text_size_general"
     			android:text="Tomaz Stolfa" 
     			/>
 		    
@@ -109,7 +109,7 @@
     			android:layout_gravity="center_vertical"
                 android:paddingLeft="8dp"
                 android:singleLine="true" 
-    			android:textSize="@dimen/atlas_text_size_smaller"
+    			android:textSize="@dimen/atlas_text_size_smaller2"
     			android:textColor="@color/atlas_text_blue"
     			android:text="16:43" 
     			/>
@@ -124,7 +124,7 @@
 	        android:singleLine="true"
 	        
 	        android:text="You did it! When are we going to see the..."
-	        android:textSize="@dimen/atlas_text_size_general"
+	        android:textSize="@dimen/atlas_text_size_smaller"
 	        />
 		
 	    

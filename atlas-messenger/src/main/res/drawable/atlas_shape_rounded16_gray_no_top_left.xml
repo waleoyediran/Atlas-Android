@@ -5,10 +5,10 @@
 	<corners 
 		android:topRightRadius="16dp"
 		android:bottomRightRadius="16dp"
-		android:topLeftRadius="16dp"
+		android:topLeftRadius="2dp"
 		android:bottomLeftRadius="16dp"
 		/>
 	
-	<solid android:color="@color/atlas_background_blue"/>
+	<solid android:color="@color/atlas_background_gray"/>
 	
 </shape>
