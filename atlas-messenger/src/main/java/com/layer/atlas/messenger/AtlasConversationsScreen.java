@@ -157,7 +157,8 @@ public class AtlasConversationsScreen extends Activity {
                     
                     Date sentAt = last.getSentAt();
                     SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
-                    timeView.setText(sdf.format(sentAt));
+                    if (sentAt == null) timeView.setText("...");
+                    else                timeView.setText(sdf.format(sentAt));
                     
                     if (!last.getSentByUserId().equals(app.getLayerClient().getAuthenticatedUserId())
                             && last.getRecipientStatus(app.getLayerClient().getAuthenticatedUserId()) != RecipientStatus.READ) {

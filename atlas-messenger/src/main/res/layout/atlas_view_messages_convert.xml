@@ -13,7 +13,7 @@
         >
         <TextView 
             android:id="@+id/atlas_view_messages_convert_timebar_day"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="48dp"
             android:layout_weight="1"
             android:layout_marginRight="2dp"
@@ -25,7 +25,7 @@
             />
         <TextView 
             android:id="@+id/atlas_view_messages_convert_timebar_time"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="48dp"
             android:layout_weight="1"
             android:layout_marginLeft="2dp"
@@ -65,53 +65,78 @@
     	
         <!--  android:background="#D1FFF1" - blue -->
     
-        <FrameLayout 
-    		android:layout_width="0dp"
-    		android:layout_height="wrap_content"    	
-    		android:layout_weight="1"
-    		android:layout_marginRight="8dp"
-    		android:layout_marginLeft="8dp"
-        	>
-        	
-    	    <TextView
-    	        android:id="@+id/atlas_view_messages_convert_text_counterparty"
-    	        android:layout_width="wrap_content"
-    	        android:layout_height="wrap_content"
-    	        android:layout_gravity="left|center_vertical"
-    	        android:paddingTop="4dp"
-    	        android:paddingBottom="6dp"
-    	        android:paddingLeft="12dp"
-    	        android:paddingRight="12dp"
-    	        
-                android:text="Sample Text Sample Text Very \nLong About 300 Symbols Like\n two full-sized Tweets"
-    	        android:background="@drawable/atlas_shape_rounded16_gray"
-    	        
-    	        android:textSize="16sp"
-    	        android:minHeight="34dp"
+        <FrameLayout
+            android:id="@+id/atlas_view_messages_cell_container"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginRight="8dp"
+            android:layout_marginLeft="8dp">
+            
+            <FrameLayout 
+                android:id="@+id/atlas_view_messages_cell_text"
+        		android:layout_width="match_parent"
+        		android:layout_height="wrap_content"    	
+        		>
+            	
+        	    <TextView
+        	        android:id="@+id/atlas_view_messages_convert_text_counterparty"
+        	        android:layout_width="wrap_content"
+        	        android:layout_height="wrap_content"
+        	        android:layout_gravity="left|center_vertical"
+        	        android:paddingTop="4dp"
+        	        android:paddingBottom="6dp"
+        	        android:paddingLeft="12dp"
+        	        android:paddingRight="12dp"
+        	        
+                    android:text="Sample Text Sample Text Very \nLong About 300 Symbols Like\n two full-sized Tweets"
+        	        android:background="@drawable/atlas_shape_rounded16_gray"
+        	        
+        	        android:textSize="16sp"
+        	        android:minHeight="34dp"
+                    
+        			/>
+        	    
+        	    <TextView
+        	        android:id="@+id/atlas_view_messages_convert_text"
+        	        android:layout_width="wrap_content"
+        	        android:layout_height="wrap_content"
+        	        android:layout_gravity="right|center_vertical"
+        	        android:paddingTop="4dp"
+        	        android:paddingBottom="6dp"
+        	        android:paddingLeft="12dp"
+        	        android:paddingRight="12dp"
+        	        
+        	        android:text="attach, type: image/jpeg, size: 1071119\nSample Text Very \nLong About 300 Symbols Like\n two full-sized Tweets"
+        	        android:background="@drawable/atlas_shape_rounded16_blue"
+        			android:gravity="right|center_vertical"
+        			
+        			android:textSize="16sp" 
+        			android:textColor="@color/atlas_text_white"
+        			android:minHeight="34dp"
+                    
+                    android:visibility="gone"
+        			/>
+            	
+            </FrameLayout>
+            
+            <com.layer.atlas.ShapedFrameLayout 
+                android:id="@+id/atlas_view_messages_cell_custom"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                >
+                <ImageView
+                    android:id="@+id/atlas_view_messages_cell_custom_image" 
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/image_stub"
+                    android:adjustViewBounds="true"
+                    android:scaleType="centerInside"
+                    />
                 
-    			/>
-    	    
-    	    <TextView
-    	        android:id="@+id/atlas_view_messages_convert_text"
-    	        android:layout_width="wrap_content"
-    	        android:layout_height="wrap_content"
-    	        android:layout_gravity="right|center_vertical"
-    	        android:paddingTop="4dp"
-    	        android:paddingBottom="6dp"
-    	        android:paddingLeft="12dp"
-    	        android:paddingRight="12dp"
-    	        
-    	        android:text="attach, type: image/jpeg, size: 1071119\nSample Text Very \nLong About 300 Symbols Like\n two full-sized Tweets"
-    	        android:background="@drawable/atlas_shape_rounded16_blue"
-    			android:gravity="right|center_vertical"
-    			
-    			android:textSize="16sp" 
-    			android:textColor="@color/atlas_text_white"
-    			android:minHeight="34dp"
-                
-                android:visibility="gone"
-    			/>
-        	
+            </com.layer.atlas.ShapedFrameLayout>
+            
         </FrameLayout>
         
         <View 

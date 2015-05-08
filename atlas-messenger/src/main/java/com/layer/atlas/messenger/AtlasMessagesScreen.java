@@ -6,17 +6,25 @@ import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,12 +40,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.layer.atlas.ParticipantPicker;
+import com.layer.atlas.ShapedFrameLayout;
 import com.layer.atlas.messenger.App101.Contact;
 import com.layer.atlas.messenger.App101.keys;
 import com.layer.sdk.LayerClient;
+import com.layer.sdk.changes.LayerChange;
+import com.layer.sdk.changes.LayerChange.Type;
 import com.layer.sdk.changes.LayerChangeEvent;
 import com.layer.sdk.internal.utils.Log;
 import com.layer.sdk.listeners.LayerChangeEventListener;
+import com.layer.sdk.listeners.LayerProgressListener;
 import com.layer.sdk.messaging.Conversation;
 import com.layer.sdk.messaging.Message;
 import com.layer.sdk.messaging.MessagePart;
@@ -60,6 +72,8 @@ public class AtlasMessagesScreen extends Activity {
     public static final int REQUEST_CODE_CAMERA   = 112;
     
     public static final String MIME_TYPE_TEXT = "text/plain";
+    public static final String MIME_TYPE_IMAGE_JPEG = "image/jpeg";
+    public static final String MIME_TYPE_IMAGE_PNG = "image/png";
     
     private Conversation conv;
     private ArrayList<ViewItem> viewItems = new ArrayList<ViewItem>();
@@ -135,14 +149,12 @@ public class AtlasMessagesScreen extends Activity {
                 menu.addView(convert, 0);
                 convert.setOnClickListener(new OnClickListener() {
                     public void onClick(View v) {
-                        Toast.makeText(v.getContext(), "Photo-photo", Toast.LENGTH_SHORT).show();
-                        popupWindow.dismiss();
-
                         // in onCreate or any event where your want the user to select a file
                         Intent intent = new Intent();
                         intent.setType("image/*");
                         intent.setAction(Intent.ACTION_GET_CONTENT);
                         startActivityForResult(Intent.createChooser(intent, "Select Picture"), REQUEST_CODE_GALLERY);
+                        popupWindow.dismiss();
                     }
                 });
                 
@@ -184,7 +196,7 @@ public class AtlasMessagesScreen extends Activity {
         
         // --- message view
         final SimpleDateFormat sdf = new SimpleDateFormat("HH:mm a"); // TODO: localization required
-        final SimpleDateFormat sdfDayOfWeek = new SimpleDateFormat("EEEE"); // TODO: localization required
+        final SimpleDateFormat sdfDayOfWeek = new SimpleDateFormat("EEEE, LLL dd,"); // TODO: localization required
         messagesList = (ListView) findViewById(R.id.atlas_messages_view);
         messagesList.setAdapter(messagesAdapter = new BaseAdapter() {
             
@@ -192,7 +204,7 @@ public class AtlasMessagesScreen extends Activity {
             private static final int TYPE_OTHER = 1;
             
             public View getView(int position, View convertView, ViewGroup parent) {
-                ViewItem viewItem = viewItems.get(position);
+                final ViewItem viewItem = viewItems.get(position);
                 MessagePart part = viewItem.messagePart;
                 String userId = part.getMessage().getSentByUserId();
                 Contact contact = app.contactsMap.get(userId);
@@ -201,53 +213,6 @@ public class AtlasMessagesScreen extends Activity {
                 
                 if (convertView == null) { 
                     convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.atlas_view_messages_convert, parent, false);
-                }
-                
-                TextView textMy = (TextView) convertView.findViewById(R.id.atlas_view_messages_convert_text);
-                TextView textOther = (TextView) convertView.findViewById(R.id.atlas_view_messages_convert_text_counterparty);
-                TextView textAvatar = (TextView) convertView.findViewById(R.id.atlas_view_messages_convert_initials);
-                View spacerRight = convertView.findViewById(R.id.atlas_view_messages_convert_spacer_right);
-                String messagePartText = null;
-                if (MIME_TYPE_TEXT.equals(part.getMimeType())) {
-                    messagePartText = new String(part.getData());
-                } else {
-                    messagePartText = "attach, type: " + part.getMimeType() + ", size: " + part.getSize();
-                }
-                if (viewType == TYPE_OTHER) {
-                    textOther.setVisibility(View.VISIBLE);
-                    textOther.setText(messagePartText);
-                    String displayText = App101.getContactInitials(contact);
-                    textAvatar.setText(displayText);
-                    textAvatar.setVisibility(View.VISIBLE);
-                    spacerRight.setVisibility(View.VISIBLE);
-                    textMy.setVisibility(View.GONE);
-                    
-                    textOther.setBackgroundResource(R.drawable.atlas_shape_rounded16_gray);
-                    
-                    if (viewItem.clusterHeadItemId == viewItem.clusterItemId && !viewItem.clusterTail) {
-                        textOther.setBackgroundResource(R.drawable.atlas_shape_rounded16_gray_no_bottom_left);
-                    } else if (viewItem.clusterTail && viewItem.clusterHeadItemId != viewItem.clusterItemId) {
-                        textOther.setBackgroundResource(R.drawable.atlas_shape_rounded16_gray_no_top_left);
-                    } else if (viewItem.clusterHeadItemId != viewItem.clusterItemId && !viewItem.clusterTail) {
-                        textOther.setBackgroundResource(R.drawable.atlas_shape_rounded16_gray_no_left);
-                    }
-
-                } else {
-                    textMy.setVisibility(View.VISIBLE);
-                    textMy.setText(messagePartText);
-                    textOther.setVisibility(View.GONE);
-                    textAvatar.setVisibility(View.INVISIBLE);
-                    spacerRight.setVisibility(View.GONE);
-                    
-                    textMy.setBackgroundResource(R.drawable.atlas_shape_rounded16_blue);
-                    
-                    if (viewItem.clusterHeadItemId == viewItem.clusterItemId && !viewItem.clusterTail) {
-                        textMy.setBackgroundResource(R.drawable.atlas_shape_rounded16_blue_no_bottom_right);
-                    } else if (viewItem.clusterTail && viewItem.clusterHeadItemId != viewItem.clusterItemId) {
-                        textMy.setBackgroundResource(R.drawable.atlas_shape_rounded16_blue_no_top_right);
-                    } else if (viewItem.clusterHeadItemId != viewItem.clusterItemId && !viewItem.clusterTail) {
-                        textMy.setBackgroundResource(R.drawable.atlas_shape_rounded16_blue_no_right);
-                    }
                 }
                 
                 View spacerTop = convertView.findViewById(R.id.atlas_view_messages_convert_spacer_top);
@@ -277,11 +242,115 @@ public class AtlasMessagesScreen extends Activity {
                         timeBarDay.setText(sdfDayOfWeek.format(viewItem.messagePart.getMessage().getSentAt()));
                     }
                     timeBarTime.setText(sdf.format(viewItem.messagePart.getMessage().getSentAt().getTime()));
-                     
                 } else {
                     timeBar.setVisibility(View.GONE);
                 }
                 
+                TextView textAvatar = (TextView) convertView.findViewById(R.id.atlas_view_messages_convert_initials);
+                View spacerRight = convertView.findViewById(R.id.atlas_view_messages_convert_spacer_right);
+                if (viewType == TYPE_OTHER) {
+                    spacerRight.setVisibility(View.VISIBLE);
+                    String displayText = App101.getContactInitials(contact);
+                    textAvatar.setText(displayText);
+                    textAvatar.setVisibility(View.VISIBLE);
+                } else {
+                    spacerRight.setVisibility(View.GONE);
+                    textAvatar.setVisibility(View.INVISIBLE);
+                }
+                
+                
+                // processing tile
+                
+                View cellContainer = convertView.findViewById(R.id.atlas_view_messages_cell_container);
+                View cellText = convertView.findViewById(R.id.atlas_view_messages_cell_text);
+                ShapedFrameLayout cellCustom = (ShapedFrameLayout) convertView.findViewById(R.id.atlas_view_messages_cell_custom);
+                
+                if (MIME_TYPE_IMAGE_JPEG.equals(part.getMimeType()) || MIME_TYPE_IMAGE_PNG.equals(part.getMimeType())) {
+                    
+                    cellText.setVisibility(View.GONE);
+                    cellCustom.setVisibility(View.VISIBLE);
+                    ImageView imageView = (ImageView) cellCustom.findViewById(R.id.atlas_view_messages_cell_custom_image);
+                    
+                    // get BitmapDrawable
+                    //BitmapDrawable EMPTY_DRAWABLE = new BitmapDrawable(Bitmap.createBitmap(new int[] { Color.TRANSPARENT }, 1, 1, Bitmap.Config.ALPHA_8));
+                    int requiredWidth = cellContainer.getWidth();
+                    int requiredHeight = cellContainer.getHeight();
+                    final MessagePart messagePart = viewItem.messagePart;
+                    Bitmap bmp = getBitmap(messagePart, requiredWidth, requiredHeight);
+                    if (bmp != null) {
+                        imageView.setImageBitmap(bmp);
+                    } else {
+                        imageView.setImageResource(R.drawable.image_stub);
+                    }
+                    
+                    // clustering
+                    
+                    cellCustom.setCornerRadiusDp(16, 16, 16, 16);
+
+                    if (viewType == TYPE_OTHER) {
+                        if (viewItem.clusterHeadItemId == viewItem.clusterItemId && !viewItem.clusterTail) {
+                            cellCustom.setCornerRadiusDp(16, 16, 16, 2);
+                        } else if (viewItem.clusterTail && viewItem.clusterHeadItemId != viewItem.clusterItemId) {
+                            cellCustom.setCornerRadiusDp(2, 16, 16, 16);
+                        } else if (viewItem.clusterHeadItemId != viewItem.clusterItemId && !viewItem.clusterTail) {
+                            cellCustom.setCornerRadiusDp(2, 16, 16, 2);
+                        }
+                    } else {
+                        if (viewItem.clusterHeadItemId == viewItem.clusterItemId && !viewItem.clusterTail) {
+                            cellCustom.setCornerRadiusDp(16, 16, 2, 16);
+                            //cellCustom.setBackgroundResource(R.drawable.atlas_shape_rounded16_blue_no_bottom_right);
+                        } else if (viewItem.clusterTail && viewItem.clusterHeadItemId != viewItem.clusterItemId) {
+                            cellCustom.setCornerRadiusDp(16, 2, 16, 16);
+                            //cellCustom.setBackgroundResource(R.drawable.atlas_shape_rounded16_blue_no_top_right);
+                        } else if (viewItem.clusterHeadItemId != viewItem.clusterItemId && !viewItem.clusterTail) {
+                            cellCustom.setCornerRadiusDp(16, 2, 2, 16);
+                            //cellCustom.setBackgroundResource(R.drawable.atlas_shape_rounded16_blue_no_right);
+                        }
+                    }
+                    
+                } else { /* MIME_TYPE_TEXT */                           // text and replaced by text
+                    cellText.setVisibility(View.VISIBLE);
+                    cellCustom.setVisibility(View.GONE);
+                    
+                    String messagePartText = null;
+                    if (MIME_TYPE_TEXT.equals(part.getMimeType())) {
+                        messagePartText = new String(part.getData());
+                    } else {
+                        messagePartText = "attach, type: " + part.getMimeType() + ", size: " + part.getSize();
+                    }
+                    
+                    TextView textMy = (TextView) cellText.findViewById(R.id.atlas_view_messages_convert_text);
+                    TextView textOther = (TextView) cellText.findViewById(R.id.atlas_view_messages_convert_text_counterparty);
+                    if (viewType == TYPE_OTHER) {
+                        textOther.setVisibility(View.VISIBLE);
+                        textOther.setText(messagePartText);
+                        textMy.setVisibility(View.GONE);
+                        
+                        textOther.setBackgroundResource(R.drawable.atlas_shape_rounded16_gray);
+                        if (viewItem.clusterHeadItemId == viewItem.clusterItemId && !viewItem.clusterTail) {
+                            textOther.setBackgroundResource(R.drawable.atlas_shape_rounded16_gray_no_bottom_left);
+                        } else if (viewItem.clusterTail && viewItem.clusterHeadItemId != viewItem.clusterItemId) {
+                            textOther.setBackgroundResource(R.drawable.atlas_shape_rounded16_gray_no_top_left);
+                        } else if (viewItem.clusterHeadItemId != viewItem.clusterItemId && !viewItem.clusterTail) {
+                            textOther.setBackgroundResource(R.drawable.atlas_shape_rounded16_gray_no_left);
+                        }
+
+                    } else {
+                        textMy.setVisibility(View.VISIBLE);
+                        textMy.setText(messagePartText);
+                        textOther.setVisibility(View.GONE);
+                        
+                        textMy.setBackgroundResource(R.drawable.atlas_shape_rounded16_blue);
+                        if (viewItem.clusterHeadItemId == viewItem.clusterItemId && !viewItem.clusterTail) {
+                            textMy.setBackgroundResource(R.drawable.atlas_shape_rounded16_blue_no_bottom_right);
+                        } else if (viewItem.clusterTail && viewItem.clusterHeadItemId != viewItem.clusterItemId) {
+                            textMy.setBackgroundResource(R.drawable.atlas_shape_rounded16_blue_no_top_right);
+                        } else if (viewItem.clusterHeadItemId != viewItem.clusterItemId && !viewItem.clusterTail) {
+                            textMy.setBackgroundResource(R.drawable.atlas_shape_rounded16_blue_no_right);
+                        }
+                    }
+                }
+
                 // mark displayed message as read
                 Message msg = part.getMessage();
                 if (!msg.getSentByUserId().equals(app.getLayerClient().getAuthenticatedUserId())) {
@@ -289,6 +358,75 @@ public class AtlasMessagesScreen extends Activity {
                 }
                 
                 return convertView;
+            }
+            
+            Map<String, Bitmap> imageLruCache = Collections.synchronizedMap(new LinkedHashMap<String, Bitmap>(10, 0.75f, true) {
+                protected boolean removeEldestEntry(Entry<String, Bitmap> eldest) {
+                    if (this.size() > 10) return true;
+                    return false;
+                }
+            });
+            
+            public Bitmap getBitmap(final MessagePart messagePart, int requiredWidth, int requiredHeight) {
+                Bitmap cached = imageLruCache.get(messagePart.getId().toString());
+                if (cached != null && cached.getWidth() >= requiredWidth / 2) {
+                    if (debug) Log.i(TAG, "getBitmap() returned from cache! " + cached.getWidth() + "x" + cached.getHeight() + " " + cached.getByteCount() + " bytes" + " req: " + requiredWidth + "x" + requiredHeight + " for " + messagePart.getId());
+                    return cached;
+                }
+                
+                // load
+                long started = System.currentTimeMillis();
+                if ( requiredWidth <= 0 || requiredHeight <= 0) {
+                    Display display = getWindowManager().getDefaultDisplay();
+                    Point size = new Point();
+                    display.getSize(size);
+                    requiredWidth = requiredWidth > 0 ? requiredWidth : size.x;
+                    requiredHeight = requiredHeight > 0 ? requiredHeight : size.y;
+                }
+                messagePart.download(new LayerProgressListener() {
+                    public void onProgressUpdate(MessagePart part, Operation operation, long transferredBytes) {
+                        if (debug) Log.d(TAG, "onProgressUpdate() part: " + part+ " operation: " + operation+ " transferredBytes: " + transferredBytes);
+                    }
+                    public void onProgressStart(MessagePart part, Operation operation) {
+                        if (debug) Log.d(TAG, "onProgressStart() part: " + part+ " operation: " + operation);
+                    }
+                    public void onProgressError(MessagePart part, Operation operation, Throwable cause) {
+                        if (debug) Log.d(TAG, "onProgressError() part: " + part+ " operation: " + operation+ " cause: " + cause);
+                    }
+                    public void onProgressComplete(MessagePart part, Operation operation) {
+                        if (debug) Log.d(TAG, "onProgressComplete() part: " + part+ " operation: " + operation);
+                    }
+                });
+                BitmapFactory.Options opts = new BitmapFactory.Options();
+                opts.inJustDecodeBounds = true;
+                BitmapFactory.decodeStream(messagePart.getDataStream(), null, opts);
+                int originalWidth = opts.outWidth;
+                int originalHeight = opts.outHeight;
+                int sampleSize = 1;
+                while (opts.outWidth / (sampleSize * 2) > requiredWidth) {
+                    sampleSize *= 2;
+                }
+                
+                BitmapFactory.Options opts2 = new BitmapFactory.Options();
+                opts2.inSampleSize = sampleSize;
+                Bitmap bmp = BitmapFactory.decodeStream(messagePart.getDataStream(), null, opts2);
+                if (bmp != null) {
+                    if (debug) Log.d(TAG, "decodeImage() decoded " + bmp.getWidth() + "x" + bmp.getHeight() 
+                            + " " + bmp.getByteCount() + " bytes" 
+                            + " req: " + requiredWidth + "x" + requiredHeight 
+                            + " original: " + originalWidth + "x" + originalHeight 
+                            + " sampleSize: " + sampleSize
+                            + " in " +(System.currentTimeMillis() - started) + "ms from: " + messagePart.getId());
+                } else {
+                    if (debug) Log.d(TAG, "decodeImage() not decoded " + " req: " + requiredWidth + "x" + requiredHeight 
+                            + " in " +(System.currentTimeMillis() - started) + "ms from: " + messagePart.getId());
+                }
+                
+                if (bmp != null) {
+                    imageLruCache.put(messagePart.getId().toString(), bmp);
+                }
+                
+                return bmp;
             }
             public long getItemId(int position) {
                 return position;
@@ -299,6 +437,7 @@ public class AtlasMessagesScreen extends Activity {
             public int getCount() {
                 return viewItems.size();
             }
+            
         });
         // --- end of messageView
     }
@@ -314,7 +453,7 @@ public class AtlasMessagesScreen extends Activity {
         public String toString() {
             StringBuilder builder = new StringBuilder();
             builder.append("[ ")
-                .append("messagePart: ").append(messagePart.getData() != null ? new String(messagePart.getData()): "null")
+                .append("messagePart: ").append(messagePart.getSize() < 2048 ? new String(messagePart.getData()) : messagePart.getSize() + " bytes" )
                 .append(", clusterId: ").append(clusterHeadItemId)
                 .append(", clusterItem: ").append(clusterItemId)
                 .append(", clusterTail: ").append(clusterTail)
@@ -361,7 +500,10 @@ public class AtlasMessagesScreen extends Activity {
             if (!item.messagePart.getMessage().getSentByUserId().equals(currentUser)) {
                 newCluster = true;
             }
-            if (item.messagePart.getMessage().getSentAt().getTime() - lastMessageTime > clusterTimeSpan) {
+            Date sentAt = item.messagePart.getMessage().getSentAt();
+            if (sentAt == null) sentAt = new Date();
+            
+            if (sentAt.getTime() - lastMessageTime > clusterTimeSpan) {
                 newCluster = true;
             }
             
@@ -371,10 +513,10 @@ public class AtlasMessagesScreen extends Activity {
             }
             
             // check time header is needed
-            if (item.messagePart.getMessage().getSentAt().getTime() - lastMessageTime > oneHourSpan) {
+            if (sentAt.getTime() - lastMessageTime > oneHourSpan) {
                 item.timeHeader = true;
             }
-            calCurrent.setTime(item.messagePart.getMessage().getSentAt());
+            calCurrent.setTime(sentAt);
             if (calCurrent.get(Calendar.DAY_OF_YEAR) != calLastMessage.get(Calendar.DAY_OF_YEAR)) {
                 item.timeHeader = true;
             }
@@ -383,8 +525,8 @@ public class AtlasMessagesScreen extends Activity {
             item.clusterItemId = currentItem++;
             
             currentUser = item.messagePart.getMessage().getSentByUserId();
-            lastMessageTime = item.messagePart.getMessage().getSentAt().getTime();
-            calLastMessage.setTime(item.messagePart.getMessage().getSentAt());
+            lastMessageTime = sentAt.getTime();
+            calLastMessage.setTime(sentAt);
             if (debug) Log.d(TAG, "updateValues() item: " + item);
         }
         viewItems.get(viewItems.size() - 1).clusterTail = true; // last one is always a tail
@@ -440,8 +582,8 @@ public class AtlasMessagesScreen extends Activity {
                         return;
                     }
                     
-                    String mimeType = "image/jpeg";
-                    if (resultFileName.endsWith(".png")) mimeType = "image/png";
+                    String mimeType = MIME_TYPE_IMAGE_JPEG;
+                    if (resultFileName.endsWith(".png")) mimeType = MIME_TYPE_IMAGE_PNG;
                     
                     // test file copy locally
                     try {
@@ -506,8 +648,17 @@ public class AtlasMessagesScreen extends Activity {
         
         app.getLayerClient().registerEventListener(eventTracker = new LayerChangeEventListener.MainThread() {
             public void onEventMainThread(LayerChangeEvent event) {
-                updateValues();
-                messagesList.smoothScrollToPosition(messagesAdapter.getCount() - 1);
+                boolean refresh = false;
+                for (LayerChange layerChange : event.getChanges()) {
+                    if (layerChange.getChangeType() == Type.DELETE || layerChange.getChangeType() == Type.INSERT) {
+                        refresh = true;
+                        break;
+                    }
+                }
+                if (refresh) {
+                    updateValues();
+                    messagesList.smoothScrollToPosition(messagesAdapter.getCount() - 1);
+                }
             }
         });
         
