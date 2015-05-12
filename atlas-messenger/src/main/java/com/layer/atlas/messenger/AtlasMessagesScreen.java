@@ -5,12 +5,17 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -21,8 +26,12 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.ColorDrawable;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.view.Display;
 import android.view.Gravity;
@@ -31,6 +40,8 @@ import android.view.View;
 import android.view.View.MeasureSpec;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -71,6 +82,7 @@ public class AtlasMessagesScreen extends Activity {
     public static final int REQUEST_CODE_GALLERY  = 111;
     public static final int REQUEST_CODE_CAMERA   = 112;
     
+    public static final String MIME_TYPE_ATLAS_LOCATION = "location/coordinate";
     public static final String MIME_TYPE_TEXT = "text/plain";
     public static final String MIME_TYPE_IMAGE_JPEG = "image/jpeg";
     public static final String MIME_TYPE_IMAGE_PNG = "image/png";
@@ -83,10 +95,15 @@ public class AtlasMessagesScreen extends Activity {
     private View btnSend;
     private View btnUpload;
     private BaseAdapter messagesAdapter;
+    
+    private LocationManager locationManager;
+    private Location lastKnownLocation;
+    private Handler uiHandler;
         
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        this.uiHandler = new Handler();
         setContentView(R.layout.atlas_screen_messages);
         final App101 app = (App101) getApplication();
 
@@ -139,7 +156,22 @@ public class AtlasMessagesScreen extends Activity {
                 menu.addView(convert);
                 convert.setOnClickListener(new OnClickListener() {
                     public void onClick(View v) {
-                        Toast.makeText(v.getContext(), "Inserting Location: ", Toast.LENGTH_SHORT).show();
+                        if (conv == null) {
+                            Toast.makeText(v.getContext(), "Inserting Location: Conversation is not created yet", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        
+                        if (lastKnownLocation == null) {
+                            Toast.makeText(v.getContext(), "Inserting Location: Location is unknown yet", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        String locationString = "{\"lat\"=" + lastKnownLocation.getLatitude() + "; \"lon\"=" + lastKnownLocation.getLongitude() + "}";
+                        MessagePart part = app.getLayerClient().newMessagePart(MIME_TYPE_ATLAS_LOCATION, locationString.getBytes());
+                        Message message = app.getLayerClient().newMessage(Arrays.asList(part));
+                        conv.send(message);
+                        
+                        if (debug) Log.w(TAG, "onSendLocation() loc:  " + locationString);
+                        
                         popupWindow.dismiss();
                     }
                 });
@@ -234,14 +266,17 @@ public class AtlasMessagesScreen extends Activity {
                     cal.set(Calendar.SECOND, 0);
                     long todayMidnight = cal.getTimeInMillis();
                     long yesterMidnight = todayMidnight - (24 * 60 * 60 * 1000); // 24h less
-                    if (viewItem.messagePart.getMessage().getSentAt().getTime() > todayMidnight) {
+                    Date sentAt = viewItem.messagePart.getMessage().getSentAt();
+                    if (sentAt == null) sentAt = new Date();
+                    
+                    if (sentAt.getTime() > todayMidnight) {
                         timeBarDay.setText("Today"); 
-                    } else if (viewItem.messagePart.getMessage().getSentAt().getTime() > yesterMidnight) {
+                    } else if (sentAt.getTime() > yesterMidnight) {
                         timeBarDay.setText("Yesterday");
                     } else {
-                        timeBarDay.setText(sdfDayOfWeek.format(viewItem.messagePart.getMessage().getSentAt()));
+                        timeBarDay.setText(sdfDayOfWeek.format(sentAt));
                     }
-                    timeBarTime.setText(sdf.format(viewItem.messagePart.getMessage().getSentAt().getTime()));
+                    timeBarTime.setText(sdf.format(sentAt.getTime()));
                 } else {
                     timeBar.setVisibility(View.GONE);
                 }
@@ -259,7 +294,7 @@ public class AtlasMessagesScreen extends Activity {
                 }
                 
                 
-                // processing tile
+                // processing cell
                 
                 View cellContainer = convertView.findViewById(R.id.atlas_view_messages_cell_container);
                 View cellText = convertView.findViewById(R.id.atlas_view_messages_cell_text);
@@ -315,6 +350,19 @@ public class AtlasMessagesScreen extends Activity {
                     String messagePartText = null;
                     if (MIME_TYPE_TEXT.equals(part.getMimeType())) {
                         messagePartText = new String(part.getData());
+                    } else if (MIME_TYPE_ATLAS_LOCATION.equals(part.getMimeType())){
+                        String jsonLonLat = new String(part.getData());
+                        
+                        JSONObject json;
+                        try {
+                            json = new JSONObject(jsonLonLat);
+                            double lon = json.getDouble("lon");
+                            double lat = json.getDouble("lat");
+                            messagePartText = "Location:\nlon: " + lon + "\nlat: " + lat;
+                        } catch (JSONException e) {}
+//                        String noBraces = jsonLonLat.replaceAll("[\\{\\}]", "");
+//                        String[] latAndLon = noBraces.split("");
+//                        String lon = jsonLonLat.substring(jsonLonLat.indexOf(""))
                     } else {
                         messagePartText = "attach, type: " + part.getMimeType() + ", size: " + part.getSize();
                     }
@@ -361,6 +409,7 @@ public class AtlasMessagesScreen extends Activity {
             }
             
             Map<String, Bitmap> imageLruCache = Collections.synchronizedMap(new LinkedHashMap<String, Bitmap>(10, 0.75f, true) {
+                private static final long serialVersionUID = 1L;
                 protected boolean removeEldestEntry(Entry<String, Bitmap> eldest) {
                     if (this.size() > 10) return true;
                     return false;
@@ -439,7 +488,36 @@ public class AtlasMessagesScreen extends Activity {
             }
             
         });
+        
+        messagesList.setOnItemClickListener(new OnItemClickListener() {
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                ViewItem item = viewItems.get(position);
+                if (MIME_TYPE_ATLAS_LOCATION.equals(item.messagePart.getMimeType())) {
+                    String jsonLonLat = new String(item.messagePart.getData());
+                    
+                    JSONObject json;
+                    try {
+                        json = new JSONObject(jsonLonLat);
+                        double lon = json.getDouble("lon");
+                        double lat = json.getDouble("lat");
+                        Intent openMapIntent = new Intent(Intent.ACTION_VIEW);
+                        String uriString = String.format(Locale.ENGLISH, "geo:%f,%f?z=%d&q=%f,%f", lat, lon, 18, lat, lon);
+                        final Uri geoUri = Uri.parse(uriString);
+                        openMapIntent.setData(geoUri);
+                        if (openMapIntent.resolveActivity(getPackageManager()) != null) {
+                            startActivity(openMapIntent);
+                            if (debug) Log.w(TAG, "onItemClick() starting Map: " + uriString);
+                        } else {
+                            if (debug) Log.w(TAG, "onItemClick() No Activity to start Map: " + geoUri);
+                        }
+                    } catch (JSONException ignored) {}
+                }
+            }
+        });
         // --- end of messageView
+        
+        // location manager for inserting locations:
+        this.locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
     }
     
     static class ViewItem {
@@ -664,6 +742,53 @@ public class AtlasMessagesScreen extends Activity {
         
         updateValues();
         messagesList.setSelection(messagesAdapter.getCount() - 1);
+
+        
+        // restore location tracking
+        int requestLocationTimeout = 1 * 1000; // every second
+        int distance = 100;
+        Location loc = null;
+        if (locationManager.getProvider(LocationManager.GPS_PROVIDER) != null) { 
+            loc = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            if (debug) Log.w(TAG, "onResume() location from gps: " + loc);
+        }
+        if (loc == null && locationManager.getProvider(LocationManager.NETWORK_PROVIDER) != null) {
+            loc = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            if (debug) Log.w(TAG, "onResume() location from network: " + loc);
+        } 
+        if (loc != null && loc.getTime() < System.currentTimeMillis() + LOCATION_EXPIRATION_TIME) {
+            locationTracker.onLocationChanged(loc);
+        }
+        if (locationManager.getProvider(LocationManager.GPS_PROVIDER) != null) {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, requestLocationTimeout, distance, locationTracker);
+        }
+        if (locationManager.getProvider(LocationManager.NETWORK_PROVIDER) != null) {
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, requestLocationTimeout, distance, locationTracker);
+        }
+
+    }
+    
+    private static final int LOCATION_EXPIRATION_TIME = 60 * 1000; // 1 minute 
+    
+    LocationListener locationTracker = new LocationListener() {
+        @Override
+        public void onLocationChanged(final Location location) {
+            uiHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    lastKnownLocation = location;
+                    if (debug) Log.w(TAG, "onLocationChanged() location: " + location);
+                }
+            });
+        }
+        public void onStatusChanged(String provider, int status, Bundle extras) {}
+        public void onProviderEnabled(String provider) {}
+        public void onProviderDisabled(String provider) {}
+    };
+    
+    @Override
+    protected void onPause() {
+        super.onPause();
     }
 
     @Override
