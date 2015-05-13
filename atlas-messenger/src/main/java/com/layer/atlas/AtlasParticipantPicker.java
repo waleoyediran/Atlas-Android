@@ -33,9 +33,9 @@ import com.layer.sdk.internal.utils.Log;
  * @author Oleg Orlov
  * @since 27 Apr 2015
  */
-public class ParticipantPicker {
+public class AtlasParticipantPicker {
 
-    private static final String TAG = ParticipantPicker.class.getSimpleName();
+    private static final String TAG = AtlasParticipantPicker.class.getSimpleName();
     private static final boolean debug = true;
 
     // participants picker
@@ -47,7 +47,7 @@ public class ParticipantPicker {
     private ArrayList<Contact> selectedContacts = new ArrayList<App101.Contact>();
     private TreeSet<String> skipUserIds = new TreeSet<String>();
 
-    public ParticipantPicker(Context context, View rootView, final App101 app, String[] userIdToSkip) {
+    public AtlasParticipantPicker(Context context, View rootView, final App101 app, String[] userIdToSkip) {
 
         if (userIdToSkip != null) skipUserIds.addAll(Arrays.asList(userIdToSkip));
 

@@ -16,15 +16,9 @@
             android:layout_weight="1"
             >
             
-            <ListView
-                android:id="@+id/atlas_messages_view"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:divider="@color/atlas_background_white"
-                android:listSelector="@android:color/transparent" 
-                android:cacheColorHint="@android:color/transparent"
-                android:stackFromBottom="true"
-                android:transcriptMode="normal"
+            <include 
+                android:id="@+id/atlas_screen_messages_messages_list"
+                layout="@layout/atlas_view_messages_list"
                 />
             
             <include

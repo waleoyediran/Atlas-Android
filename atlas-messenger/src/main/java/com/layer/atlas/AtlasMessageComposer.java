@@ -24,7 +24,7 @@ import com.layer.sdk.messaging.MessagePart;
  * @author Oleg Orlov
  * @since 12 May 2015
  */
-public class MessageComposer {
+public class AtlasMessageComposer {
     
     private TextView messageText;
     private View btnSend;
@@ -36,7 +36,7 @@ public class MessageComposer {
     
     private ArrayList<MenuItem> menuItems = new ArrayList<MenuItem>(); 
     
-    public MessageComposer(LayerClient client, View rootView) {
+    public AtlasMessageComposer(LayerClient client, View rootView) {
         this.layerClient = client;
         
         btnUpload = rootView.findViewById(R.id.atlas_view_message_composer_upload);

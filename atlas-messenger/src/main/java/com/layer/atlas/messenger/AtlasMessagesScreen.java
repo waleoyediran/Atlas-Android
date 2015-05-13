@@ -2,16 +2,8 @@ package com.layer.atlas.messenger;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,8 +13,6 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Point;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -30,31 +20,22 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
-import android.view.Display;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.BaseAdapter;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.layer.atlas.MessageComposer;
-import com.layer.atlas.ParticipantPicker;
-import com.layer.atlas.ShapedFrameLayout;
+import com.layer.atlas.Atlas;
+import com.layer.atlas.AtlasMessageComposer;
+import com.layer.atlas.AtlasMessagesList;
+import com.layer.atlas.AtlasMessagesList.ItemClickListener;
+import com.layer.atlas.AtlasParticipantPicker;
+import com.layer.atlas.AtlasMessagesList.CellDataItem;
 import com.layer.atlas.messenger.App101.Contact;
 import com.layer.atlas.messenger.App101.keys;
 import com.layer.sdk.LayerClient;
-import com.layer.sdk.changes.LayerChange;
-import com.layer.sdk.changes.LayerChange.Type;
-import com.layer.sdk.changes.LayerChangeEvent;
 import com.layer.sdk.internal.utils.Log;
-import com.layer.sdk.listeners.LayerChangeEventListener;
-import com.layer.sdk.listeners.LayerProgressListener;
 import com.layer.sdk.messaging.Conversation;
 import com.layer.sdk.messaging.Message;
 import com.layer.sdk.messaging.MessagePart;
@@ -75,23 +56,14 @@ public class AtlasMessagesScreen extends Activity {
     public static final int REQUEST_CODE_SETTINGS = 101;
     public static final int REQUEST_CODE_GALLERY  = 111;
     public static final int REQUEST_CODE_CAMERA   = 112;
-    
-    public static final String MIME_TYPE_ATLAS_LOCATION = "location/coordinate";
-    public static final String MIME_TYPE_TEXT = "text/plain";
-    public static final String MIME_TYPE_IMAGE_JPEG = "image/jpeg";
-    public static final String MIME_TYPE_IMAGE_PNG = "image/png";
-    
-    private Conversation conv;
-    private ArrayList<ViewItem> viewItems = new ArrayList<ViewItem>();
-    
-
-    private ListView messagesList;
-    private BaseAdapter messagesAdapter;
         
+    private Conversation conv;
     
     private LocationManager locationManager;
     private Location lastKnownLocation;
     private Handler uiHandler;
+    
+    private AtlasMessagesList messagesList;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -130,20 +102,21 @@ public class AtlasMessagesScreen extends Activity {
         boolean convIsNew = getIntent().getBooleanExtra(EXTRA_CONVERSATION_IS_NEW, false);
 
         final View participantsPickerRoot = findViewById(R.id.atlas_screen_messages_participants_picker);
-        final ParticipantPicker pp = new ParticipantPicker(this, participantsPickerRoot, app, null);
+        final AtlasParticipantPicker pp = new AtlasParticipantPicker(this, participantsPickerRoot, app, null);
         if (convIsNew) {
             pp.setVisibility(View.VISIBLE);
         }
         
-        final MessageComposer messageComposer = new MessageComposer(app.getLayerClient(), findViewById(R.id.atlas_screen_messages_message_composer));
+        final AtlasMessageComposer messageComposer = new AtlasMessageComposer(app.getLayerClient(), findViewById(R.id.atlas_screen_messages_message_composer));
         messageComposer.setConversation(conv);
-        messageComposer.setListener(new MessageComposer.Listener() {
+        messageComposer.setListener(new AtlasMessageComposer.Listener() {
             public boolean beforeSend() {
                 if (conv == null) { // create new one
                     String[] userIds = pp.getSelectedUserIds();
                     conv = app.getLayerClient().newConversation(userIds);
                     participantsPickerRoot.setVisibility(View.GONE);
                     messageComposer.setConversation(conv);
+                    messagesList.setConversation(conv);
                 }
                 return true;
             }
@@ -177,7 +150,7 @@ public class AtlasMessagesScreen extends Activity {
                     return;
                 }
                 String locationString = "{\"lat\"=" + lastKnownLocation.getLatitude() + "; \"lon\"=" + lastKnownLocation.getLongitude() + "}";
-                MessagePart part = app.getLayerClient().newMessagePart(MIME_TYPE_ATLAS_LOCATION, locationString.getBytes());
+                MessagePart part = app.getLayerClient().newMessagePart(Atlas.MIME_TYPE_ATLAS_LOCATION, locationString.getBytes());
                 Message message = app.getLayerClient().newMessage(Arrays.asList(part));
                 conv.send(message);
                 
@@ -185,270 +158,12 @@ public class AtlasMessagesScreen extends Activity {
             }
         });
         
-        // --- message view
-        final SimpleDateFormat sdf = new SimpleDateFormat("HH:mm a"); // TODO: localization required
-        final SimpleDateFormat sdfDayOfWeek = new SimpleDateFormat("EEEE, LLL dd,"); // TODO: localization required
-        messagesList = (ListView) findViewById(R.id.atlas_messages_view);
-        messagesList.setAdapter(messagesAdapter = new BaseAdapter() {
-            
-            private static final int TYPE_ME = 0; 
-            private static final int TYPE_OTHER = 1;
-            
-            public View getView(int position, View convertView, ViewGroup parent) {
-                final ViewItem viewItem = viewItems.get(position);
-                MessagePart part = viewItem.messagePart;
-                String userId = part.getMessage().getSentByUserId();
-                Contact contact = app.contactsMap.get(userId);
-                
-                int viewType = app.getLayerClient().getAuthenticatedUserId().equals(contact.userId) ? TYPE_ME : TYPE_OTHER;
-                
-                if (convertView == null) { 
-                    convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.atlas_view_messages_convert, parent, false);
-                }
-                
-                View spacerTop = convertView.findViewById(R.id.atlas_view_messages_convert_spacer_top);
-                spacerTop.setVisibility(viewItem.clusterItemId == viewItem.clusterHeadItemId && !viewItem.timeHeader ? View.VISIBLE : View.GONE); 
-                
-                View spacerBottom = convertView.findViewById(R.id.atlas_view_messages_convert_spacer_bottom);
-                spacerBottom.setVisibility(viewItem.clusterTail ? View.VISIBLE : View.GONE); 
-                
-                // format date
-                View timeBar = convertView.findViewById(R.id.atlas_view_messages_convert_timebar);
-                TextView timeBarDay = (TextView) convertView.findViewById(R.id.atlas_view_messages_convert_timebar_day);
-                TextView timeBarTime = (TextView) convertView.findViewById(R.id.atlas_view_messages_convert_timebar_time);
-                if (viewItem.timeHeader) {
-                    timeBar.setVisibility(View.VISIBLE);
-
-                    Calendar cal = Calendar.getInstance();
-                    cal.set(Calendar.HOUR_OF_DAY, 0);
-                    cal.set(Calendar.MINUTE, 0);
-                    cal.set(Calendar.SECOND, 0);
-                    long todayMidnight = cal.getTimeInMillis();
-                    long yesterMidnight = todayMidnight - (24 * 60 * 60 * 1000); // 24h less
-                    Date sentAt = viewItem.messagePart.getMessage().getSentAt();
-                    if (sentAt == null) sentAt = new Date();
-                    
-                    if (sentAt.getTime() > todayMidnight) {
-                        timeBarDay.setText("Today"); 
-                    } else if (sentAt.getTime() > yesterMidnight) {
-                        timeBarDay.setText("Yesterday");
-                    } else {
-                        timeBarDay.setText(sdfDayOfWeek.format(sentAt));
-                    }
-                    timeBarTime.setText(sdf.format(sentAt.getTime()));
-                } else {
-                    timeBar.setVisibility(View.GONE);
-                }
-                
-                TextView textAvatar = (TextView) convertView.findViewById(R.id.atlas_view_messages_convert_initials);
-                View spacerRight = convertView.findViewById(R.id.atlas_view_messages_convert_spacer_right);
-                if (viewType == TYPE_OTHER) {
-                    spacerRight.setVisibility(View.VISIBLE);
-                    String displayText = App101.getContactInitials(contact);
-                    textAvatar.setText(displayText);
-                    textAvatar.setVisibility(View.VISIBLE);
-                } else {
-                    spacerRight.setVisibility(View.GONE);
-                    textAvatar.setVisibility(View.INVISIBLE);
-                }
-                
-                
-                // processing cell
-                
-                View cellContainer = convertView.findViewById(R.id.atlas_view_messages_cell_container);
-                View cellText = convertView.findViewById(R.id.atlas_view_messages_cell_text);
-                ShapedFrameLayout cellCustom = (ShapedFrameLayout) convertView.findViewById(R.id.atlas_view_messages_cell_custom);
-                
-                if (MIME_TYPE_IMAGE_JPEG.equals(part.getMimeType()) || MIME_TYPE_IMAGE_PNG.equals(part.getMimeType())) {
-                    
-                    cellText.setVisibility(View.GONE);
-                    cellCustom.setVisibility(View.VISIBLE);
-                    ImageView imageView = (ImageView) cellCustom.findViewById(R.id.atlas_view_messages_cell_custom_image);
-                    
-                    // get BitmapDrawable
-                    //BitmapDrawable EMPTY_DRAWABLE = new BitmapDrawable(Bitmap.createBitmap(new int[] { Color.TRANSPARENT }, 1, 1, Bitmap.Config.ALPHA_8));
-                    int requiredWidth = cellContainer.getWidth();
-                    int requiredHeight = cellContainer.getHeight();
-                    final MessagePart messagePart = viewItem.messagePart;
-                    Bitmap bmp = getBitmap(messagePart, requiredWidth, requiredHeight);
-                    if (bmp != null) {
-                        imageView.setImageBitmap(bmp);
-                    } else {
-                        imageView.setImageResource(R.drawable.image_stub);
-                    }
-                    
-                    // clustering
-                    
-                    cellCustom.setCornerRadiusDp(16, 16, 16, 16);
-
-                    if (viewType == TYPE_OTHER) {
-                        if (viewItem.clusterHeadItemId == viewItem.clusterItemId && !viewItem.clusterTail) {
-                            cellCustom.setCornerRadiusDp(16, 16, 16, 2);
-                        } else if (viewItem.clusterTail && viewItem.clusterHeadItemId != viewItem.clusterItemId) {
-                            cellCustom.setCornerRadiusDp(2, 16, 16, 16);
-                        } else if (viewItem.clusterHeadItemId != viewItem.clusterItemId && !viewItem.clusterTail) {
-                            cellCustom.setCornerRadiusDp(2, 16, 16, 2);
-                        }
-                    } else {
-                        if (viewItem.clusterHeadItemId == viewItem.clusterItemId && !viewItem.clusterTail) {
-                            cellCustom.setCornerRadiusDp(16, 16, 2, 16);
-                            //cellCustom.setBackgroundResource(R.drawable.atlas_shape_rounded16_blue_no_bottom_right);
-                        } else if (viewItem.clusterTail && viewItem.clusterHeadItemId != viewItem.clusterItemId) {
-                            cellCustom.setCornerRadiusDp(16, 2, 16, 16);
-                            //cellCustom.setBackgroundResource(R.drawable.atlas_shape_rounded16_blue_no_top_right);
-                        } else if (viewItem.clusterHeadItemId != viewItem.clusterItemId && !viewItem.clusterTail) {
-                            cellCustom.setCornerRadiusDp(16, 2, 2, 16);
-                            //cellCustom.setBackgroundResource(R.drawable.atlas_shape_rounded16_blue_no_right);
-                        }
-                    }
-                    
-                } else { /* MIME_TYPE_TEXT */                           // text and replaced by text
-                    cellText.setVisibility(View.VISIBLE);
-                    cellCustom.setVisibility(View.GONE);
-                    
-                    String messagePartText = null;
-                    if (MIME_TYPE_TEXT.equals(part.getMimeType())) {
-                        messagePartText = new String(part.getData());
-                    } else if (MIME_TYPE_ATLAS_LOCATION.equals(part.getMimeType())){
-                        String jsonLonLat = new String(part.getData());
-                        try {
-                            JSONObject json = new JSONObject(jsonLonLat);
-                            double lon = json.getDouble("lon");
-                            double lat = json.getDouble("lat");
-                            messagePartText = "Location:\nlon: " + lon + "\nlat: " + lat;
-                        } catch (JSONException e) {}
-                    } else {
-                        messagePartText = "attach, type: " + part.getMimeType() + ", size: " + part.getSize();
-                    }
-                    
-                    TextView textMy = (TextView) cellText.findViewById(R.id.atlas_view_messages_convert_text);
-                    TextView textOther = (TextView) cellText.findViewById(R.id.atlas_view_messages_convert_text_counterparty);
-                    if (viewType == TYPE_OTHER) {
-                        textOther.setVisibility(View.VISIBLE);
-                        textOther.setText(messagePartText);
-                        textMy.setVisibility(View.GONE);
-                        
-                        textOther.setBackgroundResource(R.drawable.atlas_shape_rounded16_gray);
-                        if (viewItem.clusterHeadItemId == viewItem.clusterItemId && !viewItem.clusterTail) {
-                            textOther.setBackgroundResource(R.drawable.atlas_shape_rounded16_gray_no_bottom_left);
-                        } else if (viewItem.clusterTail && viewItem.clusterHeadItemId != viewItem.clusterItemId) {
-                            textOther.setBackgroundResource(R.drawable.atlas_shape_rounded16_gray_no_top_left);
-                        } else if (viewItem.clusterHeadItemId != viewItem.clusterItemId && !viewItem.clusterTail) {
-                            textOther.setBackgroundResource(R.drawable.atlas_shape_rounded16_gray_no_left);
-                        }
-
-                    } else {
-                        textMy.setVisibility(View.VISIBLE);
-                        textMy.setText(messagePartText);
-                        textOther.setVisibility(View.GONE);
-                        
-                        textMy.setBackgroundResource(R.drawable.atlas_shape_rounded16_blue);
-                        if (viewItem.clusterHeadItemId == viewItem.clusterItemId && !viewItem.clusterTail) {
-                            textMy.setBackgroundResource(R.drawable.atlas_shape_rounded16_blue_no_bottom_right);
-                        } else if (viewItem.clusterTail && viewItem.clusterHeadItemId != viewItem.clusterItemId) {
-                            textMy.setBackgroundResource(R.drawable.atlas_shape_rounded16_blue_no_top_right);
-                        } else if (viewItem.clusterHeadItemId != viewItem.clusterItemId && !viewItem.clusterTail) {
-                            textMy.setBackgroundResource(R.drawable.atlas_shape_rounded16_blue_no_right);
-                        }
-                    }
-                }
-
-                // mark displayed message as read
-                Message msg = part.getMessage();
-                if (!msg.getSentByUserId().equals(app.getLayerClient().getAuthenticatedUserId())) {
-                    msg.markAsRead();
-                }
-                
-                return convertView;
-            }
-            
-            Map<String, Bitmap> imageLruCache = Collections.synchronizedMap(new LinkedHashMap<String, Bitmap>(10, 0.75f, true) {
-                private static final long serialVersionUID = 1L;
-                protected boolean removeEldestEntry(Entry<String, Bitmap> eldest) {
-                    if (this.size() > 10) return true;
-                    return false;
-                }
-            });
-            
-            public Bitmap getBitmap(final MessagePart messagePart, int requiredWidth, int requiredHeight) {
-                Bitmap cached = imageLruCache.get(messagePart.getId().toString());
-                if (cached != null && cached.getWidth() >= requiredWidth / 2) {
-                    if (debug) Log.i(TAG, "getBitmap() returned from cache! " + cached.getWidth() + "x" + cached.getHeight() + " " + cached.getByteCount() + " bytes" + " req: " + requiredWidth + "x" + requiredHeight + " for " + messagePart.getId());
-                    return cached;
-                }
-                
-                // load
-                long started = System.currentTimeMillis();
-                if ( requiredWidth <= 0 || requiredHeight <= 0) {
-                    Display display = getWindowManager().getDefaultDisplay();
-                    Point size = new Point();
-                    display.getSize(size);
-                    requiredWidth = requiredWidth > 0 ? requiredWidth : size.x;
-                    requiredHeight = requiredHeight > 0 ? requiredHeight : size.y;
-                }
-                messagePart.download(new LayerProgressListener() {
-                    public void onProgressUpdate(MessagePart part, Operation operation, long transferredBytes) {
-                        if (debug) Log.d(TAG, "onProgressUpdate() part: " + part+ " operation: " + operation+ " transferredBytes: " + transferredBytes);
-                    }
-                    public void onProgressStart(MessagePart part, Operation operation) {
-                        if (debug) Log.d(TAG, "onProgressStart() part: " + part+ " operation: " + operation);
-                    }
-                    public void onProgressError(MessagePart part, Operation operation, Throwable cause) {
-                        if (debug) Log.d(TAG, "onProgressError() part: " + part+ " operation: " + operation+ " cause: " + cause);
-                    }
-                    public void onProgressComplete(MessagePart part, Operation operation) {
-                        if (debug) Log.d(TAG, "onProgressComplete() part: " + part+ " operation: " + operation);
-                    }
-                });
-                BitmapFactory.Options opts = new BitmapFactory.Options();
-                opts.inJustDecodeBounds = true;
-                BitmapFactory.decodeStream(messagePart.getDataStream(), null, opts);
-                int originalWidth = opts.outWidth;
-                int originalHeight = opts.outHeight;
-                int sampleSize = 1;
-                while (opts.outWidth / (sampleSize * 2) > requiredWidth) {
-                    sampleSize *= 2;
-                }
-                
-                BitmapFactory.Options opts2 = new BitmapFactory.Options();
-                opts2.inSampleSize = sampleSize;
-                Bitmap bmp = BitmapFactory.decodeStream(messagePart.getDataStream(), null, opts2);
-                if (bmp != null) {
-                    if (debug) Log.d(TAG, "decodeImage() decoded " + bmp.getWidth() + "x" + bmp.getHeight() 
-                            + " " + bmp.getByteCount() + " bytes" 
-                            + " req: " + requiredWidth + "x" + requiredHeight 
-                            + " original: " + originalWidth + "x" + originalHeight 
-                            + " sampleSize: " + sampleSize
-                            + " in " +(System.currentTimeMillis() - started) + "ms from: " + messagePart.getId());
-                } else {
-                    if (debug) Log.d(TAG, "decodeImage() not decoded " + " req: " + requiredWidth + "x" + requiredHeight 
-                            + " in " +(System.currentTimeMillis() - started) + "ms from: " + messagePart.getId());
-                }
-                
-                if (bmp != null) {
-                    imageLruCache.put(messagePart.getId().toString(), bmp);
-                }
-                
-                return bmp;
-            }
-            public long getItemId(int position) {
-                return position;
-            }
-            public Object getItem(int position) {
-                return viewItems.get(position);
-            }
-            public int getCount() {
-                return viewItems.size();
-            }
-            
-        });
-        
-        messagesList.setOnItemClickListener(new OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                ViewItem item = viewItems.get(position);
-                if (MIME_TYPE_ATLAS_LOCATION.equals(item.messagePart.getMimeType())) {
+        messagesList = new AtlasMessagesList(findViewById(R.id.atlas_screen_messages_messages_list), app.getLayerClient(), app);
+        messagesList.setConversation(conv);
+        messagesList.setItemClickListener(new ItemClickListener() {
+            public void onItemClick(CellDataItem item) {
+                if (Atlas.MIME_TYPE_ATLAS_LOCATION.equals(item.messagePart.getMimeType())) {
                     String jsonLonLat = new String(item.messagePart.getData());
-                    
                     JSONObject json;
                     try {
                         json = new JSONObject(jsonLonLat);
@@ -468,32 +183,11 @@ public class AtlasMessagesScreen extends Activity {
                 }
             }
         });
-        // --- end of messageView
         
         // location manager for inserting locations:
         this.locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
     }
     
-    static class ViewItem {
-        MessagePart messagePart;
-        int clusterHeadItemId;
-        int clusterItemId;
-        boolean clusterTail;
-        boolean timeHeader;
-        
-        @Override
-        public String toString() {
-            StringBuilder builder = new StringBuilder();
-            builder.append("[ ")
-                .append("messagePart: ").append(messagePart.getSize() < 2048 ? new String(messagePart.getData()) : messagePart.getSize() + " bytes" )
-                .append(", clusterId: ").append(clusterHeadItemId)
-                .append(", clusterItem: ").append(clusterItemId)
-                .append(", clusterTail: ").append(clusterTail)
-                .append(", timeHeader: ").append(timeHeader).append(" ]");
-            return builder.toString();
-        }
-    }
-
     private void updateValues() {
         App101 app = (App101) getApplication();
         
@@ -502,67 +196,7 @@ public class AtlasMessagesScreen extends Activity {
             return;
         }
         
-        long started = System.currentTimeMillis();
-        
-        List<Message> messages = app.getLayerClient().getMessages(conv);
-        viewItems.clear();
-        for (Message message : messages) {
-            List<MessagePart> parts = message.getMessageParts();
-            for (MessagePart messagePart : parts) {
-                ViewItem item = new ViewItem();
-                item.messagePart = messagePart;
-                viewItems.add(item);
-            }
-        }
-        
-        // calculate heads/tails
-        int currentItem = 0;
-        int clusterId = currentItem;
-        String currentUser = null;
-        long lastMessageTime = 0;
-        Calendar calLastMessage = Calendar.getInstance();
-        Calendar calCurrent = Calendar.getInstance();
-        long clusterTimeSpan = 60 * 1000; // 1 minute
-        long oneHourSpan = 60 * 60 * 1000; // 1 hour
-        for (int i = 0; i < viewItems.size(); i++) {
-            ViewItem item = viewItems.get(i);
-            boolean newCluster = false;
-            if (!item.messagePart.getMessage().getSentByUserId().equals(currentUser)) {
-                newCluster = true;
-            }
-            Date sentAt = item.messagePart.getMessage().getSentAt();
-            if (sentAt == null) sentAt = new Date();
-            
-            if (sentAt.getTime() - lastMessageTime > clusterTimeSpan) {
-                newCluster = true;
-            }
-            
-            if (newCluster) {
-                clusterId = currentItem;
-                if (i > 0) viewItems.get(i - 1).clusterTail = true;
-            }
-            
-            // check time header is needed
-            if (sentAt.getTime() - lastMessageTime > oneHourSpan) {
-                item.timeHeader = true;
-            }
-            calCurrent.setTime(sentAt);
-            if (calCurrent.get(Calendar.DAY_OF_YEAR) != calLastMessage.get(Calendar.DAY_OF_YEAR)) {
-                item.timeHeader = true;
-            }
-            
-            item.clusterHeadItemId = clusterId;
-            item.clusterItemId = currentItem++;
-            
-            currentUser = item.messagePart.getMessage().getSentByUserId();
-            lastMessageTime = sentAt.getTime();
-            calLastMessage.setTime(sentAt);
-            if (debug) Log.d(TAG, "updateValues() item: " + item);
-        }
-        viewItems.get(viewItems.size() - 1).clusterTail = true; // last one is always a tail
-        
-        Log.d(TAG, "updateValues() parts finished in: " + (System.currentTimeMillis() - started));
-        messagesAdapter.notifyDataSetChanged();
+        messagesList.updateValues();
         
         // update buddies:
         StringBuilder sb = new StringBuilder();
@@ -617,8 +251,8 @@ public class AtlasMessagesScreen extends Activity {
                         return;
                     }
                     
-                    String mimeType = MIME_TYPE_IMAGE_JPEG;
-                    if (resultFileName.endsWith(".png")) mimeType = MIME_TYPE_IMAGE_PNG;
+                    String mimeType = Atlas.MIME_TYPE_IMAGE_JPEG;
+                    if (resultFileName.endsWith(".png")) mimeType = Atlas.MIME_TYPE_IMAGE_PNG;
                     
                     // test file copy locally
                     try {
@@ -658,28 +292,16 @@ public class AtlasMessagesScreen extends Activity {
         return cursor.getString(column_index);
     }
 
-    private LayerChangeEventListener.MainThread eventTracker;
-    
     @Override
     protected void onResume() {
         super.onResume();
         App101 app = (App101) getApplication();
         
-        app.getLayerClient().registerEventListener(eventTracker = new LayerChangeEventListener.MainThread() {
-            public void onEventMainThread(LayerChangeEvent event) {
-                for (LayerChange layerChange : event.getChanges()) {
-                    if (layerChange.getChangeType() == Type.DELETE || layerChange.getChangeType() == Type.INSERT) {
-                        updateValues();
-                        messagesList.smoothScrollToPosition(messagesAdapter.getCount() - 1);
-                        break;
-                    }
-                }
-            }
-        });
-        
         updateValues();
-        messagesList.setSelection(messagesAdapter.getCount() - 1);
-
+        messagesList.updateValues();
+        messagesList.jumpToLastMessage();
+        
+        app.getLayerClient().registerEventListener(messagesList);
         
         // restore location tracking
         int requestLocationTimeout = 1 * 1000; // every second
@@ -725,6 +347,7 @@ public class AtlasMessagesScreen extends Activity {
     
     @Override
     protected void onPause() {
+        locationManager.removeUpdates(locationTracker);
         super.onPause();
     }
 
@@ -732,7 +355,7 @@ public class AtlasMessagesScreen extends Activity {
     protected void onStop() {
         super.onStop();
         App101 app = (App101) getApplication();
-        app.getLayerClient().unregisterEventListener(eventTracker);
+        app.getLayerClient().unregisterEventListener(messagesList);
     }
 
     @Override
@@ -740,7 +363,7 @@ public class AtlasMessagesScreen extends Activity {
         super.onConfigurationChanged(newConfig);
         if (debug) Log.w(TAG, "onConfigurationChanged() newConfig: " + newConfig);
         updateValues();
-        messagesList.smoothScrollToPosition(messagesAdapter.getCount() - 1);
+        messagesList.jumpToLastMessage();
     }
 
 }
