@@ -2,7 +2,6 @@ package com.layer.atlas.messenger;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,9 +22,7 @@ import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.graphics.Point;
-import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -34,22 +31,19 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
 import android.view.Display;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.MeasureSpec;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.layer.atlas.MessageComposer;
 import com.layer.atlas.ParticipantPicker;
 import com.layer.atlas.ShapedFrameLayout;
 import com.layer.atlas.messenger.App101.Contact;
@@ -90,16 +84,15 @@ public class AtlasMessagesScreen extends Activity {
     private Conversation conv;
     private ArrayList<ViewItem> viewItems = new ArrayList<ViewItem>();
     
-    private TextView messageText;
+
     private ListView messagesList;
-    private View btnSend;
-    private View btnUpload;
     private BaseAdapter messagesAdapter;
+        
     
     private LocationManager locationManager;
     private Location lastKnownLocation;
     private Handler uiHandler;
-        
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -142,87 +135,53 @@ public class AtlasMessagesScreen extends Activity {
             pp.setVisibility(View.VISIBLE);
         }
         
-        btnUpload = findViewById(R.id.atlas_view_message_composer_upload);
-        btnUpload.setOnClickListener(new OnClickListener() {
-            public void onClick(View v) {
-                final PopupWindow popupWindow = new PopupWindow(v.getContext());
-                popupWindow.setWindowLayoutMode(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                LayoutInflater inflater = LayoutInflater.from(v.getContext());
-                LinearLayout menu = (LinearLayout) inflater.inflate(R.layout.atlas_view_message_composer_menu, null);
-                popupWindow.setContentView(menu);
-                
-                View convert = inflater.inflate(R.layout.atlas_view_message_composer_menu_convert, menu, false);
-                ((TextView)convert.findViewById(R.id.altas_view_message_composer_convert_text)).setText("Location");
-                menu.addView(convert);
-                convert.setOnClickListener(new OnClickListener() {
-                    public void onClick(View v) {
-                        if (conv == null) {
-                            Toast.makeText(v.getContext(), "Inserting Location: Conversation is not created yet", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-                        
-                        if (lastKnownLocation == null) {
-                            Toast.makeText(v.getContext(), "Inserting Location: Location is unknown yet", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-                        String locationString = "{\"lat\"=" + lastKnownLocation.getLatitude() + "; \"lon\"=" + lastKnownLocation.getLongitude() + "}";
-                        MessagePart part = app.getLayerClient().newMessagePart(MIME_TYPE_ATLAS_LOCATION, locationString.getBytes());
-                        Message message = app.getLayerClient().newMessage(Arrays.asList(part));
-                        conv.send(message);
-                        
-                        if (debug) Log.w(TAG, "onSendLocation() loc:  " + locationString);
-                        
-                        popupWindow.dismiss();
-                    }
-                });
-                
-                convert = inflater.inflate(R.layout.atlas_view_message_composer_menu_convert, menu, false);
-                ((TextView)convert.findViewById(R.id.altas_view_message_composer_convert_text)).setText("Photo");
-                menu.addView(convert, 0);
-                convert.setOnClickListener(new OnClickListener() {
-                    public void onClick(View v) {
-                        // in onCreate or any event where your want the user to select a file
-                        Intent intent = new Intent();
-                        intent.setType("image/*");
-                        intent.setAction(Intent.ACTION_GET_CONTENT);
-                        startActivityForResult(Intent.createChooser(intent, "Select Picture"), REQUEST_CODE_GALLERY);
-                        popupWindow.dismiss();
-                    }
-                });
-                
-                popupWindow.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                popupWindow.setOutsideTouchable(true);
-                int[] viewXYWindow = new int[2];  
-                v.getLocationInWindow(viewXYWindow);
-                
-                menu.measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
-                int menuHeight = menu.getMeasuredHeight();
-                popupWindow.showAtLocation(v, Gravity.NO_GRAVITY, viewXYWindow[0], viewXYWindow[1] - menuHeight);
+        final MessageComposer messageComposer = new MessageComposer(app.getLayerClient(), findViewById(R.id.atlas_screen_messages_message_composer));
+        messageComposer.setConversation(conv);
+        messageComposer.setListener(new MessageComposer.Listener() {
+            public boolean beforeSend() {
+                if (conv == null) { // create new one
+                    String[] userIds = pp.getSelectedUserIds();
+                    conv = app.getLayerClient().newConversation(userIds);
+                    participantsPickerRoot.setVisibility(View.GONE);
+                    messageComposer.setConversation(conv);
+                }
+                return true;
             }
         });
         
-        messageText = (TextView) findViewById(R.id.atlas_view_message_composer_text);
-        
-        btnSend = findViewById(R.id.atlas_view_message_composer_send);
-        btnSend.setOnClickListener(new OnClickListener() {
+        messageComposer.registerMenuItem("Photo", new OnClickListener() {
             public void onClick(View v) {
-                String text = messageText.getText().toString();
-                if (text.trim().length() > 0) {
-                    
-                    if (conv == null) { // create new one
-                        String[] userIds = pp.getSelectedUserIds();
-                        conv = app.getLayerClient().newConversation(userIds);
-                        participantsPickerRoot.setVisibility(View.GONE);
-                    }
-                    ArrayList<MessagePart> parts = new ArrayList<MessagePart>();
-                    String[] lines = text.split("\n+");
-                    for (String line : lines) {
-                        parts.add(app.getLayerClient().newMessagePart(line));
-                    }
-                    Message msg = app.getLayerClient().newMessage(parts);
-                    conv.send(msg);
-                    messageText.setText("");
+                Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE); 
+                startActivityForResult(cameraIntent, REQUEST_CODE_CAMERA); 
+            }
+        });
+
+        messageComposer.registerMenuItem("Image", new OnClickListener() {
+            public void onClick(View v) {
+                // in onCreate or any event where your want the user to select a file
+                Intent intent = new Intent();
+                intent.setType("image/*");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                startActivityForResult(Intent.createChooser(intent, "Select Picture"), REQUEST_CODE_GALLERY);
+            }
+        });
+        
+        messageComposer.registerMenuItem("Location", new OnClickListener() {
+            public void onClick(View v) {
+                if (conv == null) {
+                    Toast.makeText(v.getContext(), "Inserting Location: Conversation is not created yet", Toast.LENGTH_SHORT).show();
+                    return;
                 }
+                if (lastKnownLocation == null) {
+                    Toast.makeText(v.getContext(), "Inserting Location: Location is unknown yet", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                String locationString = "{\"lat\"=" + lastKnownLocation.getLatitude() + "; \"lon\"=" + lastKnownLocation.getLongitude() + "}";
+                MessagePart part = app.getLayerClient().newMessagePart(MIME_TYPE_ATLAS_LOCATION, locationString.getBytes());
+                Message message = app.getLayerClient().newMessage(Arrays.asList(part));
+                conv.send(message);
+                
+                if (debug) Log.w(TAG, "onSendLocation() loc:  " + locationString);
             }
         });
         
@@ -352,17 +311,12 @@ public class AtlasMessagesScreen extends Activity {
                         messagePartText = new String(part.getData());
                     } else if (MIME_TYPE_ATLAS_LOCATION.equals(part.getMimeType())){
                         String jsonLonLat = new String(part.getData());
-                        
-                        JSONObject json;
                         try {
-                            json = new JSONObject(jsonLonLat);
+                            JSONObject json = new JSONObject(jsonLonLat);
                             double lon = json.getDouble("lon");
                             double lat = json.getDouble("lat");
                             messagePartText = "Location:\nlon: " + lon + "\nlat: " + lat;
                         } catch (JSONException e) {}
-//                        String noBraces = jsonLonLat.replaceAll("[\\{\\}]", "");
-//                        String[] latAndLon = noBraces.split("");
-//                        String lon = jsonLonLat.substring(jsonLonLat.indexOf(""))
                     } else {
                         messagePartText = "attach, type: " + part.getMimeType() + ", size: " + part.getSize();
                     }
@@ -538,8 +492,6 @@ public class AtlasMessagesScreen extends Activity {
                 .append(", timeHeader: ").append(timeHeader).append(" ]");
             return builder.toString();
         }
-        
-        
     }
 
     private void updateValues() {
@@ -635,6 +587,11 @@ public class AtlasMessagesScreen extends Activity {
         if (resultCode != Activity.RESULT_OK) return;
         
         switch (requestCode) {
+            case REQUEST_CODE_CAMERA  :
+                Bitmap bmp = (Bitmap) data.getExtras().get("data"); 
+                if (debug) Log.w(TAG, "onActivityResult() camera bitmap: " + bmp.getWidth() + "x" + bmp.getHeight() + ", " + bmp.getByteCount() + " bytes ");
+                
+                break;
             case REQUEST_CODE_GALLERY :
                 // first check media gallery
                 if (data == null) {
@@ -665,32 +622,16 @@ public class AtlasMessagesScreen extends Activity {
                     
                     // test file copy locally
                     try {
-                        FileInputStream fisExternal = new FileInputStream(fileToUpload);
-                        String testFileName = "copy" + String.format("%04d", System.currentTimeMillis()/1000L % 3600) + "-" + fileToUpload.getName();  
-                        FileOutputStream fos = openFileOutput(testFileName, 0);
-                        byte[] buffer = new byte[65536];
-                        int bytesRead = 0;
-                        int totalBytes = 0;
-                        for (; (bytesRead = fisExternal.read(buffer)) != -1; totalBytes += bytesRead) {
-                            fos.write(buffer, 0, bytesRead);
-                        }
-                        fos.close();
-                        fisExternal.close();
-                        if (debug) Log.w(TAG, "onActivityResult() copied " + totalBytes + " bytes into " + testFileName);
-                        
                         LayerClient layerClient = ((App101) getApplication()).getLayerClient();
                         
                         FileInputStream fis;
-                        fis = openFileInput(testFileName);
+                        fis = new FileInputStream(fileToUpload);
                         //Message msg = layerClient.newMessage(layerClient.newMessagePart(mimeType, fis, fileToUpload.length()));
                         byte[] content = Streams.readFully(fis);
                         Message msg = layerClient.newMessage(layerClient.newMessagePart(mimeType, content));
                         conv.send(msg);
                         fis.close();
-                        File dir = getFilesDir();
-                        File file = new File(dir, testFileName);
-                        boolean deleted = file.delete();
-                        if (debug) Log.w(TAG, "onActivityResult() uploaded " + fileToUpload.length() + " bytes. Tmp file " + testFileName + (deleted ? " " : " is not") + " deleted");
+                        if (debug) Log.w(TAG, "onActivityResult() uploaded " + fileToUpload.length() + " bytes");
                     } catch (Exception e) {
                         Log.e(TAG, "onActivityResult() cannot upload file: " + resultFileName, e);
                         return;
@@ -726,16 +667,12 @@ public class AtlasMessagesScreen extends Activity {
         
         app.getLayerClient().registerEventListener(eventTracker = new LayerChangeEventListener.MainThread() {
             public void onEventMainThread(LayerChangeEvent event) {
-                boolean refresh = false;
                 for (LayerChange layerChange : event.getChanges()) {
                     if (layerChange.getChangeType() == Type.DELETE || layerChange.getChangeType() == Type.INSERT) {
-                        refresh = true;
+                        updateValues();
+                        messagesList.smoothScrollToPosition(messagesAdapter.getCount() - 1);
                         break;
                     }
-                }
-                if (refresh) {
-                    updateValues();
-                    messagesList.smoothScrollToPosition(messagesAdapter.getCount() - 1);
                 }
             }
         });
