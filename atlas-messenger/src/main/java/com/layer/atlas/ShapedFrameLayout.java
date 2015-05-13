@@ -6,10 +6,10 @@ import android.graphics.Path;
 import android.graphics.Path.Direction;
 import android.graphics.RectF;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.TypedValue;
 import android.widget.FrameLayout;
 
-import com.layer.sdk.internal.utils.Log;
 
 /**
  * @author Oleg Orlov
@@ -64,7 +64,7 @@ public class ShapedFrameLayout extends FrameLayout {
         } else {
             if (debug)  Log.d(TAG, "dispatchDraw() size: " + width + "x" + height);
         }
-        if (debug && drawCalledFrom) Log.d(TAG, "dispatchDraw() from:" + Log.printStackTrace());
+        //if (debug && drawCalledFrom) Log.d(TAG, "dispatchDraw() from:" + Log.printStackTrace());
         
         if (refreshShape) {
             shaper.reset();

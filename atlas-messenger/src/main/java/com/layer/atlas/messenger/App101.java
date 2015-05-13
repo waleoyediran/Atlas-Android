@@ -20,13 +20,12 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.LayerClient.Options;
 import com.layer.sdk.changes.LayerChangeEvent;
 import com.layer.sdk.exceptions.LayerException;
-import com.layer.sdk.internal.config.DefaultConfig;
-import com.layer.sdk.internal.utils.Log;
 import com.layer.sdk.listeners.LayerChangeEventListener;
 import com.layer.sdk.listeners.LayerConnectionListener;
 import com.layer.sdk.messaging.Message;
@@ -43,9 +42,10 @@ public class App101 extends Application {
     
     private static final String UNIQING_APP_ID = "2043446e-ccfa-11e4-90af-1d6c000000f4";
     private static final String PROD_APP_ID = "9ec30af8-5591-11e4-af9e-f7a201004a3b";
-    private static final String APP_ID = DefaultConfig.kevin_standalone ? UNIQING_APP_ID : PROD_APP_ID;
+    //private static final String APP_ID = DefaultConfig.kevin_standalone ? UNIQING_APP_ID : PROD_APP_ID;
     //private static final String APP_ID = "24f43c32-4d95-11e4-b3a2-0fd00000020d"; // staging
-                                    
+    private static final String APP_ID = PROD_APP_ID;
+
     private static final String GCM_SENDER_ID = "565052870572";
 //    private static final String GCM_SENDER_ID = "565052870572"; // staging
     

@@ -1,1 +1,2 @@
-include ':app', ':atlas'
+//include ':app', ':atlas', ':atlas-messenger'
+include ':atlas-messenger'

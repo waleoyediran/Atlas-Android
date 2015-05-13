@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -21,7 +22,6 @@ import android.widget.TextView;
 import com.layer.atlas.messenger.App101.Contact;
 import com.layer.atlas.messenger.App101.keys;
 import com.layer.sdk.changes.LayerChangeEvent;
-import com.layer.sdk.internal.utils.Log;
 import com.layer.sdk.listeners.LayerChangeEventListener;
 import com.layer.sdk.messaging.Conversation;
 import com.layer.sdk.messaging.Message;
@@ -83,7 +83,7 @@ public class ChatScreen extends Activity {
             
             public View getView(int position, View convertView, ViewGroup parent) {
                 Message msg = messages.get(position);
-                String userId = msg.getSentByUserId();
+                String userId = msg.getSender().getUserId();
                 Contact contact = app.contactsMap.get(userId);
                 
                 int typeRequired = app.getLayerClient().getAuthenticatedUserId().equals(contact.userId) ? TYPE_ME : TYPE_OTHER;
@@ -130,7 +130,7 @@ public class ChatScreen extends Activity {
 
     /**  */
     private void updateValues() {
-        if (debug) Log.w(TAG, "updateValues() called from: " + Log.printStackTrace());
+//        if (debug) Log.w(TAG, "updateValues() called from: " + Log.printStackTrace());
         App101 app = (App101) getApplication();
         
         if (conv == null) {
@@ -174,7 +174,7 @@ public class ChatScreen extends Activity {
     public void initConversation() {
         App101 app = (App101) getApplication();
         Intent ourIntent = getIntent();
-        if (false) Log.w(TAG, "onResume() act: " + ourIntent.getAction() + ", extras: " + Log.toString(ourIntent.getExtras(), "\n","\n"));
+//        if (false) Log.w(TAG, "onResume() act: " + ourIntent.getAction() + ", extras: " + Log.toString(ourIntent.getExtras(), "\n","\n"));
         String convUri = ourIntent.getStringExtra(keys.CONVERSATION_URI);
         Uri uri = Uri.parse(convUri);
         conv = app.getLayerClient().getConversation(uri);

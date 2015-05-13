@@ -15,6 +15,7 @@ import android.content.Intent;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -34,8 +35,8 @@ import com.layer.atlas.messenger.App101.Contact;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.LayerClient.DeletionMode;
 import com.layer.sdk.changes.LayerChangeEvent;
-import com.layer.sdk.internal.utils.Log;
 import com.layer.sdk.listeners.LayerChangeEventListener;
+import com.layer.sdk.messaging.Actor;
 import com.layer.sdk.messaging.Conversation;
 import com.layer.sdk.messaging.Message;
 import com.layer.sdk.messaging.Message.RecipientStatus;
@@ -159,14 +160,20 @@ public class AtlasConversationsScreen extends Activity {
                     SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
                     if (sentAt == null) timeView.setText("...");
                     else                timeView.setText(sdf.format(sentAt));
-                    
-                    if (!last.getSentByUserId().equals(app.getLayerClient().getAuthenticatedUserId())
-                            && last.getRecipientStatus(app.getLayerClient().getAuthenticatedUserId()) != RecipientStatus.READ) {
-                        textLastMessage.setTypeface(null, Typeface.BOLD);
-                        participants.setTypeface(null, Typeface.BOLD);
-                    } else {
-                        textLastMessage.setTypeface(null, Typeface.NORMAL);
-                        participants.setTypeface(null, Typeface.NORMAL);
+
+                    try {
+                        Actor actor = last.getSender();
+                        String userId = actor.getUserId();
+                        String authedId = app.getLayerClient().getAuthenticatedUserId();
+                        if ((userId != null) && !userId.equals(authedId) && last.getRecipientStatus(authedId) != RecipientStatus.READ) {
+                            textLastMessage.setTypeface(null, Typeface.BOLD);
+                            participants.setTypeface(null, Typeface.BOLD);
+                        } else {
+                            textLastMessage.setTypeface(null, Typeface.NORMAL);
+                            participants.setTypeface(null, Typeface.NORMAL);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
                 }
                 

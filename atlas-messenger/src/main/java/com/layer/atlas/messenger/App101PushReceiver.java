@@ -9,9 +9,9 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 
 import com.layer.atlas.messenger.App101.keys;
-import com.layer.sdk.internal.utils.Log;
 
 /**
  * @author Oleg Orlov
@@ -23,7 +23,7 @@ public class App101PushReceiver extends BroadcastReceiver {
     
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (debug) Log.w(TAG, "onReceive() action: "  + intent.getAction() + ", extras: " + Log.toString(intent.getExtras(), "\n", "\n") );
+        //if (debug) Log.w(TAG, "onReceive() action: " + intent.getAction() + ", extras: " + Log.toString(intent.getExtras(), "\n", "\n"));
         if ("android.intent.action.BOOT_COMPLETED".equals(intent.getAction())) {
             if (debug) Log.w(TAG, "onReceive() Waking Up! due to action: "  + intent.getAction());
             return;

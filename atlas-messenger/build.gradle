@@ -1,10 +1,11 @@
-apply plugin: 'com.android.library'
+apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 22
     buildToolsVersion "22"
 
     defaultConfig {
+        applicationId "com.layer.atlas.messenger"
         minSdkVersion 14
         targetSdkVersion 22
         versionCode 1
@@ -16,20 +17,18 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    lintOptions {
+        abortOnError false
+    }
 }
 
 dependencies {
-//    compile files('../../layer-android-sdk/sdk/build/libs/sdk-0.11.2.jar')
+    //compile files('../../layer-android-sdk/sdk/build/libs/sdk-0.11.4.jar')
     compile(group: 'com.layer.sdk', name: 'layer-sdk', version: "0.13.1") {
         exclude group: 'com.google.android.gms'
         exclude group: 'com.android.support'
         exclude group: 'org.slf4j'
     }
-
-    compile('com.android.support:recyclerview-v7:22.0.0')
-    compile 'com.android.support:appcompat-v7:22.0.0'
-    compile 'com.google.android.gms:play-services-gcm:7.0.0'
-
-    // thrift!!
+    compile 'com.android.support:support-v4:22.0.0'
     compile 'org.slf4j:slf4j-log4j12:1.7.6'
 }

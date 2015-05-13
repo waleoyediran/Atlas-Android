@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
@@ -22,7 +23,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.layer.atlas.messenger.App101.Contact;
-import com.layer.sdk.internal.utils.Log;
 import com.layer.sdk.messaging.Conversation;
 
 /**
@@ -148,8 +148,8 @@ public class AtlasConversationSettingsScreen extends Activity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (debug) Log.w(TAG, "onActivityResult() requestCode: " + requestCode + ", resultCode: " + requestCode 
-                + ", data: " + (data != null ? Log.toString(data.getExtras()) : "null"));
+//        if (debug) Log.w(TAG, "onActivityResult() requestCode: " + requestCode + ", resultCode: " + requestCode
+//                + ", data: " + (data != null ? Log.toString(data.getExtras()) : "null"));
         if (requestCode == REQUEST_CODE_ADD_PARTICIPANT && resultCode == RESULT_OK) {
             String[] addedParticipants = data.getStringArrayExtra(AtlasParticipantPickersScreen.EXTRA_KEY_USERIDS_SELECTED);
             conv.addParticipants(addedParticipants);

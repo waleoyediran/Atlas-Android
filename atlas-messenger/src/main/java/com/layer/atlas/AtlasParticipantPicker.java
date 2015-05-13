@@ -8,6 +8,7 @@ import java.util.TreeSet;
 import android.content.Context;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -27,7 +28,6 @@ import android.widget.TextView;
 import com.layer.atlas.messenger.App101;
 import com.layer.atlas.messenger.App101.Contact;
 import com.layer.atlas.messenger.R;
-import com.layer.sdk.internal.utils.Log;
 
 /**
  * @author Oleg Orlov

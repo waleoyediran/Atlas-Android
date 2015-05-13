@@ -2,6 +2,7 @@ package com.layer.atlas.messenger;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.EditText;
@@ -9,7 +10,6 @@ import android.widget.Toast;
 
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.exceptions.LayerException;
-import com.layer.sdk.internal.utils.Log;
 import com.layer.sdk.listeners.LayerAuthenticationListener;
 
 /**

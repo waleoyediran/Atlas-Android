@@ -14,6 +14,7 @@ import org.json.JSONObject;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,7 +32,6 @@ import com.layer.sdk.LayerClient;
 import com.layer.sdk.changes.LayerChange;
 import com.layer.sdk.changes.LayerChange.Type;
 import com.layer.sdk.changes.LayerChangeEvent;
-import com.layer.sdk.internal.utils.Log;
 import com.layer.sdk.listeners.LayerChangeEventListener;
 import com.layer.sdk.listeners.LayerProgressListener;
 import com.layer.sdk.messaging.Conversation;
@@ -73,9 +73,9 @@ public class AtlasMessagesList implements LayerChangeEventListener.MainThread {
             public View getView(int position, View convertView, ViewGroup parent) {
                 final CellDataItem viewItem = viewItems.get(position);
                 MessagePart part = viewItem.messagePart;
-                String userId = part.getMessage().getSentByUserId();
+                String userId = part.getMessage().getSender().getUserId();
                 Contact contact = app.contactsMap.get(userId);
-                
+
                 int viewType = client.getAuthenticatedUserId().equals(contact.userId) ? TYPE_ME : TYPE_OTHER;
                 
                 if (convertView == null) { 
@@ -133,7 +133,7 @@ public class AtlasMessagesList implements LayerChangeEventListener.MainThread {
 
                 // mark displayed message as read
                 Message msg = part.getMessage();
-                if (!msg.getSentByUserId().equals(client.getAuthenticatedUserId())) {
+                if (!msg.getSender().getUserId().equals(client.getAuthenticatedUserId())) {
                     msg.markAsRead();
                 }
                 
@@ -271,7 +271,11 @@ public class AtlasMessagesList implements LayerChangeEventListener.MainThread {
         
         List<Message> messages = client.getMessages(conv);
         viewItems.clear();
+        if (messages.isEmpty()) return;
+
         for (Message message : messages) {
+            if (message.getSender().getUserId() == null) continue;             // System messages have `null` user ID
+
             List<MessagePart> parts = message.getMessageParts();
             for (MessagePart messagePart : parts) {
                 CellDataItem item = new CellDataItem();
@@ -292,7 +296,7 @@ public class AtlasMessagesList implements LayerChangeEventListener.MainThread {
         for (int i = 0; i < viewItems.size(); i++) {
             CellDataItem item = viewItems.get(i);
             boolean newCluster = false;
-            if (!item.messagePart.getMessage().getSentByUserId().equals(currentUser)) {
+            if (!item.messagePart.getMessage().getSender().getUserId().equals(currentUser)) {
                 newCluster = true;
             }
             Date sentAt = item.messagePart.getMessage().getSentAt();
@@ -319,13 +323,13 @@ public class AtlasMessagesList implements LayerChangeEventListener.MainThread {
             item.clusterHeadItemId = clusterId;
             item.clusterItemId = currentItem++;
             
-            currentUser = item.messagePart.getMessage().getSentByUserId();
+            currentUser = item.messagePart.getMessage().getSender().getUserId();
             lastMessageTime = sentAt.getTime();
             calLastMessage.setTime(sentAt);
             if (debug) Log.d(TAG, "updateValues() item: " + item);
         }
-        viewItems.get(viewItems.size() - 1).clusterTail = true; // last one is always a tail
-        
+            viewItems.get(viewItems.size() - 1).clusterTail = true; // last one is always a tail
+
         Log.d(TAG, "updateValues() parts finished in: " + (System.currentTimeMillis() - started));
         messagesAdapter.notifyDataSetChanged();
 

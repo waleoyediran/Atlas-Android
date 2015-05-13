@@ -3,7 +3,6 @@ package com.layer.atlas.adapter;
 import android.content.Context;
 import android.text.Spannable;
 
-import com.layer.atlas.R;
 import com.layer.atlas.atlasdefault.DefaultMessageDataSource;
 import com.layer.atlas.atlasdefault.DefaultMessageViewHolderFactory;
 import com.layer.atlas.model.Participant;
@@ -90,7 +89,7 @@ public class MessageQueryAdapter extends BaseQueryAdapter<Message, MessageViewHo
 
         viewHolder.setMessage(mContext, message);
         viewHolder.setMessageAvatarItemVisible(mContext, true);
-        viewHolder.setMessageSender(mContext, mDataSource.getParticipant(this, message.getSentByUserId()));
+        viewHolder.setMessageSender(mContext, mDataSource.getParticipant(this, message.getSender().getUserId()));
     }
 
     /**

@@ -20,6 +20,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
@@ -35,11 +36,9 @@ import com.layer.atlas.AtlasMessagesList.CellDataItem;
 import com.layer.atlas.messenger.App101.Contact;
 import com.layer.atlas.messenger.App101.keys;
 import com.layer.sdk.LayerClient;
-import com.layer.sdk.internal.utils.Log;
 import com.layer.sdk.messaging.Conversation;
 import com.layer.sdk.messaging.Message;
 import com.layer.sdk.messaging.MessagePart;
-import com.layer.transport.util.Streams;
 
 /**
  * @author Oleg Orlov
@@ -153,7 +152,7 @@ public class AtlasMessagesScreen extends Activity {
                 MessagePart part = app.getLayerClient().newMessagePart(Atlas.MIME_TYPE_ATLAS_LOCATION, locationString.getBytes());
                 Message message = app.getLayerClient().newMessage(Arrays.asList(part));
                 conv.send(message);
-                
+
                 if (debug) Log.w(TAG, "onSendLocation() loc:  " + locationString);
             }
         });
@@ -213,10 +212,10 @@ public class AtlasMessagesScreen extends Activity {
     
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (debug) Log.w(TAG, "onActivityResult() requestCode: " + requestCode
-                    + ", resultCode: " + resultCode 
-                    + ", uri: "  + (data == null ? "" : data.getData())  
-                    + ", data: " + (data == null ? "" : Log.toString(data.getExtras())) );
+//        if (debug) Log.w(TAG, "onActivityResult() requestCode: " + requestCode
+//                    + ", resultCode: " + resultCode
+//                    + ", uri: "  + (data == null ? "" : data.getData())
+//                    + ", data: " + (data == null ? "" : Log.toString(data.getExtras())) );
         
         if (resultCode != Activity.RESULT_OK) return;
         
@@ -255,21 +254,21 @@ public class AtlasMessagesScreen extends Activity {
                     if (resultFileName.endsWith(".png")) mimeType = Atlas.MIME_TYPE_IMAGE_PNG;
                     
                     // test file copy locally
-                    try {
-                        LayerClient layerClient = ((App101) getApplication()).getLayerClient();
-                        
-                        FileInputStream fis;
-                        fis = new FileInputStream(fileToUpload);
-                        //Message msg = layerClient.newMessage(layerClient.newMessagePart(mimeType, fis, fileToUpload.length()));
-                        byte[] content = Streams.readFully(fis);
-                        Message msg = layerClient.newMessage(layerClient.newMessagePart(mimeType, content));
-                        conv.send(msg);
-                        fis.close();
-                        if (debug) Log.w(TAG, "onActivityResult() uploaded " + fileToUpload.length() + " bytes");
-                    } catch (Exception e) {
-                        Log.e(TAG, "onActivityResult() cannot upload file: " + resultFileName, e);
-                        return;
-                    }
+//                    try {
+//                        LayerClient layerClient = ((App101) getApplication()).getLayerClient();
+//
+//                        FileInputStream fis;
+//                        fis = new FileInputStream(fileToUpload);
+//                        //Message msg = layerClient.newMessage(layerClient.newMessagePart(mimeType, fis, fileToUpload.length()));
+//                        byte[] content = Streams.readFully(fis);
+//                        Message msg = layerClient.newMessage(layerClient.newMessagePart(mimeType, content));
+//                        conv.send(msg);
+//                        fis.close();
+//                        if (debug) Log.w(TAG, "onActivityResult() uploaded " + fileToUpload.length() + " bytes");
+//                    } catch (Exception e) {
+//                        Log.e(TAG, "onActivityResult() cannot upload file: " + resultFileName, e);
+//                        return;
+//                    }
                 }
                 break;
 
