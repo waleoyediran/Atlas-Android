@@ -1,6 +1,8 @@
 package com.layer.atlas.messenger;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
@@ -36,6 +38,7 @@ import com.layer.atlas.AtlasMessagesList.CellDataItem;
 import com.layer.atlas.AtlasMessagesList.ItemClickListener;
 import com.layer.atlas.AtlasParticipantPicker;
 import com.layer.atlas.messenger.App101.keys;
+import com.layer.sdk.LayerClient;
 import com.layer.sdk.messaging.Conversation;
 import com.layer.sdk.messaging.Message;
 import com.layer.sdk.messaging.MessagePart;
@@ -268,21 +271,31 @@ public class AtlasMessagesScreen extends Activity {
                     if (resultFileName.endsWith(".png")) mimeType = Atlas.MIME_TYPE_IMAGE_PNG;
                     
                     // test file copy locally
-//                    try {
-//                        LayerClient layerClient = ((App101) getApplication()).getLayerClient();
-//
-//                        FileInputStream fis;
-//                        fis = new FileInputStream(fileToUpload);
+                    try {
+                        LayerClient layerClient = ((App101) getApplication()).getLayerClient();
+
+                        FileInputStream fis;
+                        fis = new FileInputStream(fileToUpload);
 //                        Message msg = layerClient.newMessage(layerClient.newMessagePart(mimeType, fis, fileToUpload.length()));
-//                        byte[] content = Streams.readFully(fis);
-//                        Message msg = layerClient.newMessage(layerClient.newMessagePart(mimeType, content));
-//                        conv.send(msg);
-//                        fis.close();
-//                        if (debug) Log.w(TAG, "onActivityResult() uploaded " + fileToUpload.length() + " bytes");
-//                    } catch (Exception e) {
-//                        Log.e(TAG, "onActivityResult() cannot upload file: " + resultFileName, e);
-//                        return;
-//                    }
+                        ByteArrayOutputStream baos = new ByteArrayOutputStream();;
+                        byte[] buffer = new byte[65536];
+                        int bytesRead = 0;
+                        int totalBytes = 0;
+                        for (; (bytesRead = fis.read(buffer)) != -1; totalBytes += bytesRead) {
+                            baos.write(buffer, 0, bytesRead);
+                        }
+                        fis.close();
+                        byte[] content = baos.toByteArray();
+                        baos.close();
+                        if (debug) Log.w(TAG, "onActivityResult() loaded " + totalBytes + " into memory");
+                        
+                        Message msg = layerClient.newMessage(layerClient.newMessagePart(mimeType, content));
+                        conv.send(msg);
+                        if (debug) Log.w(TAG, "onActivityResult() uploaded " + fileToUpload.length() + " bytes");
+                    } catch (Exception e) {
+                        Log.e(TAG, "onActivityResult() cannot upload file: " + resultFileName, e);
+                        return;
+                    }
                 }
                 break;
 
