@@ -2,7 +2,9 @@ package com.layer.atlas.messenger;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -107,7 +109,7 @@ public class AtlasMessagesScreen extends Activity {
         final AtlasMessageComposer messageComposer = new AtlasMessageComposer(app.getLayerClient(), findViewById(R.id.atlas_screen_messages_message_composer));
         messageComposer.setConversation(conv);
         messageComposer.setListener(new AtlasMessageComposer.Listener() {
-            public boolean beforeSend() {
+            public boolean beforeSend(Message message) {
                 if (conv == null) { // create new one
                     String[] userIds = pp.getSelectedUserIds();
                     conv = app.getLayerClient().newConversation(userIds);
@@ -115,6 +117,20 @@ public class AtlasMessagesScreen extends Activity {
                     messageComposer.setConversation(conv);
                     messagesList.setConversation(conv);
                 }
+                
+                // push
+                Contact myContact = app.contactsMap.get(app.getLayerClient().getAuthenticatedUserId());
+                String senderName = App101.getContactFirstAndLast(myContact);
+                Map<String, String> metadata = new HashMap<String, String>();
+                boolean bug = true;
+                String text = bug ? "LayerPush! Check message!"  : App101.toString(message);
+                if (senderName != null && !senderName.isEmpty()) {
+                    metadata.put(Message.ReservedMetadataKeys.PushNotificationAlertMessageKey.getKey(), senderName + ": " + text);
+                } else {
+                    metadata.put(Message.ReservedMetadataKeys.PushNotificationAlertMessageKey.getKey(), text);
+                }
+                message.setMetadata(metadata);
+                
                 return true;
             }
         });

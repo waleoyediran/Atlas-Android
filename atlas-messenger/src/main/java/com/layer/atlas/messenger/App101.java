@@ -92,8 +92,8 @@ public class App101 extends Application {
 
     private LayerClient initLayerClient() {
         final LayerClient resultClient = (LayerClient.newInstance(this, APP_ID, new Options()
-//                .broadcastPushInForeground(true)
-//                .googleCloudMessagingSenderId(GCM_SENDER_ID)
+                .broadcastPushInForeground(true)
+                .googleCloudMessagingSenderId(GCM_SENDER_ID)
         ));
         
         if (debug) Log.w(TAG, "onCreate() client created");
@@ -144,27 +144,13 @@ public class App101 extends Application {
                     savePref(keys.CONTACTS, responseString);
                     
                     loadContacts(responseString, contactsMap);
-                    dumpDb();
                 } catch (Exception e) {
                     Log.e(TAG, "contacts() ", e);
                 }
             }
 
-
         }).start();
         return resultClient;
-    }
-    
-    public void dumpDb() {
-//        LayerClientImpl lci = (LayerClientImpl) getLayerClient();
-//        SQLiteDatabase db = lci.getSyncPersistence().getWritableDatabase();
-//        Dbt.dumpNonEmptyNames(db);
-//        if (true) return;
-//        Dbt.dump(db, "syncable_changes");
-//        Dbt.dump(db, "synced_changes");
-//        Dbt.dump(db, "conversations");
-//        Dbt.dump(db, "events");
-//        Dbt.dump(db, "streams");
     }
     
     private App101 savePref(String key, String value) {
@@ -185,7 +171,6 @@ public class App101 extends Application {
         if (contactsJson != null) {
             loadContacts(contactsJson, contactsMap);
         }
-        
     }
     
     public static String toString(Message msg) {

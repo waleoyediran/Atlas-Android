@@ -8,7 +8,6 @@ import java.util.Date;
 import java.util.List;
 
 import android.app.Activity;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
@@ -272,32 +271,6 @@ public class AtlasConversationsScreen extends Activity {
         app.getLayerClient().unregisterEventListener(eventTracker);
     }
     
-    private void initPushes() {
-        Context context = this;
-        LayerClient lc = LayerClient.newInstance(context, "");
-        
-        // Build the notification
-//        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context)
-//                .setSmallIcon(R.drawable.ic_launcher)
-//                .setContentTitle(context.getResources().getString(R.string.app_name))
-//                .setContentText("Some message")
-//                .setAutoCancel(true)
-//                .setLights(context.getResources().getColor(android.R.color.holo_orange_dark), 100, 1900)
-//                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-//                .setDefaults(NotificationCompat.DEFAULT_SOUND | NotificationCompat.DEFAULT_VIBRATE);
-
-        // Set the action to take when a user taps the notification
-        Intent resultIntent = new Intent(context, AtlasConversationsScreen.class);
-        resultIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        resultIntent.putExtra("layer-conversation-id", 123);
-        PendingIntent resultPendingIntent = PendingIntent.getActivity(context, 0, resultIntent, PendingIntent.FLAG_CANCEL_CURRENT);
-//        mBuilder.setContentIntent(resultPendingIntent);
-//
-//        // Show the notification
-//        NotificationManager mNotifyMgr = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-//        mNotifyMgr.notify(1, mBuilder.build());
-    }
-
     public void openChatScreen(Conversation conv, boolean newConversation) {
         Context context = this;
         Intent intent = new Intent(context, AtlasMessagesScreen.class);

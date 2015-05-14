@@ -80,11 +80,6 @@ public class AtlasMessageComposer {
         btnSend = rootView.findViewById(R.id.atlas_view_message_composer_send);
         btnSend.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-                if (listener != null) {
-                    boolean proceed = listener.beforeSend();
-                    if (!proceed) return;
-                }
-                if (conv == null) return;
                 
                 String text = messageText.getText().toString();
                 
@@ -96,6 +91,13 @@ public class AtlasMessageComposer {
                         parts.add(layerClient.newMessagePart(line));
                     }
                     Message msg = layerClient.newMessage(parts);
+                    
+                    if (listener != null) {
+                        boolean proceed = listener.beforeSend(msg);
+                        if (!proceed) return;
+                    }
+                    if (conv == null) return;
+                    
                     conv.send(msg);
                     messageText.setText("");
                 }
@@ -125,7 +127,7 @@ public class AtlasMessageComposer {
     }
 
     public interface Listener {
-        public abstract boolean beforeSend();
+        public abstract boolean beforeSend(Message message);
     }
     
     private static class MenuItem {

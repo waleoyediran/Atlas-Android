@@ -97,7 +97,7 @@
             android:permission="com.google.android.c2dm.permission.SEND" >
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
-                <category android:name="com.layer.com.layer.atlas.messenger" />
+                <category android:name="com.layer.atlas.messenger" />
             </intent-filter>
         </receiver>
 

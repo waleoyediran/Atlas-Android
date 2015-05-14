@@ -19,11 +19,11 @@ import com.layer.atlas.messenger.App101.keys;
 public class App101PushReceiver extends BroadcastReceiver {
     
     private static final String TAG = App101PushReceiver.class.getSimpleName();
-    private static final boolean debug = true;
+    private static final boolean debug = false;
     
     @Override
     public void onReceive(Context context, Intent intent) {
-        //if (debug) Log.w(TAG, "onReceive() action: " + intent.getAction() + ", extras: " + Log.toString(intent.getExtras(), "\n", "\n"));
+        if (debug) Log.w(TAG, "onReceive() action: " + intent.getAction() + ", extras: " + App101.toString(intent.getExtras(), "\n", "\n"));
         if ("android.intent.action.BOOT_COMPLETED".equals(intent.getAction())) {
             if (debug) Log.w(TAG, "onReceive() Waking Up! due to action: "  + intent.getAction());
             return;
