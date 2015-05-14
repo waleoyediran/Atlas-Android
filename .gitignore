@@ -6,6 +6,6 @@
 .DS_Store
 /build
 atlas-messenger/src/main/bin
-app/src/main/bin
-atlas/src/main/bin
 atlas-messenger/build
+layer-atlas/src/main/bin
+layer-atlas/build
