@@ -22,8 +22,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="48dp"
                 android:gravity="center_vertical"
-                android:paddingLeft="@dimen/activity_horizontal_margin"
-                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingLeft="@dimen/atlas_messenger_activity_horizontal_margin"
+                android:paddingRight="@dimen/atlas_messenger_activity_horizontal_margin"
                 android:textSize="@dimen/atlas_text_size_smaller"
                 android:textColor="@color/atlas_text_blue"
                 android:text="Account"/>
@@ -32,8 +32,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="72dp"
                 android:orientation="vertical"
-                android:paddingLeft="@dimen/activity_horizontal_margin"
-                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingLeft="@dimen/atlas_messenger_activity_horizontal_margin"
+                android:paddingRight="@dimen/atlas_messenger_activity_horizontal_margin"
                 >
                 
                 <TextView
@@ -61,8 +61,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="48dp"
                 android:gravity="center_vertical"
-                android:paddingLeft="@dimen/activity_horizontal_margin"
-                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingLeft="@dimen/atlas_messenger_activity_horizontal_margin"
+                android:paddingRight="@dimen/atlas_messenger_activity_horizontal_margin"
                 android:textSize="@dimen/atlas_text_size_general"
                 android:textColor="@color/atlas_text_black"
                 android:text="Log Out"/>
@@ -74,8 +74,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="48dp"
                 android:gravity="center_vertical"
-                android:paddingLeft="@dimen/activity_horizontal_margin"
-                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingLeft="@dimen/atlas_messenger_activity_horizontal_margin"
+                android:paddingRight="@dimen/atlas_messenger_activity_horizontal_margin"
                 android:textSize="@dimen/atlas_text_size_smaller"
                 android:textColor="@color/atlas_text_blue"
                 android:text="Notifications"/>
@@ -84,8 +84,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:orientation="horizontal"
-                android:paddingLeft="@dimen/activity_horizontal_margin"
-                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingLeft="@dimen/atlas_messenger_activity_horizontal_margin"
+                android:paddingRight="@dimen/atlas_messenger_activity_horizontal_margin"
                 >
                 
                 <TextView
@@ -110,8 +110,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:orientation="horizontal"
-                android:paddingLeft="@dimen/activity_horizontal_margin"
-                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingLeft="@dimen/atlas_messenger_activity_horizontal_margin"
+                android:paddingRight="@dimen/atlas_messenger_activity_horizontal_margin"
                 >
                 
                 <TextView
@@ -138,8 +138,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="48dp"
                 android:gravity="center_vertical"
-                android:paddingLeft="@dimen/activity_horizontal_margin"
-                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingLeft="@dimen/atlas_messenger_activity_horizontal_margin"
+                android:paddingRight="@dimen/atlas_messenger_activity_horizontal_margin"
                 android:textSize="@dimen/atlas_text_size_smaller"
                 android:textColor="@color/atlas_text_blue"
                 android:text="Debug"/>
@@ -148,8 +148,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:orientation="horizontal"
-                android:paddingLeft="@dimen/activity_horizontal_margin"
-                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingLeft="@dimen/atlas_messenger_activity_horizontal_margin"
+                android:paddingRight="@dimen/atlas_messenger_activity_horizontal_margin"
                 >
                 
                 <TextView
@@ -174,8 +174,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="72dp"
                 android:orientation="vertical"
-                android:paddingLeft="@dimen/activity_horizontal_margin"
-                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingLeft="@dimen/atlas_messenger_activity_horizontal_margin"
+                android:paddingRight="@dimen/atlas_messenger_activity_horizontal_margin"
                 >
                 
                 <TextView
@@ -203,8 +203,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="88dp"
                 android:orientation="vertical"
-                android:paddingLeft="@dimen/activity_horizontal_margin"
-                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingLeft="@dimen/atlas_messenger_activity_horizontal_margin"
+                android:paddingRight="@dimen/atlas_messenger_activity_horizontal_margin"
                 >
                 
                 <TextView
@@ -240,8 +240,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="72dp"
                 android:orientation="vertical"
-                android:paddingLeft="@dimen/activity_horizontal_margin"
-                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingLeft="@dimen/atlas_messenger_activity_horizontal_margin"
+                android:paddingRight="@dimen/atlas_messenger_activity_horizontal_margin"
                 >
                 
                 <TextView
@@ -269,8 +269,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="88dp"
                 android:orientation="vertical"
-                android:paddingLeft="@dimen/activity_horizontal_margin"
-                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingLeft="@dimen/atlas_messenger_activity_horizontal_margin"
+                android:paddingRight="@dimen/atlas_messenger_activity_horizontal_margin"
                 >
                 
                 <TextView
@@ -306,8 +306,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="72dp"
                 android:orientation="vertical"
-                android:paddingLeft="@dimen/activity_horizontal_margin"
-                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingLeft="@dimen/atlas_messenger_activity_horizontal_margin"
+                android:paddingRight="@dimen/atlas_messenger_activity_horizontal_margin"
                 >
                 
                 <TextView
@@ -335,8 +335,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="72dp"
                 android:orientation="vertical"
-                android:paddingLeft="@dimen/activity_horizontal_margin"
-                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingLeft="@dimen/atlas_messenger_activity_horizontal_margin"
+                android:paddingRight="@dimen/atlas_messenger_activity_horizontal_margin"
                 >
                 
                 <TextView
@@ -364,8 +364,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="88dp"
                 android:orientation="vertical"
-                android:paddingLeft="@dimen/activity_horizontal_margin"
-                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingLeft="@dimen/atlas_messenger_activity_horizontal_margin"
+                android:paddingRight="@dimen/atlas_messenger_activity_horizontal_margin"
                 >
                 
                 <TextView
@@ -395,8 +395,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="48dp"
                 android:gravity="center_vertical"
-                android:paddingLeft="@dimen/activity_horizontal_margin"
-                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingLeft="@dimen/atlas_messenger_activity_horizontal_margin"
+                android:paddingRight="@dimen/atlas_messenger_activity_horizontal_margin"
                 android:textSize="@dimen/atlas_text_size_smaller"
                 android:textColor="@color/atlas_text_blue"
                 android:text="Statistics"/>
@@ -405,8 +405,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="72dp"
                 android:orientation="vertical"
-                android:paddingLeft="@dimen/activity_horizontal_margin"
-                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingLeft="@dimen/atlas_messenger_activity_horizontal_margin"
+                android:paddingRight="@dimen/atlas_messenger_activity_horizontal_margin"
                 >
                 
                 <TextView
@@ -434,8 +434,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="72dp"
                 android:orientation="vertical"
-                android:paddingLeft="@dimen/activity_horizontal_margin"
-                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingLeft="@dimen/atlas_messenger_activity_horizontal_margin"
+                android:paddingRight="@dimen/atlas_messenger_activity_horizontal_margin"
                 >
                 
                 <TextView
@@ -463,8 +463,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="72dp"
                 android:orientation="vertical"
-                android:paddingLeft="@dimen/activity_horizontal_margin"
-                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingLeft="@dimen/atlas_messenger_activity_horizontal_margin"
+                android:paddingRight="@dimen/atlas_messenger_activity_horizontal_margin"
                 >
                 
                 <TextView
@@ -494,8 +494,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="48dp"
                 android:gravity="center_vertical"
-                android:paddingLeft="@dimen/activity_horizontal_margin"
-                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingLeft="@dimen/atlas_messenger_activity_horizontal_margin"
+                android:paddingRight="@dimen/atlas_messenger_activity_horizontal_margin"
                 android:textSize="@dimen/atlas_text_size_smaller"
                 android:textColor="@color/atlas_text_blue"
                 android:text="External Content"/>
@@ -504,8 +504,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="72dp"
                 android:orientation="vertical"
-                android:paddingLeft="@dimen/activity_horizontal_margin"
-                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingLeft="@dimen/atlas_messenger_activity_horizontal_margin"
+                android:paddingRight="@dimen/atlas_messenger_activity_horizontal_margin"
                 >
                 
                 <TextView
@@ -533,8 +533,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="72dp"
                 android:orientation="vertical"
-                android:paddingLeft="@dimen/activity_horizontal_margin"
-                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingLeft="@dimen/atlas_messenger_activity_horizontal_margin"
+                android:paddingRight="@dimen/atlas_messenger_activity_horizontal_margin"
                 >
                 
                 <TextView

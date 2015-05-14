@@ -1,7 +1,6 @@
 package com.layer.atlas.messenger;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.util.Arrays;
 import java.util.Locale;
 
@@ -28,14 +27,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.layer.atlas.Atlas;
+import com.layer.atlas.Atlas.Contact;
 import com.layer.atlas.AtlasMessageComposer;
 import com.layer.atlas.AtlasMessagesList;
+import com.layer.atlas.AtlasMessagesList.CellDataItem;
 import com.layer.atlas.AtlasMessagesList.ItemClickListener;
 import com.layer.atlas.AtlasParticipantPicker;
-import com.layer.atlas.AtlasMessagesList.CellDataItem;
-import com.layer.atlas.messenger.App101.Contact;
 import com.layer.atlas.messenger.App101.keys;
-import com.layer.sdk.LayerClient;
 import com.layer.sdk.messaging.Conversation;
 import com.layer.sdk.messaging.Message;
 import com.layer.sdk.messaging.MessagePart;
@@ -212,10 +210,10 @@ public class AtlasMessagesScreen extends Activity {
     
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        if (debug) Log.w(TAG, "onActivityResult() requestCode: " + requestCode
-//                    + ", resultCode: " + resultCode
-//                    + ", uri: "  + (data == null ? "" : data.getData())
-//                    + ", data: " + (data == null ? "" : Log.toString(data.getExtras())) );
+        if (debug) Log.w(TAG, "onActivityResult() requestCode: " + requestCode
+                    + ", resultCode: " + resultCode
+                    + ", uri: "  + (data == null ? "" : data.getData())
+                    + ", data: " + (data == null ? "" : App101.toString(data.getExtras())) );
         
         if (resultCode != Activity.RESULT_OK) return;
         
@@ -259,7 +257,7 @@ public class AtlasMessagesScreen extends Activity {
 //
 //                        FileInputStream fis;
 //                        fis = new FileInputStream(fileToUpload);
-//                        //Message msg = layerClient.newMessage(layerClient.newMessagePart(mimeType, fis, fileToUpload.length()));
+//                        Message msg = layerClient.newMessage(layerClient.newMessagePart(mimeType, fis, fileToUpload.length()));
 //                        byte[] content = Streams.readFully(fis);
 //                        Message msg = layerClient.newMessage(layerClient.newMessagePart(mimeType, content));
 //                        conv.send(msg);

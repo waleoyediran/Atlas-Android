@@ -25,8 +25,8 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.layer.atlas.Atlas.Contact;
 import com.layer.atlas.messenger.App101;
-import com.layer.atlas.messenger.App101.Contact;
 import com.layer.atlas.messenger.R;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.changes.LayerChange;
@@ -35,7 +35,6 @@ import com.layer.sdk.changes.LayerChangeEvent;
 import com.layer.sdk.listeners.LayerChangeEventListener;
 import com.layer.sdk.listeners.LayerProgressListener;
 import com.layer.sdk.messaging.Conversation;
-import com.layer.sdk.messaging.LayerObject;
 import com.layer.sdk.messaging.Message;
 import com.layer.sdk.messaging.MessagePart;
 
@@ -74,9 +73,8 @@ public class AtlasMessagesList implements LayerChangeEventListener.MainThread {
                 final CellDataItem viewItem = viewItems.get(position);
                 MessagePart part = viewItem.messagePart;
                 String userId = part.getMessage().getSender().getUserId();
-                Contact contact = app.contactsMap.get(userId);
 
-                int viewType = client.getAuthenticatedUserId().equals(contact.userId) ? TYPE_ME : TYPE_OTHER;
+                int viewType = client.getAuthenticatedUserId().equals(userId) ? TYPE_ME : TYPE_OTHER;
                 
                 if (convertView == null) { 
                     convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.atlas_view_messages_convert, parent, false);
@@ -116,11 +114,12 @@ public class AtlasMessagesList implements LayerChangeEventListener.MainThread {
                     timeBar.setVisibility(View.GONE);
                 }
                 
+                Contact contact = app.contactsMap.get(userId);
                 TextView textAvatar = (TextView) convertView.findViewById(R.id.atlas_view_messages_convert_initials);
                 View spacerRight = convertView.findViewById(R.id.atlas_view_messages_convert_spacer_right);
                 if (viewType == TYPE_OTHER) {
                     spacerRight.setVisibility(View.VISIBLE);
-                    String displayText = App101.getContactInitials(contact);
+                    String displayText = contact != null ? App101.getContactInitials(contact) : "";
                     textAvatar.setText(displayText);
                     textAvatar.setVisibility(View.VISIBLE);
                 } else {
@@ -339,9 +338,6 @@ public class AtlasMessagesList implements LayerChangeEventListener.MainThread {
     public void onEventMainThread(LayerChangeEvent event) {
         if (conv == null) return;
         for (LayerChange layerChange : event.getChanges()) {
-            if (false && layerChange.getObjectType() == LayerObject.Type.CONVERSATION
-                    && !((Conversation)layerChange.getObject()).getId().equals(conv.getId()) ) continue;
-            
             if (layerChange.getChangeType() == Type.DELETE || layerChange.getChangeType() == Type.INSERT) {
                 updateValues();
                 messagesList.smoothScrollToPosition(messagesAdapter.getCount() - 1);

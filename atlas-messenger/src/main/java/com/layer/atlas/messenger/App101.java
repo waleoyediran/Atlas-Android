@@ -1,7 +1,7 @@
 package com.layer.atlas.messenger;
 
-import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.http.HttpRequest;
@@ -19,9 +19,11 @@ import android.app.Application;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import com.layer.atlas.Atlas.Contact;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.LayerClient.Options;
 import com.layer.sdk.changes.LayerChangeEvent;
@@ -50,12 +52,10 @@ public class App101 extends Application {
 //    private static final String GCM_SENDER_ID = "565052870572"; // staging
     
 //    private static final String USER_EMAIL = "hhdad@mailforspam.com";
-    private static final String USER_EMAIL = "oleg@layer.com";
     //private static final String USER_EMAIL = "ulady@mailforspam.com";
     //private static final String USER_EMAIL = "hhsample@mailforspam.com";
 //    private static final String USER_EMAIL = "hhdadst@mailforspam.com";
     
-    private static final String USER_PASSW = "qwerty123";
     private static final String PROVIDER_ADDRESS = "http://layer-identity-provider.herokuapp.com";
     private static final String URL_SIGN_IN_RAILS = "https://layer-identity-provider.herokuapp.com/users/sign_in.json";
         
@@ -288,73 +288,6 @@ public class App101 extends Application {
         return result;
     }
 
-    public static class Contact {
-        
-        public String userId;
-        public String firstName;
-        public String lastName;
-        public String email;
-        
-        public static Contact fromRecord(JSONObject jObject) {
-            Contact contact = new Contact();
-            contact.userId = jObject.optString("id");
-            contact.firstName = jObject.optString("first_name");
-            contact.lastName = jObject.optString("last_name");
-            contact.email = jObject.optString("email");
-            return contact;
-        }
-
-        public String toString() {
-            StringBuilder builder = new StringBuilder();
-            builder.append("Contact [userId: ").append(userId).append(", firstName: ").append(firstName).append(", lastName: ").append(lastName).append(", email: ").append(email).append("]");
-            return builder.toString();
-        }
-        
-        public static final Comparator<Contact> FIRST_LAST_EMAIL_ASCENDING = new Comparator<App101.Contact>() {
-            public int compare(Contact lhs, Contact rhs) {
-                int result = String.CASE_INSENSITIVE_ORDER.compare(lhs.firstName, rhs.firstName);
-                if (result != 0) return result;
-                result = String.CASE_INSENSITIVE_ORDER.compare(lhs.lastName, rhs.lastName);
-                if (result != 0) return result;
-                result = String.CASE_INSENSITIVE_ORDER.compare(lhs.email, rhs.email);
-                return 0;
-            }
-        };
-
-        public static final class FilteringComparator implements Comparator<Contact> {
-            
-            private final String filter;
-        
-            /** 
-             * @param filter - the less indexOf(filter) the less order of contact
-             */
-            public FilteringComparator(String filter) {
-                this.filter = filter;
-            }
-        
-            @Override
-            public int compare(Contact lhs, Contact rhs) {
-                int result = subCompareCaseInsensitive(lhs.firstName, rhs.firstName);
-                if (result != 0) return result;
-                result = subCompareCaseInsensitive(lhs.lastName, rhs.lastName);
-                if (result != 0) return result;
-                return subCompareCaseInsensitive(lhs.email, rhs.email);
-            }
-        
-            private int subCompareCaseInsensitive(String lhs, String rhs) {
-                int left  = lhs != null ? lhs.toLowerCase().indexOf(filter) : -1;
-                int right = rhs != null ? rhs.toLowerCase().indexOf(filter) : -1;
-                
-                if (left == -1 && right == -1) return 0;
-                if (left != -1 && right == -1) return -1;
-                if (left == -1 && right != -1) return 1;
-                if (left - right != 0) return left - right;
-                return String.CASE_INSENSITIVE_ORDER.compare(lhs, rhs);
-            }
-        }
-        
-    }
-
     public static Message message(String text, LayerClient layerClient) {
         MessagePart messagePart = layerClient.newMessagePart(text);
         Message result = layerClient.newMessage(messagePart);
@@ -413,43 +346,27 @@ public class App101 extends Application {
         return sb;
     }
 
-    
-/*
-    ext {
-        private final String mConfigUrl;
-        private final String mMessagingUrl;
-        private final String mAuthenticationUrl;
-        private final String mCertificationUrl;
-    
-        PROD("9ec30af8-5591-11e4-af9e-f7a201004a3b", // "4ecc1f16-0c5e-11e4-ac3e-276b00000a10",
-            "https://conf.lyr8.net/conf",
-            "https://sync.lyr8.net/",
-            "https://authn.lyr8.net",
-            "https://certs.lyr8.net/certificates"),
-
-    
-        // Client Settings
-        APP_ID = getStringParam('APP_ID', null, "9ae66b44-1682-11e4-92e4-0b53000001d0");
-        PROVIDER_ADDRESS = getStringParam('PROVIDER_ADDRESS', null, "http://layer-identity-provider.herokuapp.com");
-    
-        // Layer Endpoints
-        LAYER_TEST_HOST = getStringParam('LAYER_TEST_HOST', null, null);
-        TMC_ADDRESS = getStringParam('TMC_ADDRESS', LAYER_TEST_HOST, "nightly.dev.lyr8.net");
-        TMC_PORT = getIntParam('TMC_PORT', 7072);
-    
-        CONTROL_ADDRESS = getStringParam('CONTROL_ADDRESS', LAYER_TEST_HOST, "nightly.dev.lyr8.net");
-        CONTROL_PORT = getIntParam('CONTROL_PORT', 9092);
-    
-        PUSH_ADDRESS = getStringParam('PUSH_ADDRESS', LAYER_TEST_HOST, "nightly.dev.lyr8.net");
-        PUSH_PORT = getIntParam('PUSH_PORT', 4545);
-    
-        CSR_ADDRESS = getStringParam('CSR_ADDRESS', LAYER_TEST_HOST ? ("https://" + LAYER_TEST_HOST + ":444/certificates") : null, "https://nightly.dev.lyr8.net:444/certificates");
-    
-        // For VM tasks
-        VM_NAME = getStringParam('VM_NAME', null, 'GCM');
-        TEST = getIntParam('TEST', 0);
+    /**
+     * Converts a Bundle to the human readable string.
+     *
+     * @param items the collection for example, {@link java.util.ArrayList}, {@link java.util.HashSet} etc.
+     * @return the converted string
+     */
+    public static String toString(Bundle bundle) {
+        return toString(bundle, ", ", "");
     }
- */
-
+    
+    public static String toString(Bundle bundle, String separator, String firstSeparator) {
+        if (bundle == null) return "null";
+        StringBuilder sb = new StringBuilder("[");
+        int i = 0;
+        for (Iterator<String> itKey = bundle.keySet().iterator(); itKey.hasNext(); i++) {
+            String key = itKey.next();
+            sb.append(i == 0 ? firstSeparator : separator).append(i).append(": ");
+            sb.append(key).append(" : ").append(bundle.get(key));
+        }
+        sb.append("]");
+        return sb.toString();
+    }
 
 }

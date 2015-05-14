@@ -48,23 +48,23 @@
         <activity
             android:name=".AtlasMessagesScreen"
             android:configChanges="orientation|keyboardHidden"
-            android:label="@string/atlas_messages_screen_title" >
+            android:label="@string/atlas_screen_messages_title" >
         </activity>
         
         <activity
             android:name=".AtlasConversationSettingsScreen"
             android:configChanges="orientation|keyboardHidden"
-            android:label="@string/atlas_messages_screen_title" >
+            android:label="@string/atlas_screen_messages_title" >
         </activity>
         
         <activity
             android:name=".AtlasSettingsScreen"
-            android:label="@string/title_activity_atlas_settings_screen" >
+            android:label="@string/atlas_screen_settings_title" >
         </activity>
         
         <activity
             android:name=".AtlasLoginScreen"
-            android:label="@string/title_activity_atlas_settings_screen" >
+            android:label="@string/atlas_screen_settings_title" >
         </activity>
         
         <activity
@@ -73,22 +73,16 @@
             android:label="ScreenTest: remove me from manifest" >
         </activity>
         
-        <activity
-            android:name=".ChatScreen"
-            android:configChanges="orientation|keyboardHidden"
-            android:label="@string/title_chat_screen" >
-        </activity>
-        
         <!-- Receive all kinds of Push events from Layer (native push, GCM, etc) -->
 
         <receiver android:name=".App101PushReceiver" >
             <intent-filter>
                 <action android:name="com.layer.sdk.PUSH" />
-                <category android:name="com.layer.android101" />
+                <category android:name="com.layer.atlas.messenger" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <category android:name="com.layer.android101" />
+                <category android:name="com.layer.atlas.messenger" />
             </intent-filter>
         </receiver>
 
@@ -103,7 +97,7 @@
             android:permission="com.google.android.c2dm.permission.SEND" >
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
-                <category android:name="com.layer.android101" />
+                <category android:name="com.layer.com.layer.atlas.messenger" />
             </intent-filter>
         </receiver>
 

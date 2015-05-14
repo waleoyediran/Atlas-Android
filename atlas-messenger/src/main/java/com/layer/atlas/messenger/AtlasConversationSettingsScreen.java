@@ -22,7 +22,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.layer.atlas.messenger.App101.Contact;
+import com.layer.atlas.Atlas.Contact;
 import com.layer.sdk.messaging.Conversation;
 
 /**

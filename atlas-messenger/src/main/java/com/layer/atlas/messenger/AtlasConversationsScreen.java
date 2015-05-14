@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 import android.app.Activity;
@@ -17,8 +16,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -31,12 +28,11 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.layer.atlas.messenger.App101.Contact;
+import com.layer.atlas.Atlas.Contact;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.LayerClient.DeletionMode;
 import com.layer.sdk.changes.LayerChangeEvent;
 import com.layer.sdk.listeners.LayerChangeEventListener;
-import com.layer.sdk.messaging.Actor;
 import com.layer.sdk.messaging.Conversation;
 import com.layer.sdk.messaging.Message;
 import com.layer.sdk.messaging.Message.RecipientStatus;
@@ -51,20 +47,20 @@ public class AtlasConversationsScreen extends Activity {
 
     private static final int REQUEST_CODE_LOGIN = 999;
     
-    private TextView filterText;
-    private TextView userIdText;
     private ListView conversationsList;
     private BaseAdapter conversationsAdapter;
     private View btnNewConversation;
     
     private ArrayList<Conversation> conversations = new ArrayList<Conversation>();
     
+    private App101 app;
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.atlas_screen_conversations);
         
-        final App101 app = (App101) getApplication();
+        this.app = (App101) getApplication();
         final LayerClient client = app.getLayerClient();
         if (debug) Log.i(TAG, "onCreate() layerClient: " + client);
 
@@ -89,23 +85,15 @@ public class AtlasConversationsScreen extends Activity {
             }
         });
         
-        userIdText = (TextView) findViewById(R.id.atlas_conversation_screen_login);
-        
         conversationsList = (ListView) findViewById(R.id.atlas_conversations_view);
         conversationsList.setAdapter(conversationsAdapter = new BaseAdapter() {
-            private int nextId = 0;
-            private final HashMap id2converts = new HashMap();
             
             public View getView(int position, View convertView, ViewGroup parent) {
                 if (convertView == null) { 
                     convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.atlas_view_conversations_convert, parent, false);
-                    convertView.setTag(nextId++);
-                    id2converts.put(convertView.getTag(), convertView);
                 }
                 
-                final Uri convId = conversations.get(position).getId();
-                if (false) Log.d(TAG, "getView() " + position + ", conv:" + convId + ": convert: " + convertView + ", total: " + id2converts.size());
-                
+                Uri convId = conversations.get(position).getId();
                 Conversation conv = app.getLayerClient().getConversation(convId);
                 
                 ArrayList<String> allButMe = new ArrayList<String>(conv.getParticipants());
@@ -161,20 +149,17 @@ public class AtlasConversationsScreen extends Activity {
                     if (sentAt == null) timeView.setText("...");
                     else                timeView.setText(sdf.format(sentAt));
 
-                    try {
-                        Actor actor = last.getSender();
-                        String userId = actor.getUserId();
-                        String authedId = app.getLayerClient().getAuthenticatedUserId();
-                        if ((userId != null) && !userId.equals(authedId) && last.getRecipientStatus(authedId) != RecipientStatus.READ) {
-                            textLastMessage.setTypeface(null, Typeface.BOLD);
-                            participants.setTypeface(null, Typeface.BOLD);
-                        } else {
-                            textLastMessage.setTypeface(null, Typeface.NORMAL);
-                            participants.setTypeface(null, Typeface.NORMAL);
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                    String userId = last.getSender().getUserId();                   // could be null for system messages 
+                    String myId = app.getLayerClient().getAuthenticatedUserId();
+                    if ((userId != null) && !userId.equals(myId) && last.getRecipientStatus(myId) != RecipientStatus.READ) {
+                        textLastMessage.setTypeface(null, Typeface.BOLD);
+                        participants.setTypeface(null, Typeface.BOLD);
+                    } else {
+                        textLastMessage.setTypeface(null, Typeface.NORMAL);
+                        participants.setTypeface(null, Typeface.NORMAL);
                     }
+                } else {
+                    textLastMessage.setText("");
                 }
                 
                 return convertView;
@@ -206,13 +191,6 @@ public class AtlasConversationsScreen extends Activity {
             }
         });
         
-        filterText = (TextView) findViewById(R.id.atlas_conversations_screen_search);
-        filterText.setOnClickListener(new OnClickListener() {
-            public void onClick(View v) {
-                updateValues();
-            }
-        });
-        
         btnNewConversation = findViewById(R.id.atlas_conversation_screen_new_conversation);
         btnNewConversation.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
@@ -240,10 +218,8 @@ public class AtlasConversationsScreen extends Activity {
         App101 app = (App101) getApplication();
         LayerClient client = app.getLayerClient();
         if (app.getLayerClient().isAuthenticated()) {
-            Contact contact = app.contactsMap.get(client.getAuthenticatedUserId());
-            userIdText.setText(contact != null ? App101.getContactFirstAndL(contact) : app.login);
             
-            final List<Conversation> convs = app.getLayerClient().getConversations();
+            List<Conversation> convs = app.getLayerClient().getConversations();
             if (debug) Log.d(TAG, "updateValues() conv: " + convs.size());
             conversations.clear();
             for (Conversation conv : convs) {
@@ -294,39 +270,6 @@ public class AtlasConversationsScreen extends Activity {
         super.onStop();
         App101 app = (App101) getApplication();
         app.getLayerClient().unregisterEventListener(eventTracker);
-    }
-
-    
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_atlas_conversations, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        switch (item.getItemId()) {
-            
-            case android.R.id.home :
-                Intent intent = new Intent(this, AtlasSettingsScreen.class);
-                startActivity(intent);
-                return true;
-
-            case R.id.menu_action_atlas_conversations_search : {
-                updateValues();
-                return true;
-            } 
-            case R.id.menu_action_atlas_conversations_stub : {
-                startActivity(new Intent(this, AtlasParticipantPickersScreen.class));
-                return true;
-            } 
-            case R.id.action_settings : return true; 
-        }
-        return super.onOptionsItemSelected(item);
     }
     
     private void initPushes() {

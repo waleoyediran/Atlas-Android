@@ -52,16 +52,22 @@
         >
         
         <!-- avatar placeholder -->
-    	<TextView 
-    		android:id="@+id/atlas_view_messages_convert_initials"
-    		android:layout_width="24dp" 
-    		android:layout_height="24dp"
-    		android:layout_marginLeft="8dp"
-    		android:layout_gravity="bottom" 
-    
-    		android:background="@drawable/atlas_shape_circle_gray"
-    		android:text="TS" 
-    		android:gravity="center" />
+        <FrameLayout 
+            android:id="@+id/atlas_view_messages_convert_avatar_container"
+            android:layout_width="24dp" 
+            android:layout_height="24dp"
+            android:layout_marginLeft="8dp"
+            android:layout_gravity="bottom"
+            >
+            <TextView 
+                android:id="@+id/atlas_view_messages_convert_initials"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/atlas_shape_circle_gray"
+                android:text="TS" 
+                android:gravity="center" />
+            
+        </FrameLayout>
     	
         <!--  android:background="#D1FFF1" - blue -->
     

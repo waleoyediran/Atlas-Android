@@ -25,8 +25,8 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.layer.atlas.Atlas.Contact;
 import com.layer.atlas.messenger.App101;
-import com.layer.atlas.messenger.App101.Contact;
 import com.layer.atlas.messenger.R;
 
 /**
@@ -44,7 +44,7 @@ public class AtlasParticipantPicker {
     private ListView contactsList;
     private ViewGroup selectedContactsContainer;
 
-    private ArrayList<Contact> selectedContacts = new ArrayList<App101.Contact>();
+    private ArrayList<Contact> selectedContacts = new ArrayList<Contact>();
     private TreeSet<String> skipUserIds = new TreeSet<String>();
 
     public AtlasParticipantPicker(Context context, View rootView, final App101 app, String[] userIdToSkip) {
@@ -53,7 +53,7 @@ public class AtlasParticipantPicker {
 
         final Contact[] allContacts = app.contactsMap.values().toArray(new Contact[app.contactsMap.size()]);
         Arrays.sort(allContacts, Contact.FIRST_LAST_EMAIL_ASCENDING);
-        final ArrayList<Contact> contacts = new ArrayList<App101.Contact>();
+        final ArrayList<Contact> contacts = new ArrayList<Contact>();
         for (Contact contact : allContacts) {
             if (skipUserIds.contains(contact.userId)) continue;
             contacts.add(contact);

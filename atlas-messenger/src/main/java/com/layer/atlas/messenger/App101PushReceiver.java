@@ -46,7 +46,7 @@ public class App101PushReceiver extends BroadcastReceiver {
             .setDefaults(NotificationCompat.DEFAULT_SOUND | NotificationCompat.DEFAULT_VIBRATE)
             ;
         
-        Intent chatIntent = new Intent(context, ChatScreen.class);
+        Intent chatIntent = new Intent(context, AtlasMessagesScreen.class);
         chatIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         chatIntent.putExtra(keys.CONVERSATION_URI, convUri.toString());
 

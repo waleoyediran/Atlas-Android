@@ -9,8 +9,8 @@
         android:layout_width="wrap_content"
         android:layout_height="48dp"
         android:gravity="center_vertical"
-        android:paddingLeft="@dimen/activity_horizontal_margin"
-        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingLeft="@dimen/atlas_messenger_activity_horizontal_margin"
+        android:paddingRight="@dimen/atlas_messenger_activity_horizontal_margin"
         android:textSize="@dimen/atlas_text_size_smaller"
         android:textColor="@color/atlas_text_blue"
         android:text="Options"/>
@@ -22,8 +22,8 @@
         android:layout_height="48dp"
         android:textSize="@dimen/atlas_text_size_general"
         android:textColor="@color/atlas_text_black"
-        android:layout_marginLeft="@dimen/activity_horizontal_margin"
-        android:layout_marginRight="@dimen/activity_horizontal_margin"
+        android:layout_marginLeft="@dimen/atlas_messenger_activity_horizontal_margin"
+        android:layout_marginRight="@dimen/atlas_messenger_activity_horizontal_margin"
         
         android:hint="Group Name"
         android:background="@drawable/atlas_ctl_edit_text"
@@ -33,8 +33,8 @@
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:orientation="horizontal"
-        android:paddingLeft="@dimen/activity_horizontal_margin"
-        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingLeft="@dimen/atlas_messenger_activity_horizontal_margin"
+        android:paddingRight="@dimen/atlas_messenger_activity_horizontal_margin"
         >
         
         <TextView
@@ -61,8 +61,8 @@
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:gravity="center_vertical"
-        android:paddingLeft="@dimen/activity_horizontal_margin"
-        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingLeft="@dimen/atlas_messenger_activity_horizontal_margin"
+        android:paddingRight="@dimen/atlas_messenger_activity_horizontal_margin"
         android:textSize="@dimen/atlas_text_size_general"
         android:textColor="@color/atlas_text_black"
         android:text="Block this person"/>
@@ -72,8 +72,8 @@
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:gravity="center_vertical"
-        android:paddingLeft="@dimen/activity_horizontal_margin"
-        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingLeft="@dimen/atlas_messenger_activity_horizontal_margin"
+        android:paddingRight="@dimen/atlas_messenger_activity_horizontal_margin"
         android:textSize="@dimen/atlas_text_size_general"
         android:textColor="@color/atlas_text_black"
         android:text="Leave this Group"/>
@@ -84,8 +84,8 @@
         android:layout_width="wrap_content"
         android:layout_height="48dp"
         android:gravity="center_vertical"
-        android:paddingLeft="@dimen/activity_horizontal_margin"
-        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingLeft="@dimen/atlas_messenger_activity_horizontal_margin"
+        android:paddingRight="@dimen/atlas_messenger_activity_horizontal_margin"
         android:textSize="@dimen/atlas_text_size_smaller"
         android:textColor="@color/atlas_text_blue"
         android:text="Participants"/>
@@ -110,8 +110,8 @@
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:gravity="center_vertical"
-        android:paddingLeft="@dimen/activity_horizontal_margin"
-        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingLeft="@dimen/atlas_messenger_activity_horizontal_margin"
+        android:paddingRight="@dimen/atlas_messenger_activity_horizontal_margin"
         android:textSize="@dimen/atlas_text_size_general"
         android:textColor="@color/atlas_text_black"
         android:text="Add People"/>
@@ -122,8 +122,8 @@
         android:layout_width="wrap_content"
         android:layout_height="48dp"
         android:gravity="center_vertical"
-        android:paddingLeft="@dimen/activity_horizontal_margin"
-        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingLeft="@dimen/atlas_messenger_activity_horizontal_margin"
+        android:paddingRight="@dimen/atlas_messenger_activity_horizontal_margin"
         android:textSize="@dimen/atlas_text_size_smaller"
         android:textColor="@color/atlas_text_blue"
         android:text="Attachments"/>
