@@ -22,6 +22,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.layer.atlas.Atlas.AtlasContactProvider;
 import com.layer.atlas.Atlas.Contact;
 import com.layer.sdk.messaging.Conversation;
 
@@ -115,7 +116,7 @@ public class AtlasConversationSettingsScreen extends Activity {
         Contact[] contacts = new Contact[conv.getParticipants().size()];
         int i = 0;
         for (String userId : conv.getParticipants()) {
-            Contact c = app101.contactsMap.get(userId);
+            Contact c = app101.contactProvider.contactsMap.get(userId);
             contacts[i++] = c;
         }
         Arrays.sort(contacts, Contact.FIRST_LAST_EMAIL_ASCENDING);
@@ -124,9 +125,9 @@ public class AtlasConversationSettingsScreen extends Activity {
             View convert = getLayoutInflater().inflate(R.layout.atlas_screen_conversation_settings_participant_convert, namesList, false);
             
             TextView avaText = (TextView) convert.findViewById(R.id.atlas_screen_conversation_settings_convert_ava);
-            avaText.setText(App101.getContactInitials(contacts[iContact]));
+            avaText.setText(AtlasContactProvider.getContactInitials(contacts[iContact]));
             TextView nameText = (TextView) convert.findViewById(R.id.atlas_screen_conversation_settings_convert_name);
-            nameText.setText(App101.getContactFirstAndLast(contacts[iContact]));
+            nameText.setText(AtlasContactProvider.getContactFirstAndLast(contacts[iContact]));
             
             convert.setTag(contacts[iContact]);
             convert.setOnLongClickListener(contactLongClickListener);
@@ -140,7 +141,7 @@ public class AtlasConversationSettingsScreen extends Activity {
         public boolean onLongClick(View v) {
             Contact contact = (Contact) v.getTag();
             conv.removeParticipants(contact.userId);
-            Toast.makeText(v.getContext(), "Removing " + App101.getContactFirstAndLast(contact), Toast.LENGTH_LONG).show();
+            Toast.makeText(v.getContext(), "Removing " + AtlasContactProvider.getContactFirstAndLast(contact), Toast.LENGTH_LONG).show();
             updateValues();
             return true;
         }

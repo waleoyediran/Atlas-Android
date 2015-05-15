@@ -27,6 +27,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.layer.atlas.Atlas.AtlasContactProvider;
 import com.layer.atlas.Atlas.Contact;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.LayerClient.DeletionMode;
@@ -53,6 +54,7 @@ public class AtlasConversationsScreen extends Activity {
     private ArrayList<Conversation> conversations = new ArrayList<Conversation>();
     
     private App101 app;
+    private AtlasContactProvider contactProvider;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +62,8 @@ public class AtlasConversationsScreen extends Activity {
         setContentView(R.layout.atlas_screen_conversations);
         
         this.app = (App101) getApplication();
+        this.contactProvider = app.contactProvider;
+        
         final LayerClient client = app.getLayerClient();
         if (debug) Log.i(TAG, "onCreate() layerClient: " + client);
 
@@ -103,8 +107,8 @@ public class AtlasConversationsScreen extends Activity {
                     if (client.getAuthenticatedUserId().equals(userId)) {
                         continue;
                     }
-                    Contact contact = app.contactsMap.get(userId);
-                    String name = allButMe.size() > 1 ? App101.getContactFirstAndL(contact) : App101.getContactFirstAndLast(contact);
+                    Contact contact = contactProvider.contactsMap.get(userId);
+                    String name = allButMe.size() > 1 ? AtlasContactProvider.getContactFirstAndL(contact) : AtlasContactProvider.getContactFirstAndLast(contact);
                     if (sb.length() > 0) sb.append(", ");
                     sb.append(name != null ? name : userId);
                 }
@@ -116,20 +120,20 @@ public class AtlasConversationsScreen extends Activity {
                 View textInitialsMulti = convertView.findViewById(R.id.atlas_conversation_view_convert_initials_multi);
                 if (allButMe.size() < 2) {
                     String conterpartyUserId = allButMe.get(0);
-                    Contact counterParty = app.contactsMap.get(conterpartyUserId);
-                    textInitials.setText(App101.getContactInitials(counterParty));
+                    Contact counterParty = contactProvider.contactsMap.get(conterpartyUserId);
+                    textInitials.setText(AtlasContactProvider.getContactInitials(counterParty));
                     textInitials.setVisibility(View.VISIBLE);
                     textInitialsMulti.setVisibility(View.GONE);
                 } else {
                     TextView textInitialsLeft = (TextView) convertView.findViewById(R.id.atlas_conversation_view_convert_initials_left);
                     String leftUserId = allButMe.get(0);
-                    Contact left = app.contactsMap.get(leftUserId);
-                    textInitialsLeft.setText(App101.getContactInitials(left));
+                    Contact left = contactProvider.contactsMap.get(leftUserId);
+                    textInitialsLeft.setText(AtlasContactProvider.getContactInitials(left));
                     
                     TextView textInitialsRight = (TextView) convertView.findViewById(R.id.atlas_conversation_view_convert_initials_right);
                     String rightUserId = allButMe.get(1);
-                    Contact right = app.contactsMap.get(rightUserId);
-                    textInitialsRight.setText(App101.getContactInitials(right));
+                    Contact right = contactProvider.contactsMap.get(rightUserId);
+                    textInitialsRight.setText(AtlasContactProvider.getContactInitials(right));
                     
                     textInitials.setVisibility(View.GONE);
                     textInitialsMulti.setVisibility(View.VISIBLE);

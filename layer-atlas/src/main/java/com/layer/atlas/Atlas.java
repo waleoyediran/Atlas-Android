@@ -1,6 +1,7 @@
 package com.layer.atlas;
 
 import java.util.Comparator;
+import java.util.HashMap;
 
 import org.json.JSONObject;
 
@@ -20,6 +21,7 @@ public class Atlas {
 
     private Conversation conv;
     private LayerClient layerClient;
+    public HashMap<String, Contact> contactsMap = new HashMap<String, Contact>();
     
     public Atlas(LayerClient layerClient) {
         this.layerClient = layerClient; 
@@ -94,6 +96,46 @@ public class Atlas {
             }
         }
         
+    }
+
+    public static class AtlasContactProvider {
+        public HashMap<String, Contact> contactsMap = new HashMap<String, Contact>();
+
+        // -------    Tools   -----
+        //
+        //
+        public static String getContactInitials(Atlas.Contact contact) {
+            if (contact == null) return null;
+            StringBuilder sb = new StringBuilder();
+            sb.append(contact.firstName != null && contact.firstName.trim().length() > 0 ? contact.firstName.trim().charAt(0) : "");
+            sb.append(contact.lastName != null  && contact.lastName.trim().length() > 0 ?  contact.lastName.trim().charAt(0) : "");
+            return sb.toString();
+        }
+
+        public static String getContactFirstAndL(Atlas.Contact contact) {
+            if (contact == null) return null;
+            StringBuilder sb = new StringBuilder();
+            if (contact.firstName != null && contact.firstName.trim().length() > 0) {
+                sb.append(contact.firstName.trim()).append(" ");
+            }
+            if (contact.lastName != null && contact.lastName.trim().length() > 0) {
+                sb.append(contact.lastName.trim().charAt(0));
+                sb.append(".");
+            }
+            return sb.toString();
+        }
+
+        public static String getContactFirstAndLast(Atlas.Contact contact) {
+            if (contact == null) return null;
+            StringBuilder sb = new StringBuilder();
+            if (contact.firstName != null && contact.firstName.trim().length() > 0) {
+                sb.append(contact.firstName.trim()).append(" ");
+            }
+            if (contact.lastName != null && contact.lastName.trim().length() > 0) {
+                sb.append(contact.lastName.trim());
+            }
+            return sb.toString();
+        }
     }
     
     

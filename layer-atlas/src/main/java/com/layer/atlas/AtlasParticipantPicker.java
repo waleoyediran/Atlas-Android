@@ -25,9 +25,8 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.layer.atlas.Atlas.AtlasContactProvider;
 import com.layer.atlas.Atlas.Contact;
-import com.layer.atlas.messenger.App101;
-import com.layer.atlas.messenger.R;
 
 /**
  * @author Oleg Orlov
@@ -47,11 +46,11 @@ public class AtlasParticipantPicker {
     private ArrayList<Contact> selectedContacts = new ArrayList<Contact>();
     private TreeSet<String> skipUserIds = new TreeSet<String>();
 
-    public AtlasParticipantPicker(Context context, View rootView, final App101 app, String[] userIdToSkip) {
+    public AtlasParticipantPicker(Context context, View rootView, final AtlasContactProvider contactProvider, String[] userIdToSkip) {
 
         if (userIdToSkip != null) skipUserIds.addAll(Arrays.asList(userIdToSkip));
 
-        final Contact[] allContacts = app.contactsMap.values().toArray(new Contact[app.contactsMap.size()]);
+        final Contact[] allContacts = contactProvider.contactsMap.values().toArray(new Contact[contactProvider.contactsMap.size()]);
         Arrays.sort(allContacts, Contact.FIRST_LAST_EMAIL_ASCENDING);
         final ArrayList<Contact> contacts = new ArrayList<Contact>();
         for (Contact contact : allContacts) {
@@ -132,8 +131,8 @@ public class AtlasParticipantPicker {
                 TextView avatarText = (TextView) convertView.findViewById(R.id.atlas_view_participants_picker_convert_ava);
                 Contact contact = contacts.get(position);
 
-                name.setText(App101.getContactFirstAndLast(contact));
-                avatarText.setText(App101.getContactInitials(contact));
+                name.setText(AtlasContactProvider.getContactFirstAndLast(contact));
+                avatarText.setText(AtlasContactProvider.getContactInitials(contact));
                 return convertView;
             }
 
@@ -229,9 +228,9 @@ public class AtlasParticipantPicker {
             View contactView = LayoutInflater.from(selectedContactsContainer.getContext()).inflate(R.layout.atlas_view_participants_picker_name_convert, selectedContactsContainer, false);
 
             TextView avaText = (TextView) contactView.findViewById(R.id.atlas_view_participants_picker_name_convert_ava);
-            avaText.setText(App101.getContactInitials(contactToAdd));
+            avaText.setText(AtlasContactProvider.getContactInitials(contactToAdd));
             TextView nameText = (TextView) contactView.findViewById(R.id.atlas_view_participants_picker_name_convert_name);
-            nameText.setText(App101.getContactFirstAndLast(contactToAdd));
+            nameText.setText(AtlasContactProvider.getContactFirstAndLast(contactToAdd));
             contactView.setTag(contactToAdd);
 
             selectedContactsContainer.addView(contactView, selectedContactsContainer.getChildCount() - 1);

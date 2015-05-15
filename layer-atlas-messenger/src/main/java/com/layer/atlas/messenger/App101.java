@@ -23,6 +23,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import com.layer.atlas.Atlas;
 import com.layer.atlas.Atlas.Contact;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.LayerClient.Options;
@@ -70,7 +71,7 @@ public class App101 extends Application {
 
     public String login;
     public String authToken;
-    public HashMap<String, Contact> contactsMap = new HashMap<String, Contact>();
+    public Atlas.AtlasContactProvider contactProvider = new Atlas.AtlasContactProvider();
     
     @Override
     public void onCreate() {
@@ -143,7 +144,7 @@ public class App101 extends Application {
                     if (debug) Log.w(TAG, "contacts() result: " + responseString);
                     savePref(keys.CONTACTS, responseString);
                     
-                    loadContacts(responseString, contactsMap);
+                    loadContacts(responseString, contactProvider.contactsMap);
                 } catch (Exception e) {
                     Log.e(TAG, "contacts() ", e);
                 }
@@ -169,7 +170,7 @@ public class App101 extends Application {
         login = prefs.getString(keys.USER_ID, null);
         String contactsJson = prefs.getString(keys.CONTACTS, null); 
         if (contactsJson != null) {
-            loadContacts(contactsJson, contactsMap);
+            loadContacts(contactsJson, contactProvider.contactsMap);
         }
     }
     
@@ -213,42 +214,6 @@ public class App101 extends Application {
         String error = jsonResp.optString("error", null);
         
         return new String[] {eit, authToken, error};
-    }
-
-    // -------    Tools   -----
-    //
-    //
-    public static String getContactInitials(Contact contact) {
-        if (contact == null) return null;
-        StringBuilder sb = new StringBuilder();
-        sb.append(contact.firstName != null && contact.firstName.trim().length() > 0 ? contact.firstName.trim().charAt(0) : "");
-        sb.append(contact.lastName != null  && contact.lastName.trim().length() > 0 ?  contact.lastName.trim().charAt(0) : "");
-        return sb.toString();
-    }
-    
-    public static String getContactFirstAndL(Contact contact) {
-        if (contact == null) return null;
-        StringBuilder sb = new StringBuilder();
-        if (contact.firstName != null && contact.firstName.trim().length() > 0) {
-            sb.append(contact.firstName.trim()).append(" ");
-        }
-        if (contact.lastName != null && contact.lastName.trim().length() > 0) {
-            sb.append(contact.lastName.trim().charAt(0));
-            sb.append(".");
-        }
-        return sb.toString();
-    }
-    
-    public static String getContactFirstAndLast(Contact contact) {
-        if (contact == null) return null;
-        StringBuilder sb = new StringBuilder();
-        if (contact.firstName != null && contact.firstName.trim().length() > 0) {
-            sb.append(contact.firstName.trim()).append(" ");
-        }
-        if (contact.lastName != null && contact.lastName.trim().length() > 0) {
-            sb.append(contact.lastName.trim());
-        }
-        return sb.toString();
     }
 
     public static Map<String, Contact> loadContacts(String jsonContactList, Map<String, Contact> where) {
