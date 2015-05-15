@@ -5,7 +5,7 @@
 /.idea/libraries
 .DS_Store
 /build
-atlas-messenger/src/main/bin
-atlas-messenger/build
+layer-atlas-messenger/src/main/bin
+layer-atlas-messenger/build
 layer-atlas/src/main/bin
 layer-atlas/build

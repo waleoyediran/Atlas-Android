@@ -1,1 +1,1 @@
-include ':layer-atlas', ':atlas-messenger'
+include ':layer-atlas', ':layer-atlas-messenger'
