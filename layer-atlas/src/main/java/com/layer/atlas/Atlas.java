@@ -7,6 +7,8 @@ import org.json.JSONObject;
 
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.messaging.Conversation;
+import com.layer.sdk.messaging.Message;
+import com.layer.sdk.messaging.MessagePart;
 
 /**
  * @author olegorlov
@@ -138,5 +140,20 @@ public class Atlas {
         }
     }
     
+    public static final class Tools {
+        public static String toString(Message msg) {
+            StringBuilder sb = new StringBuilder();
+            int attaches = 0;
+            for (MessagePart mp : msg.getMessageParts()) {
+                if ("text/plain".equals(mp.getMimeType())) {
+                    sb.append(new String(mp.getData()));
+                } else {
+                    sb.append("attach").append(attaches++)
+                    .append(":").append(mp.getMimeType());
+                }
+            }
+            return sb.toString();
+        }
+    }
     
 }

@@ -174,20 +174,6 @@ public class App101 extends Application {
         }
     }
     
-    public static String toString(Message msg) {
-        StringBuilder sb = new StringBuilder();
-        int attaches = 0;
-        for (MessagePart mp : msg.getMessageParts()) {
-            if ("text/plain".equals(mp.getMimeType())) {
-                sb.append(new String(mp.getData()));
-            } else {
-                sb.append("attach").append(attaches++)
-                .append(":").append(mp.getMimeType());
-            }
-        }
-        return sb.toString();
-    }
-
     /**
      * 
      * @return [ eit, authToken, error ]

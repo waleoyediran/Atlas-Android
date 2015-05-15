@@ -5,15 +5,13 @@
     >
 
     <ListView
-        android:id="@+id/atlas_view_messages_list"
+        android:id="@+id/atlas_conversations_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
         android:divider="@android:color/transparent"
-        android:listSelector="@android:color/transparent" 
-        android:cacheColorHint="@android:color/transparent"
-        android:stackFromBottom="true"
-        android:transcriptMode="normal"
+        android:dividerHeight="0dp"
         />
-                
+
 </FrameLayout>
     

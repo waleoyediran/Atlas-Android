@@ -127,7 +127,7 @@ public class AtlasMessagesScreen extends Activity {
                 String senderName = AtlasContactProvider.getContactFirstAndLast(myContact);
                 Map<String, String> metadata = new HashMap<String, String>();
                 boolean bug = true;
-                String text = bug ? "LayerPush! Check message!"  : App101.toString(message);
+                String text = bug ? "LayerPush! Check message!"  : Atlas.Tools.toString(message);
                 if (senderName != null && !senderName.isEmpty()) {
                     metadata.put(Message.ReservedMetadataKeys.PushNotificationAlertMessageKey.getKey(), senderName + ": " + text);
                 } else {

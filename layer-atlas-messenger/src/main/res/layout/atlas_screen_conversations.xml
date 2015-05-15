@@ -13,15 +13,9 @@
 
         <include layout="@layout/atlas_ab_stub"/>
         
-        <ListView
-            android:id="@+id/atlas_conversations_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@color/atlas_background_white"
-            android:divider="@color/atlas_background_white"
-            android:dividerHeight="0dp"
-            />
+        <include 
+            android:id="@+id/atlas_screen_conversations_conversations_list"
+            layout="@layout/atlas_view_conversations_list"/>
         
     </LinearLayout>
     
