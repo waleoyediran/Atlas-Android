@@ -1,4 +1,5 @@
 #Android Studio
+After following this guide, you will have the Atlas library, `layer-atlas`, imported as a module in your Android Studio project, along with the optional Atlas Messenger module, `layer-atlas-messenger`.  Building and running Messenger will let you verify that the Layer SDK and Atlas integrations work properly. 
 
 ## Adding Layer Atlas with Git Submodule
 1. Add Layer's GitHub Maven repo to your root `build.gradle` (e.g. `/MyApplication/build.gradle`):
@@ -19,11 +20,13 @@
 	}
 	```
 
-3. Clone this repo as a submodule in the root of your Android Studio project
+3. Clone this repo as a submodule in the root of your Android Studio project.
 
 	``` sh
 	git submodule add git@github.com:layerhq/Atlas-Android
 	```
+	
+	*Note: If git is not initialized, you may need to `git init`.*
 
 4. Add `:layer-atlas` module to your project's root `settings.gradle` (e.g. `/MyApplication/settings.gradle`):
 
@@ -34,7 +37,6 @@
 	```
 
 5. Click "Sync Project with Gradle Files" in Android Studio
-
 
 ##Without Git Submodule
 Follow steps 1 and 2 above, clone this repo somewhere, and...
