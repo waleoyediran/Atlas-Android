@@ -35,10 +35,10 @@ public class AtlasMessageComposer {
     
     private ArrayList<MenuItem> menuItems = new ArrayList<MenuItem>(); 
     
-    public AtlasMessageComposer(LayerClient client, View rootView) {
+    public AtlasMessageComposer(View rootView, LayerClient client) {
         this.layerClient = client;
         
-        btnUpload = rootView.findViewById(R.id.atlas_view_message_composer_upload);
+        btnUpload = rootView.findViewById(R.id.atlas_message_composer_upload);
         btnUpload.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 final PopupWindow popupWindow = new PopupWindow(v.getContext());
@@ -74,9 +74,9 @@ public class AtlasMessageComposer {
             }
         });
         
-        messageText = (TextView) rootView.findViewById(R.id.atlas_view_message_composer_text);
+        messageText = (TextView) rootView.findViewById(R.id.atlas_message_composer_text);
         
-        btnSend = rootView.findViewById(R.id.atlas_view_message_composer_send);
+        btnSend = rootView.findViewById(R.id.atlas_message_composer_send);
         btnSend.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 
@@ -111,6 +111,7 @@ public class AtlasMessageComposer {
         item.title = title;
         item.clickListener = clickListener;
         menuItems.add(item);
+        btnUpload.setVisibility(View.VISIBLE);
     }
     
     public void setListener(Listener listener) {

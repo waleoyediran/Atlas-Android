@@ -75,42 +75,20 @@ public class AtlasMessagesScreen extends Activity {
         setContentView(R.layout.atlas_screen_messages);
         final App101 app = (App101) getApplication();
 
-        ImageView menuBtn = (ImageView) findViewById(R.id.atlas_actionbar_left_btn);
-        menuBtn.setImageResource(R.drawable.atlas_ctl_btn_back);
-        menuBtn.setVisibility(View.VISIBLE);
-        menuBtn.setOnClickListener(new OnClickListener() {
-            public void onClick(View v) {
-                finish();
-            }
-        });
-        ((TextView)findViewById(R.id.atlas_actionbar_title_text)).setText("Messages");
-        ImageView settingsBtn = (ImageView) findViewById(R.id.atlas_actionbar_right_btn);
-        settingsBtn.setImageResource(R.drawable.atlas_ctl_btn_detail);
-        settingsBtn.setVisibility(View.VISIBLE);
-        settingsBtn.setOnClickListener(new OnClickListener() {
-            public void onClick(View v) {
-                if (conv == null) return; 
-                AtlasConversationSettingsScreen.conv = conv;
-                Intent intent = new Intent(v.getContext(), AtlasConversationSettingsScreen.class);
-                startActivityForResult(intent, REQUEST_CODE_SETTINGS);
-            }
-        });
-        
+        boolean convIsNew = getIntent().getBooleanExtra(EXTRA_CONVERSATION_IS_NEW, false);
         String convUri = getIntent().getStringExtra(EXTRA_CONVERSATION_URI);
         if (convUri != null) {
             Uri uri = Uri.parse(convUri);
             conv = app.getLayerClient().getConversation(uri);
         }
 
-        boolean convIsNew = getIntent().getBooleanExtra(EXTRA_CONVERSATION_IS_NEW, false);
-
         final View participantsPickerRoot = findViewById(R.id.atlas_screen_messages_participants_picker);
-        final AtlasParticipantPicker pp = new AtlasParticipantPicker(this, participantsPickerRoot, app.contactProvider, null);
+        final AtlasParticipantPicker pp = new AtlasParticipantPicker(participantsPickerRoot, app.contactProvider, null);
         if (convIsNew) {
             pp.setVisibility(View.VISIBLE);
         }
         
-        final AtlasMessageComposer messageComposer = new AtlasMessageComposer(app.getLayerClient(), findViewById(R.id.atlas_screen_messages_message_composer));
+        final AtlasMessageComposer messageComposer = new AtlasMessageComposer(findViewById(R.id.atlas_screen_messages_message_composer), app.getLayerClient());
         messageComposer.setConversation(conv);
         messageComposer.setListener(new AtlasMessageComposer.Listener() {
             public boolean beforeSend(Message message) {
@@ -203,6 +181,8 @@ public class AtlasMessagesScreen extends Activity {
         
         // location manager for inserting locations:
         this.locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        
+        prepareActionBar();
     }
     
     private void updateValues() {
@@ -391,6 +371,29 @@ public class AtlasMessagesScreen extends Activity {
         if (debug) Log.w(TAG, "onConfigurationChanged() newConfig: " + newConfig);
         updateValues();
         messagesList.jumpToLastMessage();
+    }
+    
+    private void prepareActionBar() {
+        ImageView menuBtn = (ImageView) findViewById(R.id.atlas_actionbar_left_btn);
+        menuBtn.setImageResource(R.drawable.atlas_ctl_btn_back);
+        menuBtn.setVisibility(View.VISIBLE);
+        menuBtn.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                finish();
+            }
+        });
+        ((TextView)findViewById(R.id.atlas_actionbar_title_text)).setText("Messages");
+        ImageView settingsBtn = (ImageView) findViewById(R.id.atlas_actionbar_right_btn);
+        settingsBtn.setImageResource(R.drawable.atlas_ctl_btn_detail);
+        settingsBtn.setVisibility(View.VISIBLE);
+        settingsBtn.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                if (conv == null) return; 
+                AtlasConversationSettingsScreen.conv = conv;
+                Intent intent = new Intent(v.getContext(), AtlasConversationSettingsScreen.class);
+                startActivityForResult(intent, REQUEST_CODE_SETTINGS);
+            }
+        });
     }
 
 }

@@ -8,12 +8,12 @@
 		android:orientation="horizontal"
 		android:layout_width="match_parent"
 		android:layout_height="48dp"
-		android:background="@color/atlas_view_participant_picker_text_background"
+		android:background="@color/atlas_participant_picker_text_background"
 		>
 		
         <!-- android:fillViewport="true" + child.width:wrap_content stretch child to match scroller -->
 		<HorizontalScrollView 
-            android:id="@+id/atlas_view_participants_picker_scroll"
+            android:id="@+id/atlas_participants_picker_scroll"
 			android:layout_width="0dp"
 			android:layout_height="48dp"
 			android:layout_weight="1"
@@ -28,7 +28,7 @@
                                               after EditText get it. XXX: "true" by default! 
                 -->
             <LinearLayout
-                android:id="@+id/atlas_view_participants_picker_names"
+                android:id="@+id/atlas_participants_picker_names"
                 android:layout_width="wrap_content"
                 android:layout_height="48dp"
                 style="@android:style/Widget.EditText"
@@ -64,7 +64,7 @@
                  -->
                 
         		<EditText 
-        			android:id="@+id/atlas_view_participants_picker_text"
+        			android:id="@+id/atlas_participants_picker_text"
         			android:layout_width="match_parent"
         			android:layout_height="48dp"
                     android:minWidth="12dp"
@@ -79,7 +79,7 @@
 		
 		
 		<TextView
-			android:id="@+id/atlas_view_participants_picker_plus" 
+			android:id="@+id/atlas_participants_picker_plus" 
 			android:layout_width="48dp"
 			android:layout_height="48dp"
 			android:gravity="center"
@@ -89,7 +89,7 @@
 	</LinearLayout>
 	
 	<ListView 
-		android:id="@+id/atlas_view_participants_picker_list"
+		android:id="@+id/atlas_participants_picker_list"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:divider="@color/atlas_view_participant_picker_list_background"

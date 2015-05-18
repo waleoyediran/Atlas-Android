@@ -18,12 +18,12 @@
             
             <include 
                 android:id="@+id/atlas_screen_messages_messages_list"
-                layout="@layout/atlas_view_messages_list"
+                layout="@layout/atlas_messages_list"
                 />
             
             <include
             	android:id="@+id/atlas_screen_messages_participants_picker"
-            	layout="@layout/atlas_view_participants_picker"
+            	layout="@layout/atlas_participants_picker"
             	android:visibility="gone"
             	/>
             
@@ -33,7 +33,7 @@
         
         <include 
             android:id="@+id/atlas_screen_messages_message_composer"
-            layout="@layout/atlas_view_message_composer"
+            layout="@layout/atlas_message_composer"
             />
     
     </LinearLayout>

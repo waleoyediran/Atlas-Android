@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.TreeSet;
 
-import android.content.Context;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -46,7 +45,7 @@ public class AtlasParticipantPicker {
     private ArrayList<Contact> selectedContacts = new ArrayList<Contact>();
     private TreeSet<String> skipUserIds = new TreeSet<String>();
 
-    public AtlasParticipantPicker(Context context, View rootView, final AtlasContactProvider contactProvider, String[] userIdToSkip) {
+    public AtlasParticipantPicker(View rootView, final AtlasContactProvider contactProvider, String[] userIdToSkip) {
 
         if (userIdToSkip != null) skipUserIds.addAll(Arrays.asList(userIdToSkip));
 
@@ -60,16 +59,16 @@ public class AtlasParticipantPicker {
 
         // START OF -------------------- Participant Picker ----------------------------------------
         this.rootView = rootView;
-        textFilter = (EditText) rootView.findViewById(R.id.atlas_view_participants_picker_text);
-        contactsList = (ListView) rootView.findViewById(R.id.atlas_view_participants_picker_list);
-        selectedContactsContainer = (ViewGroup) rootView.findViewById(R.id.atlas_view_participants_picker_names);
+        textFilter = (EditText) rootView.findViewById(R.id.atlas_participants_picker_text);
+        contactsList = (ListView) rootView.findViewById(R.id.atlas_participants_picker_list);
+        selectedContactsContainer = (ViewGroup) rootView.findViewById(R.id.atlas_participants_picker_names);
 
         if (rootView.getVisibility() == View.VISIBLE) {
             textFilter.requestFocus();
         }
 
         // log focuses
-        final View scroller = rootView.findViewById(R.id.atlas_view_participants_picker_scroll);
+        final View scroller = rootView.findViewById(R.id.atlas_participants_picker_scroll);
         scroller.setOnFocusChangeListener(new OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {

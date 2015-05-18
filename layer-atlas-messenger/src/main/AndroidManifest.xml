@@ -16,7 +16,6 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <!-- GCM -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
@@ -98,15 +97,6 @@
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
                 <category android:name="com.layer.atlas.messenger" />
-            </intent-filter>
-        </receiver>
-
-        <!-- Layer SDK has these for monitoring network, boot, and GCM -->
-        <receiver android:name="com.layer.sdk.services.LayerReceiver" >
-            <intent-filter>
-                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
-                <action android:name="android.intent.action.ANY_DATA_STATE" />
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
 

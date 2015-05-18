@@ -43,7 +43,7 @@ import com.layer.sdk.messaging.MessagePart;
  */
 public class AtlasMessagesList implements LayerChangeEventListener.MainThread {
     private static final String TAG = AtlasMessagesList.class.getSimpleName();
-    private static final boolean debug = true;
+    private static final boolean debug = false;
     
     private static final SimpleDateFormat sdf = new SimpleDateFormat("HH:mm a"); // TODO: localization required
     private static final SimpleDateFormat sdfDayOfWeek = new SimpleDateFormat("EEEE, LLL dd,"); // TODO: localization required
@@ -58,11 +58,11 @@ public class AtlasMessagesList implements LayerChangeEventListener.MainThread {
     
     private ItemClickListener clickListener;
     
-    public AtlasMessagesList(View rootView, LayerClient layerClient, final AtlasContactProvider contacts) {
-        this.client = layerClient;  
-
+    public AtlasMessagesList(View rootView, LayerClient layerClient, final AtlasContactProvider contactsProvider) {
+        this.client = layerClient;
+        
         // --- message view
-        messagesList = (ListView) rootView.findViewById(R.id.atlas_view_messages_list);
+        messagesList = (ListView) rootView.findViewById(R.id.atlas_messages_list);
         messagesList.setAdapter(messagesAdapter = new BaseAdapter() {
             
             private static final int TYPE_ME = 0; 
@@ -113,7 +113,7 @@ public class AtlasMessagesList implements LayerChangeEventListener.MainThread {
                     timeBar.setVisibility(View.GONE);
                 }
                 
-                Contact contact = contacts.contactsMap.get(userId);
+                Contact contact = contactsProvider.contactsMap.get(userId);
                 TextView textAvatar = (TextView) convertView.findViewById(R.id.atlas_view_messages_convert_initials);
                 View spacerRight = convertView.findViewById(R.id.atlas_view_messages_convert_spacer_right);
                 if (viewType == TYPE_OTHER) {
@@ -328,7 +328,7 @@ public class AtlasMessagesList implements LayerChangeEventListener.MainThread {
         }
             viewItems.get(viewItems.size() - 1).clusterTail = true; // last one is always a tail
 
-        Log.d(TAG, "updateValues() parts finished in: " + (System.currentTimeMillis() - started));
+        if (debug) Log.d(TAG, "updateValues() parts finished in: " + (System.currentTimeMillis() - started));
         messagesAdapter.notifyDataSetChanged();
 
     }

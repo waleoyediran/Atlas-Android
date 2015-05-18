@@ -88,6 +88,7 @@ public class AtlasLoginScreen extends Activity {
                         if (debug) Log.w(TAG, "onAuthenticated() userID: " + userId);
                         inProgress = false;
                         updateValues();
+                        setResult(RESULT_OK);
                         finish();
                     }
                     

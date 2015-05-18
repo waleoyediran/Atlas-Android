@@ -26,15 +26,6 @@ public class AtlasParticipantPickersScreen extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.atlas_screen_participants_picker);
-        ((TextView)findViewById(R.id.atlas_actionbar_title_text)).setText("Add People");
-        final ImageView btnMenuLeft = (ImageView)findViewById(R.id.atlas_actionbar_left_btn);
-        btnMenuLeft.setImageResource(R.drawable.atlas_ctl_btn_back);
-        btnMenuLeft.setVisibility(View.VISIBLE);
-        btnMenuLeft.setOnClickListener(new OnClickListener() {
-            public void onClick(View v) {
-                finish();
-            }
-        });
         
         String[] skipUserIds = getIntent().getExtras().getStringArray(EXTRA_KEY_USERIDS_SKIP);
         
@@ -43,7 +34,7 @@ public class AtlasParticipantPickersScreen extends Activity {
         
         AtlasContactProvider contactProvider = ((App101) getApplication()).contactProvider;
         View participantPickerRoot = findViewById(R.id.atlas_screen_participants_picker_picker);
-        final AtlasParticipantPicker pp = new AtlasParticipantPicker(this, participantPickerRoot, contactProvider, skipUserIds);
+        final AtlasParticipantPicker pp = new AtlasParticipantPicker(participantPickerRoot, contactProvider, skipUserIds);
         
         addBtn.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
@@ -62,6 +53,19 @@ public class AtlasParticipantPickersScreen extends Activity {
             }
         });
         
+        prepareActionBar();
+    }
+
+    private void prepareActionBar() {
+        ((TextView)findViewById(R.id.atlas_actionbar_title_text)).setText("Add People");
+        final ImageView btnMenuLeft = (ImageView)findViewById(R.id.atlas_actionbar_left_btn);
+        btnMenuLeft.setImageResource(R.drawable.atlas_ctl_btn_back);
+        btnMenuLeft.setVisibility(View.VISIBLE);
+        btnMenuLeft.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                finish();
+            }
+        });
     }
     
 }

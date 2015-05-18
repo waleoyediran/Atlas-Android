@@ -47,7 +47,6 @@ public class AtlasConversationsList {
     private ConversationLongClickListener longClickListener;
     
     public AtlasConversationsList(View rootView, final LayerClient layerClient, final AtlasContactProvider contactProvider) {
-        
         this.layerClient = layerClient;
         
         this.conversationsList = (ListView) rootView.findViewById(R.id.atlas_conversations_view);

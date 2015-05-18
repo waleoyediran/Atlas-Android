@@ -24,7 +24,7 @@
     
     
     <!-- proper way to declare colors  --> 
-    <color name="atlas_view_participant_picker_text_background">@color/atlas_background_white</color>
+    <color name="atlas_participant_picker_text_background">@color/atlas_background_white</color>
     <color name="atlas_view_participant_picker_list_background">@color/atlas_background_white</color>
     
     <!-- menu item background -->

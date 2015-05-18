@@ -58,6 +58,7 @@
             </LinearLayout>
             
             <TextView
+                android:id="@+id/atlas_screen_settings_logout"
                 android:layout_width="wrap_content"
                 android:layout_height="48dp"
                 android:gravity="center_vertical"

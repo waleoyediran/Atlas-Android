@@ -18,7 +18,7 @@
             
             <include
             	android:id="@+id/atlas_screen_participants_picker_picker"
-            	layout="@layout/atlas_view_participants_picker"
+            	layout="@layout/atlas_participants_picker"
             	/>
             
         </FrameLayout>

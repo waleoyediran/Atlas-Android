@@ -11,7 +11,7 @@ import com.layer.sdk.messaging.Message;
 import com.layer.sdk.messaging.MessagePart;
 
 /**
- * @author olegorlov
+ * @author Oleg Orlov
  * @since 12 May 2015
  */
 public class Atlas {
@@ -24,7 +24,7 @@ public class Atlas {
     private Conversation conv;
     private LayerClient layerClient;
     public HashMap<String, Contact> contactsMap = new HashMap<String, Contact>();
-    
+
     public Atlas(LayerClient layerClient) {
         this.layerClient = layerClient; 
     }

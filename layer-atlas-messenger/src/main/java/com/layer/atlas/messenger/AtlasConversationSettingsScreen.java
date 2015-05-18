@@ -36,11 +36,10 @@ public class AtlasConversationSettingsScreen extends Activity {
 
     private static final int REQUEST_CODE_ADD_PARTICIPANT = 999;
     
-    public static Conversation conv;
-    
-    private ViewGroup namesList;
-    
     private App101 app101;
+    
+    public static Conversation conv;
+    private ViewGroup namesList;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,17 +47,6 @@ public class AtlasConversationSettingsScreen extends Activity {
         setContentView(R.layout.atlas_screen_conversation_settings);
         
         this.app101 = (App101) getApplication();
-        
-        ImageView menuBtn = (ImageView) findViewById(R.id.atlas_actionbar_left_btn);
-        menuBtn.setImageResource(R.drawable.atlas_ctl_btn_back);
-        menuBtn.setVisibility(View.VISIBLE);
-        menuBtn.setOnClickListener(new OnClickListener() {
-            public void onClick(View v) {
-                finish();
-            }
-        });
-        
-        ((TextView)findViewById(R.id.atlas_actionbar_title_text)).setText("Details");
         
         CheckBox notificationsCheck = (CheckBox) findViewById(R.id.atlas_screen_conversation_settings_notifications_switch);
         notificationsCheck.setOnCheckedChangeListener(new OnCheckedChangeListener() {
@@ -105,9 +93,10 @@ public class AtlasConversationSettingsScreen extends Activity {
         });
         
         this.namesList = (ViewGroup) findViewById(R.id.atlas_screen_conversation_settings_participants_list);
-        updateValues();
+        
+        prepareActionBar();
     }
-    
+
     private void updateValues() {
         
         // refresh names screen
@@ -165,4 +154,17 @@ public class AtlasConversationSettingsScreen extends Activity {
         updateValues();
     }
     
+    private void prepareActionBar() {
+        ImageView menuBtn = (ImageView) findViewById(R.id.atlas_actionbar_left_btn);
+        menuBtn.setImageResource(R.drawable.atlas_ctl_btn_back);
+        menuBtn.setVisibility(View.VISIBLE);
+        menuBtn.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                finish();
+            }
+        });
+        
+        ((TextView)findViewById(R.id.atlas_actionbar_title_text)).setText("Details");
+    }
+
 }

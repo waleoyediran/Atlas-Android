@@ -5,16 +5,17 @@
     android:orientation="horizontal" >
 
     <TextView 
-        android:id="@+id/atlas_view_message_composer_upload"
+        android:id="@+id/atlas_message_composer_upload"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_gravity="bottom"
         android:gravity="center"
         android:text="+"
+        android:visibility="gone"
         />
     
     <EditText
-        android:id="@+id/atlas_view_message_composer_text"
+        android:id="@+id/atlas_message_composer_text"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
@@ -26,7 +27,7 @@
         />
     
     <TextView
-        android:id="@+id/atlas_view_message_composer_send"
+        android:id="@+id/atlas_message_composer_send"
         android:layout_width="wrap_content"
         android:layout_height="40dp"
         android:layout_gravity="bottom"

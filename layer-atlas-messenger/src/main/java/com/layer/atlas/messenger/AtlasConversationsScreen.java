@@ -4,18 +4,15 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.layer.atlas.Atlas.AtlasContactProvider;
 import com.layer.atlas.AtlasConversationsList;
 import com.layer.atlas.AtlasConversationsList.ConversationClickListener;
 import com.layer.atlas.AtlasConversationsList.ConversationLongClickListener;
-import com.layer.sdk.LayerClient;
 import com.layer.sdk.LayerClient.DeletionMode;
 import com.layer.sdk.changes.LayerChangeEvent;
 import com.layer.sdk.listeners.LayerChangeEventListener;
@@ -29,12 +26,11 @@ public class AtlasConversationsScreen extends Activity {
     private static final String TAG = AtlasConversationsScreen.class.getSimpleName();
     private static final boolean debug = true;
 
-    private static final int REQUEST_CODE_LOGIN = 999;
-    
-    private View btnNewConversation;
+    private static final int REQUEST_CODE_LOGIN_SCREEN = 191;
     
     private App101 app;
-    private AtlasContactProvider contactProvider;
+    
+    private View btnNewConversation;
     private AtlasConversationsList conversationsList;
     
     @Override
@@ -43,31 +39,6 @@ public class AtlasConversationsScreen extends Activity {
         setContentView(R.layout.atlas_screen_conversations);
         
         this.app = (App101) getApplication();
-        this.contactProvider = app.contactProvider;
-        
-        final LayerClient client = app.getLayerClient();
-        if (debug) Log.i(TAG, "onCreate() layerClient: " + client);
-
-        // setup actionBar
-        ((TextView)findViewById(R.id.atlas_actionbar_title_text)).setText("Conversations");
-        ImageView menuBtn = (ImageView) findViewById(R.id.atlas_actionbar_left_btn);
-        menuBtn.setImageResource(R.drawable.atlas_ctl_btn_menu);
-        menuBtn.setVisibility(View.VISIBLE);
-        menuBtn.setOnClickListener(new OnClickListener() {
-            public void onClick(View v) {
-                Intent intent = new Intent(v.getContext(), AtlasSettingsScreen.class);
-                startActivity(intent);
-            }
-        });
-        
-        ImageView searchBtn = (ImageView) findViewById(R.id.atlas_actionbar_right_btn);
-        searchBtn.setImageResource(R.drawable.atlas_ctl_btn_search);
-        searchBtn.setVisibility(View.VISIBLE);
-        searchBtn.setOnClickListener(new OnClickListener() {
-            public void onClick(View v) {
-                Toast.makeText(v.getContext(), "Title should be replaced by edit text here...", Toast.LENGTH_LONG).show();
-            }
-        });
         
         View conversationsRoot = findViewById(R.id.atlas_screen_conversations_conversations_list);
         this.conversationsList = new AtlasConversationsList(conversationsRoot, app.getLayerClient(), app.contactProvider);
@@ -94,22 +65,11 @@ public class AtlasConversationsScreen extends Activity {
             }
         });
         
-        if (!app.getLayerClient().isAuthenticated()) {
-            Intent intent = new Intent(this, AtlasLoginScreen.class);
-            startActivityForResult(intent, 0);
-        }
-    }
-    
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_CODE_LOGIN) {
-            
-        }
+        prepareActionBar();
     }
 
     private void updateValues() {
         conversationsList.updateValues();
-        
     }
 
     private LayerChangeEventListener.MainThread eventTracker;
@@ -119,6 +79,13 @@ public class AtlasConversationsScreen extends Activity {
         super.onResume();
         App101 app = (App101) getApplication();
         
+        // check for first time launch and Settings/LogOut 
+        if (!app.getLayerClient().isAuthenticated()) {
+            Intent intent = new Intent(this, AtlasLoginScreen.class);
+            startActivityForResult(intent, REQUEST_CODE_LOGIN_SCREEN);
+            return;
+        }
+        
         app.getLayerClient().registerEventListener(eventTracker = new LayerChangeEventListener.MainThread() {
             public void onEventMainThread(LayerChangeEvent event) {
                 updateValues();
@@ -127,6 +94,14 @@ public class AtlasConversationsScreen extends Activity {
         updateValues();
     }
     
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE_LOGIN_SCREEN && resultCode != RESULT_OK) {
+            finish(); // no login - no app
+        }
+    }
+
     @Override
     protected void onStop() {
         super.onStop();
@@ -140,4 +115,28 @@ public class AtlasConversationsScreen extends Activity {
         intent.putExtra(AtlasMessagesScreen.EXTRA_CONVERSATION_URI, conv.getId().toString());
         startActivity(intent);
     }
+    
+    private void prepareActionBar() {
+        ((TextView)findViewById(R.id.atlas_actionbar_title_text)).setText("Conversations");
+        ImageView menuBtn = (ImageView) findViewById(R.id.atlas_actionbar_left_btn);
+        menuBtn.setImageResource(R.drawable.atlas_ctl_btn_menu);
+        menuBtn.setVisibility(View.VISIBLE);
+        menuBtn.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                Intent intent = new Intent(v.getContext(), AtlasSettingsScreen.class);
+                startActivity(intent);
+            }
+        });
+        
+        ImageView searchBtn = (ImageView) findViewById(R.id.atlas_actionbar_right_btn);
+        searchBtn.setImageResource(R.drawable.atlas_ctl_btn_search);
+        searchBtn.setVisibility(View.VISIBLE);
+        searchBtn.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                Toast.makeText(v.getContext(), "Title should be replaced by edit text here...", Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+    
+
 }

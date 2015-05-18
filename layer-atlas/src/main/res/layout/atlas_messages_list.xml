@@ -5,7 +5,7 @@
     >
 
     <ListView
-        android:id="@+id/atlas_view_messages_list"
+        android:id="@+id/atlas_messages_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:divider="@android:color/transparent"
