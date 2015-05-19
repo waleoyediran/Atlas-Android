@@ -19,7 +19,10 @@ public class Atlas {
     public static final String MIME_TYPE_ATLAS_LOCATION = "location/coordinate";
     public static final String MIME_TYPE_TEXT = "text/plain";
     public static final String MIME_TYPE_IMAGE_JPEG = "image/jpeg";
+    public static final String MIME_TYPE_IMAGE_JPEG_PREVIEW = "image/jpeg+preview";
     public static final String MIME_TYPE_IMAGE_PNG = "image/png";
+    public static final String MIME_TYPE_IMAGE_PNG_PREVIEW = "image/png+preview";
+    public static final String MIME_TYPE_IMAGE_DIMENSIONS = "application/json+imageSize";
 
     private Conversation conv;
     private LayerClient layerClient;

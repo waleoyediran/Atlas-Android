@@ -35,7 +35,7 @@ import com.layer.atlas.Atlas.AtlasContactProvider;
 import com.layer.atlas.Atlas.Contact;
 import com.layer.atlas.AtlasMessageComposer;
 import com.layer.atlas.AtlasMessagesList;
-import com.layer.atlas.AtlasMessagesList.CellDataItem;
+import com.layer.atlas.AtlasMessagesList.Cell;
 import com.layer.atlas.AtlasMessagesList.ItemClickListener;
 import com.layer.atlas.AtlasParticipantPicker;
 import com.layer.atlas.messenger.App101.keys;
@@ -156,7 +156,7 @@ public class AtlasMessagesScreen extends Activity {
         messagesList = new AtlasMessagesList(findViewById(R.id.atlas_screen_messages_messages_list), app.getLayerClient(), app.contactProvider);
         messagesList.setConversation(conv);
         messagesList.setItemClickListener(new ItemClickListener() {
-            public void onItemClick(CellDataItem item) {
+            public void onItemClick(Cell item) {
                 if (Atlas.MIME_TYPE_ATLAS_LOCATION.equals(item.messagePart.getMimeType())) {
                     String jsonLonLat = new String(item.messagePart.getData());
                     JSONObject json;
