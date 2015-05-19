@@ -302,13 +302,9 @@ public class AtlasMessagesScreen extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        App101 app = (App101) getApplication();
         
         updateValues();
-        messagesList.updateValues();
         messagesList.jumpToLastMessage();
-        
-        app.getLayerClient().registerEventListener(messagesList);
         
         // restore location tracking
         int requestLocationTimeout = 1 * 1000; // every second
@@ -331,7 +327,9 @@ public class AtlasMessagesScreen extends Activity {
         if (locationManager.getProvider(LocationManager.NETWORK_PROVIDER) != null) {
             locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, requestLocationTimeout, distance, locationTracker);
         }
-
+        
+        App101 app = (App101) getApplication();
+        app.getLayerClient().registerEventListener(messagesList);
     }
     
     private static final int LOCATION_EXPIRATION_TIME = 60 * 1000; // 1 minute 
@@ -354,13 +352,9 @@ public class AtlasMessagesScreen extends Activity {
     
     @Override
     protected void onPause() {
-        locationManager.removeUpdates(locationTracker);
         super.onPause();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
+        
+        locationManager.removeUpdates(locationTracker);
         App101 app = (App101) getApplication();
         app.getLayerClient().unregisterEventListener(messagesList);
     }

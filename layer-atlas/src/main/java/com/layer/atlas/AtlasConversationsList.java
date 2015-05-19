@@ -23,7 +23,13 @@ import android.widget.TextView;
 import com.layer.atlas.Atlas.AtlasContactProvider;
 import com.layer.atlas.Atlas.Contact;
 import com.layer.sdk.LayerClient;
+import com.layer.sdk.changes.LayerChange;
+import com.layer.sdk.changes.LayerChangeEvent;
+import com.layer.sdk.exceptions.LayerException;
+import com.layer.sdk.listeners.LayerAuthenticationListener;
+import com.layer.sdk.listeners.LayerChangeEventListener;
 import com.layer.sdk.messaging.Conversation;
+import com.layer.sdk.messaging.LayerObject;
 import com.layer.sdk.messaging.Message;
 import com.layer.sdk.messaging.Message.RecipientStatus;
 
@@ -31,7 +37,7 @@ import com.layer.sdk.messaging.Message.RecipientStatus;
  * @author Oleg Orlov
  * @since 14 May 2015
  */
-public class AtlasConversationsList {
+public class AtlasConversationsList implements LayerChangeEventListener.MainThread {
     
     private static final String TAG = AtlasConversationsList.class.getSimpleName();
     private static final boolean debug = true;
@@ -153,15 +159,32 @@ public class AtlasConversationsList {
                 return true;
             }
         });
+        
+        // clean everything if deathenticated (client will explode on .getConversation())
+        // and rebuilt everithing back after successful authentication  
+        layerClient.registerAuthenticationListener(new LayerAuthenticationListener() {
+            public void onDeauthenticated(LayerClient client) {
+                if (debug) Log.w(TAG, "onDeauthenticated() ");
+                updateValues();
+            }
+            public void onAuthenticated(LayerClient client, String userId) {
+                updateValues();
+            }
+            public void onAuthenticationError(LayerClient client, LayerException exception) {}
+            public void onAuthenticationChallenge(LayerClient client, String nonce) {}
+        });
+        
     }
     
     public void updateValues() {
+        
+        conversations.clear();                              // always clean, rebuild if authenticated 
+        conversationsAdapter.notifyDataSetChanged();
         
         if (layerClient.isAuthenticated()) {
             
             List<Conversation> convs = layerClient.getConversations();
             if (debug) Log.d(TAG, "updateValues() conv: " + convs.size());
-            conversations.clear();
             for (Conversation conv : convs) {
                 // no participants means we are removed from conversation (disconnected conversation)
                 if (conv.getParticipants().size() == 0) continue;
@@ -186,11 +209,21 @@ public class AtlasConversationsList {
                     return (int) (rightSentdAt - leftSentAt);
                 }
             });
-            conversationsAdapter.notifyDataSetChanged();
         }
 
     }
 
+    @Override
+    public void onEventMainThread(LayerChangeEvent event) {
+        for (LayerChange change : event.getChanges()) {
+            if (change.getObjectType() == LayerObject.Type.CONVERSATION
+                    || change.getObjectType() == LayerObject.Type.MESSAGE) {
+                updateValues();
+                return;
+            }
+        }
+    }
+    
     public ConversationClickListener getClickListener() {
         return clickListener;
     }

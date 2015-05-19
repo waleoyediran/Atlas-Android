@@ -56,7 +56,13 @@ public class App101PushReceiver extends BroadcastReceiver {
         bld.setContentIntent(resultPendingIntent);
         
         final Notification notification = bld.getNotification();
-        notificationService.notify(ntfId, notification);
+        
+        try {
+            notificationService.notify(ntfId, notification);
+        } catch (SecurityException ignored) { 
+            // 4.1.2 device required VIBRATE permission when in Vibrate mode. 
+            // Fixed in 4.2.1 https://android.googlesource.com/platform/frameworks/base/+/cc2e849
+        }
         
     }
 

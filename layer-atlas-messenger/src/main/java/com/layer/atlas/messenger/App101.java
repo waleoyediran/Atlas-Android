@@ -27,9 +27,7 @@ import com.layer.atlas.Atlas;
 import com.layer.atlas.Atlas.Contact;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.LayerClient.Options;
-import com.layer.sdk.changes.LayerChangeEvent;
 import com.layer.sdk.exceptions.LayerException;
-import com.layer.sdk.listeners.LayerChangeEventListener;
 import com.layer.sdk.listeners.LayerConnectionListener;
 import com.layer.sdk.messaging.Message;
 import com.layer.sdk.messaging.MessagePart;
@@ -112,13 +110,7 @@ public class App101 extends Application {
                 Log.e(TAG, "onConnectionError() ", exception);
             }
         });
-                
-        resultClient.registerEventListener(new LayerChangeEventListener.MainThread() {
-            public void onEventMainThread(LayerChangeEvent event) {
-                if (debug) Log.w(TAG, "onEventMainThread() event: " + event);
-            }
-        });
-        
+                        
         if (!resultClient.isAuthenticated()) resultClient.authenticate();
         else if (!resultClient.isConnected()) resultClient.connect();
         if (debug) Log.w(TAG, "onCreate() Layer launched");

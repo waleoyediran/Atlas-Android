@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
@@ -14,8 +15,6 @@ import com.layer.atlas.AtlasConversationsList;
 import com.layer.atlas.AtlasConversationsList.ConversationClickListener;
 import com.layer.atlas.AtlasConversationsList.ConversationLongClickListener;
 import com.layer.sdk.LayerClient.DeletionMode;
-import com.layer.sdk.changes.LayerChangeEvent;
-import com.layer.sdk.listeners.LayerChangeEventListener;
 import com.layer.sdk.messaging.Conversation;
 
 /**
@@ -27,6 +26,7 @@ public class AtlasConversationsScreen extends Activity {
     private static final boolean debug = true;
 
     private static final int REQUEST_CODE_LOGIN_SCREEN = 191;
+    private static final int REQUEST_CODE_SETTINGS_SCREEN = 192;
     
     private App101 app;
     
@@ -71,42 +71,43 @@ public class AtlasConversationsScreen extends Activity {
     private void updateValues() {
         conversationsList.updateValues();
     }
-
-    private LayerChangeEventListener.MainThread eventTracker;
     
-    @Override
-    protected void onResume() {
-        super.onResume();
-        App101 app = (App101) getApplication();
-        
-        // check for first time launch and Settings/LogOut 
-        if (!app.getLayerClient().isAuthenticated()) {
-            Intent intent = new Intent(this, AtlasLoginScreen.class);
-            startActivityForResult(intent, REQUEST_CODE_LOGIN_SCREEN);
-            return;
-        }
-        
-        app.getLayerClient().registerEventListener(eventTracker = new LayerChangeEventListener.MainThread() {
-            public void onEventMainThread(LayerChangeEvent event) {
-                updateValues();
-            }
-        });
-        updateValues();
-    }
-    
+    private boolean forceLogout = false;
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE_LOGIN_SCREEN && resultCode != RESULT_OK) {
             finish(); // no login - no app
+            return;
+        }
+        if (requestCode == REQUEST_CODE_SETTINGS_SCREEN && resultCode == RESULT_OK) {
+            forceLogout = data.getBooleanExtra(AtlasSettingsScreen.EXTRA_FORCE_LOGOUT, false);
         }
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
+    protected void onResume() {
+        super.onResume();
         App101 app = (App101) getApplication();
-        app.getLayerClient().unregisterEventListener(eventTracker);
+        app.getLayerClient().registerEventListener(conversationsList);
+        
+        if (debug) Log.w(TAG, "onResume() authenticated: " + app.getLayerClient().isAuthenticated());
+        // check for first time launch and Settings/LogOut 
+        if (!app.getLayerClient().isAuthenticated() || forceLogout) {
+            forceLogout = false;
+            Intent intent = new Intent(this, AtlasLoginScreen.class);
+            startActivityForResult(intent, REQUEST_CODE_LOGIN_SCREEN);
+            return;
+        }
+        
+        updateValues();
+    }
+    
+    @Override
+    protected void onPause() {
+        super.onPause();
+        App101 app = (App101) getApplication();
+        app.getLayerClient().unregisterEventListener(conversationsList);
     }
     
     public void openChatScreen(Conversation conv, boolean newConversation) {
@@ -124,7 +125,7 @@ public class AtlasConversationsScreen extends Activity {
         menuBtn.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 Intent intent = new Intent(v.getContext(), AtlasSettingsScreen.class);
-                startActivity(intent);
+                startActivityForResult(intent, REQUEST_CODE_SETTINGS_SCREEN);
             }
         });
         

@@ -59,7 +59,7 @@
             
             <TextView
                 android:id="@+id/atlas_screen_settings_logout"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:gravity="center_vertical"
                 android:paddingLeft="@dimen/atlas_messenger_activity_horizontal_margin"

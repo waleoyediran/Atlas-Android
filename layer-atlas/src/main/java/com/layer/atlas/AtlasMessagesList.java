@@ -34,11 +34,12 @@ import com.layer.sdk.changes.LayerChangeEvent;
 import com.layer.sdk.listeners.LayerChangeEventListener;
 import com.layer.sdk.listeners.LayerProgressListener;
 import com.layer.sdk.messaging.Conversation;
+import com.layer.sdk.messaging.LayerObject;
 import com.layer.sdk.messaging.Message;
 import com.layer.sdk.messaging.MessagePart;
 
 /**
- * @author olegorlov
+ * @author Oleg Orlov
  * @since 13 May 2015
  */
 public class AtlasMessagesList implements LayerChangeEventListener.MainThread {
@@ -260,6 +261,7 @@ public class AtlasMessagesList implements LayerChangeEventListener.MainThread {
             }
         });
         // --- end of messageView
+        
     }
     
     public void updateValues() {
@@ -336,13 +338,21 @@ public class AtlasMessagesList implements LayerChangeEventListener.MainThread {
     @Override
     public void onEventMainThread(LayerChangeEvent event) {
         if (conv == null) return;
-        for (LayerChange layerChange : event.getChanges()) {
-            if (layerChange.getChangeType() == Type.DELETE || layerChange.getChangeType() == Type.INSERT) {
-                updateValues();
-                messagesList.smoothScrollToPosition(messagesAdapter.getCount() - 1);
-                break;
+        boolean updateValues = false;
+        boolean jumpToBottom = false;
+        for (LayerChange change : event.getChanges()) {
+            if (change.getObjectType() == LayerObject.Type.MESSAGE) {
+                Message msg = (Message) change.getObject();
+                if (msg.getConversation().getId().equals(conv.getId())) {
+                    updateValues = true;
+                    if (change.getChangeType() == Type.DELETE || change.getChangeType() == Type.INSERT) {
+                        jumpToBottom = true;
+                    }
+                }
             }
         }
+        if (updateValues) updateValues();
+        if (jumpToBottom) messagesList.smoothScrollToPosition(messagesAdapter.getCount() - 1);
     }
 
     public void jumpToLastMessage() {

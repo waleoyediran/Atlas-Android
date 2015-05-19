@@ -1,6 +1,7 @@
 package com.layer.atlas.messenger;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -13,6 +14,8 @@ import android.widget.TextView;
  */
 public class AtlasSettingsScreen extends Activity {
 
+    public static final String EXTRA_FORCE_LOGOUT = "settings.force.logout";
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -24,6 +27,9 @@ public class AtlasSettingsScreen extends Activity {
         logout.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 app.getLayerClient().deauthenticate();
+                final Intent data = new Intent();
+                data.putExtra(EXTRA_FORCE_LOGOUT, true);
+                setResult(RESULT_OK, data);
                 finish();
             }
         });
