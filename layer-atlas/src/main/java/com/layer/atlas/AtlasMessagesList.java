@@ -138,100 +138,16 @@ public class AtlasMessagesList implements LayerChangeEventListener.MainThread {
             
             public void bindCell(View convertView, final Cell cell) {
                 
-                View cellContainer = convertView.findViewById(R.id.atlas_view_messages_cell_container);
-                View cellText = convertView.findViewById(R.id.atlas_view_messages_cell_text);
-                ShapedFrameLayout cellCustom = (ShapedFrameLayout) convertView.findViewById(R.id.atlas_view_messages_cell_custom);
-                MessagePart part = cell.messagePart;
-                if (Atlas.MIME_TYPE_IMAGE_JPEG.equals(part.getMimeType()) || Atlas.MIME_TYPE_IMAGE_PNG.equals(part.getMimeType())) {
-                    cellText.setVisibility(View.GONE);
-                    cellCustom.setVisibility(View.VISIBLE);
-                    ImageView imageView = (ImageView) cellCustom.findViewById(R.id.atlas_view_messages_cell_custom_image);
-                    
-                    // get BitmapDrawable
-                    //BitmapDrawable EMPTY_DRAWABLE = new BitmapDrawable(Bitmap.createBitmap(new int[] { Color.TRANSPARENT }, 1, 1, Bitmap.Config.ALPHA_8));
-                    int requiredWidth = cellContainer.getWidth();
-                    int requiredHeight = cellContainer.getHeight();
-                    final MessagePart messagePart = cell.messagePart;
-                    Bitmap bmp = getBitmap(messagePart, requiredWidth, requiredHeight);
-                    if (bmp != null) {
-                        imageView.setImageBitmap(bmp);
-                    } else {
-                        imageView.setImageResource(R.drawable.image_stub);
-                    }
-                    
-                    // clustering
-                    
-                    cellCustom.setCornerRadiusDp(16, 16, 16, 16);
-                    boolean myMessage = client.getAuthenticatedUserId().equals(cell.messagePart.getMessage().getSender().getUserId());
-                    if (myMessage) {
-                        if (cell.clusterHeadItemId == cell.clusterItemId && !cell.clusterTail) {
-                            cellCustom.setCornerRadiusDp(16, 16, 2, 16);
-                            //cellCustom.setBackgroundResource(R.drawable.atlas_shape_rounded16_blue_no_bottom_right);
-                        } else if (cell.clusterTail && cell.clusterHeadItemId != cell.clusterItemId) {
-                            cellCustom.setCornerRadiusDp(16, 2, 16, 16);
-                            //cellCustom.setBackgroundResource(R.drawable.atlas_shape_rounded16_blue_no_top_right);
-                        } else if (cell.clusterHeadItemId != cell.clusterItemId && !cell.clusterTail) {
-                            cellCustom.setCornerRadiusDp(16, 2, 2, 16);
-                            //cellCustom.setBackgroundResource(R.drawable.atlas_shape_rounded16_blue_no_right);
-                        }
-                    } else {
-                        if (cell.clusterHeadItemId == cell.clusterItemId && !cell.clusterTail) {
-                            cellCustom.setCornerRadiusDp(16, 16, 16, 2);
-                        } else if (cell.clusterTail && cell.clusterHeadItemId != cell.clusterItemId) {
-                            cellCustom.setCornerRadiusDp(2, 16, 16, 16);
-                        } else if (cell.clusterHeadItemId != cell.clusterItemId && !cell.clusterTail) {
-                            cellCustom.setCornerRadiusDp(2, 16, 16, 2);
-                        }
-                    }
-                    
-                } else { /* MIME_TYPE_TEXT */                           // text and replaced by text
-                    cellText.setVisibility(View.VISIBLE);
-                    cellCustom.setVisibility(View.GONE);
-                    
-                    String messagePartText = null;
-                    if (Atlas.MIME_TYPE_TEXT.equals(part.getMimeType())) {
-                        messagePartText = new String(part.getData());
-                    } else if (Atlas.MIME_TYPE_ATLAS_LOCATION.equals(part.getMimeType())){
-                        String jsonLonLat = new String(part.getData());
-                        try {
-                            JSONObject json = new JSONObject(jsonLonLat);
-                            double lon = json.getDouble("lon");
-                            double lat = json.getDouble("lat");
-                            messagePartText = "Location:\nlon: " + lon + "\nlat: " + lat;
-                        } catch (JSONException e) {}
-                    } else {
-                        messagePartText = "attach, type: " + part.getMimeType() + ", size: " + part.getSize();
-                    }
-                    
-                    boolean myMessage = client.getAuthenticatedUserId().equals(cell.messagePart.getMessage().getSender().getUserId());
-                    TextView textMy = (TextView) cellText.findViewById(R.id.atlas_view_messages_convert_text);
-                    TextView textOther = (TextView) cellText.findViewById(R.id.atlas_view_messages_convert_text_counterparty);
-                    if (myMessage) {
-                        textMy.setVisibility(View.VISIBLE);
-                        textMy.setText(messagePartText);
-                        textOther.setVisibility(View.GONE);
-                        
-                        textMy.setBackgroundResource(R.drawable.atlas_shape_rounded16_blue);
-                        if (cell.clusterHeadItemId == cell.clusterItemId && !cell.clusterTail) {
-                            textMy.setBackgroundResource(R.drawable.atlas_shape_rounded16_blue_no_bottom_right);
-                        } else if (cell.clusterTail && cell.clusterHeadItemId != cell.clusterItemId) {
-                            textMy.setBackgroundResource(R.drawable.atlas_shape_rounded16_blue_no_top_right);
-                        } else if (cell.clusterHeadItemId != cell.clusterItemId && !cell.clusterTail) {
-                            textMy.setBackgroundResource(R.drawable.atlas_shape_rounded16_blue_no_right);
-                        }
-                    } else {
-                        textOther.setVisibility(View.VISIBLE);
-                        textOther.setText(messagePartText);
-                        textMy.setVisibility(View.GONE);
-                        
-                        textOther.setBackgroundResource(R.drawable.atlas_shape_rounded16_gray);
-                        if (cell.clusterHeadItemId == cell.clusterItemId && !cell.clusterTail) {
-                            textOther.setBackgroundResource(R.drawable.atlas_shape_rounded16_gray_no_bottom_left);
-                        } else if (cell.clusterTail && cell.clusterHeadItemId != cell.clusterItemId) {
-                            textOther.setBackgroundResource(R.drawable.atlas_shape_rounded16_gray_no_top_left);
-                        } else if (cell.clusterHeadItemId != cell.clusterItemId && !cell.clusterTail) {
-                            textOther.setBackgroundResource(R.drawable.atlas_shape_rounded16_gray_no_left);
-                        }
+                ViewGroup cellContainer = (ViewGroup) convertView.findViewById(R.id.atlas_view_messages_cell_container);
+                
+                View cellRootView = cell.onBind(cellContainer);
+                
+                // cleanUp container
+                cellRootView.setVisibility(View.VISIBLE);
+                for (int iChild = 0; iChild < cellContainer.getChildCount(); iChild++) {
+                    View child = cellContainer.getChildAt(iChild);
+                    if (child != cellRootView) {
+                        child.setVisibility(View.GONE);
                     }
                 }
             }
@@ -257,15 +173,16 @@ public class AtlasMessagesList implements LayerChangeEventListener.MainThread {
             }
         });
         // --- end of messageView
-        
     }
     
-    protected void cellForMessage(Message msg, ArrayList<Cell> destination) {
+    protected void buildCellForMessage(Message msg, ArrayList<Cell> destination) {
         
         final ArrayList<MessagePart> parts = new ArrayList<MessagePart>(msg.getMessageParts());
         
         for (int partNo = 0; partNo < parts.size(); partNo++ ) {
-            final String mimeType = parts.get(partNo).getMimeType();
+            final MessagePart part = parts.get(partNo);
+            final String mimeType = part.getMimeType();
+            
             if (Atlas.MIME_TYPE_IMAGE_PNG.equals(mimeType) || Atlas.MIME_TYPE_IMAGE_JPEG.equals(mimeType)) {
                     
                 // 3 parts image support
@@ -275,7 +192,7 @@ public class AtlasMessagesList implements LayerChangeEventListener.MainThread {
                         JSONObject jo = new JSONObject(jsonDimensions);
                         int width = jo.getInt("width");
                         int height = jo.getInt("height");
-                        Cell imageCell = new ImageCell(parts.get(partNo), parts.get(partNo + 1), width, height);
+                        Cell imageCell = new ImageCell(part, parts.get(partNo + 1), width, height);
                         destination.add(imageCell);
                         if (debug) Log.w(TAG, "cellForMessage() 3-image part found at partNo: " + partNo);
                         partNo++; // skip preview
@@ -285,11 +202,14 @@ public class AtlasMessagesList implements LayerChangeEventListener.MainThread {
                     }
                 } else {
                     // regular image
-                    destination.add(new ImageCell(parts.get(partNo)));
+                    destination.add(new ImageCell(part));
                     if (debug) Log.w(TAG, "cellForMessage() single-image part found at partNo: " + partNo);
                 }
+            
+            } else if (Atlas.MIME_TYPE_ATLAS_LOCATION.equals(part.getMimeType())){
+                destination.add(new GeoCell(part));
             } else {
-                Cell cellData = new Cell(parts.get(partNo));
+                Cell cellData = new TextCell(part);
                 if (debug) Log.w(TAG, "cellForMessage() default item: " + cellData);
                 destination.add(cellData);
             }
@@ -313,7 +233,7 @@ public class AtlasMessagesList implements LayerChangeEventListener.MainThread {
 
             List<MessagePart> parts = message.getMessageParts();
             messageItems.clear();
-            cellForMessage(message, messageItems);
+            buildCellForMessage(message, messageItems);
             viewItems.addAll(messageItems);
         }
         
@@ -406,7 +326,103 @@ public class AtlasMessagesList implements LayerChangeEventListener.MainThread {
         this.clickListener = clickListener;
     }
 
-    private static class ImageCell extends Cell {
+    private class GeoCell extends TextCell {
+
+        public GeoCell(MessagePart messagePart) {
+            super(messagePart);
+            String jsonLonLat = new String(messagePart.getData());
+            try {
+                JSONObject json = new JSONObject(jsonLonLat);
+                double lon = json.getDouble("lon");
+                double lat = json.getDouble("lat");
+                final String text = "Location:\nlon: " + lon + "\nlat: " + lat;
+                this.text = text;
+            } catch (JSONException e) {
+                throw new IllegalArgumentException("Wrong geoJSON format: " + jsonLonLat, e);
+            }
+        }
+
+        @Override
+        public View onBind(ViewGroup cellContainer) {
+            return super.onBind(cellContainer);
+        }
+        
+    }
+    
+    private class TextCell extends Cell {
+
+        protected String text;
+        public TextCell(MessagePart messagePart) {
+            super(messagePart);
+        }
+        
+        public TextCell(MessagePart messagePart, String text) {
+            super(messagePart);
+            this.text = text;
+        }
+
+        public View onBind(ViewGroup cellContainer) {
+            MessagePart part = messagePart;
+            Cell cell = this;
+            
+            View cellText = cellContainer.findViewById(R.id.atlas_view_messages_cell_text);
+            if (cellText == null) {
+                cellText = LayoutInflater.from(cellContainer.getContext()).inflate(R.layout.atlas_view_messages_cell_text, cellContainer, false);
+                cellContainer.addView(cellText);
+            }
+            
+            cellText.setVisibility(View.VISIBLE);
+            for (int iChild = 0; iChild < cellContainer.getChildCount(); iChild++) {
+                View child = cellContainer.getChildAt(iChild);
+                if (child != cellText) {
+                    child.setVisibility(View.GONE);
+                }
+            }
+            
+            if (text == null) {
+                if (Atlas.MIME_TYPE_TEXT.equals(part.getMimeType())) {
+                    text = new String(part.getData());
+                } else {
+                    text = "attach, type: " + part.getMimeType() + ", size: " + part.getSize();
+                }
+            }
+            
+            boolean myMessage = client.getAuthenticatedUserId().equals(cell.messagePart.getMessage().getSender().getUserId());
+            TextView textMy = (TextView) cellText.findViewById(R.id.atlas_view_messages_convert_text);
+            TextView textOther = (TextView) cellText.findViewById(R.id.atlas_view_messages_convert_text_counterparty);
+            if (myMessage) {
+                textMy.setVisibility(View.VISIBLE);
+                textMy.setText(text);
+                textOther.setVisibility(View.GONE);
+                
+                textMy.setBackgroundResource(R.drawable.atlas_shape_rounded16_blue);
+                if (cell.clusterHeadItemId == cell.clusterItemId && !cell.clusterTail) {
+                    textMy.setBackgroundResource(R.drawable.atlas_shape_rounded16_blue_no_bottom_right);
+                } else if (cell.clusterTail && cell.clusterHeadItemId != cell.clusterItemId) {
+                    textMy.setBackgroundResource(R.drawable.atlas_shape_rounded16_blue_no_top_right);
+                } else if (cell.clusterHeadItemId != cell.clusterItemId && !cell.clusterTail) {
+                    textMy.setBackgroundResource(R.drawable.atlas_shape_rounded16_blue_no_right);
+                }
+            } else {
+                textOther.setVisibility(View.VISIBLE);
+                textOther.setText(text);
+                textMy.setVisibility(View.GONE);
+                
+                textOther.setBackgroundResource(R.drawable.atlas_shape_rounded16_gray);
+                if (cell.clusterHeadItemId == cell.clusterItemId && !cell.clusterTail) {
+                    textOther.setBackgroundResource(R.drawable.atlas_shape_rounded16_gray_no_bottom_left);
+                } else if (cell.clusterTail && cell.clusterHeadItemId != cell.clusterItemId) {
+                    textOther.setBackgroundResource(R.drawable.atlas_shape_rounded16_gray_no_top_left);
+                } else if (cell.clusterHeadItemId != cell.clusterItemId && !cell.clusterTail) {
+                    textOther.setBackgroundResource(R.drawable.atlas_shape_rounded16_gray_no_left);
+                }
+            }
+            return cellText;
+            
+        }
+    }
+    
+    private class ImageCell extends Cell {
         MessagePart previewPart;
         MessagePart fullPart;
         int width;
@@ -414,7 +430,7 @@ public class AtlasMessagesList implements LayerChangeEventListener.MainThread {
 
         private ImageCell(MessagePart fullImagePart) {
             super(fullImagePart);
-            this.fullPart = fullPart;
+            this.fullPart = fullImagePart;
         }
         private ImageCell(MessagePart fullImagePart, MessagePart previewImagePart, int width, int height) {
             super(fullImagePart);
@@ -423,9 +439,59 @@ public class AtlasMessagesList implements LayerChangeEventListener.MainThread {
             this.width = width;
             this.height = height;
         }
+        @Override
+        public View onBind(ViewGroup cellContainer) {
+            
+            View rootView = cellContainer.findViewById(R.id.atlas_view_messages_cell_custom);
+            ImageView imageView = (ImageView) cellContainer.findViewById(R.id.atlas_view_messages_cell_custom_image);
+             
+            if (rootView == null) {
+                rootView = LayoutInflater.from(cellContainer.getContext()).inflate(R.layout.atlas_view_messages_cell_image, cellContainer, false); 
+                imageView = (ImageView) rootView.findViewById(R.id.atlas_view_messages_cell_custom_image);
+                cellContainer.addView(rootView);
+            }
+            
+            // get BitmapDrawable
+            // BitmapDrawable EMPTY_DRAWABLE = new BitmapDrawable(Bitmap.createBitmap(new int[] { Color.TRANSPARENT }, 1, 1, Bitmap.Config.ALPHA_8));
+            int requiredWidth = cellContainer.getWidth();
+            int requiredHeight = cellContainer.getHeight();
+            Bitmap bmp = getBitmap(messagePart, requiredWidth, requiredHeight);
+            if (bmp != null) {
+                imageView.setImageBitmap(bmp);
+            } else {
+                imageView.setImageResource(R.drawable.image_stub);
+            }
+            
+            ShapedFrameLayout cellCustom = (ShapedFrameLayout) rootView;
+            Cell cell = this;
+            // clustering
+            cellCustom.setCornerRadiusDp(16, 16, 16, 16);
+            boolean myMessage = client.getAuthenticatedUserId().equals(cell.messagePart.getMessage().getSender().getUserId());
+            if (myMessage) {
+                if (cell.clusterHeadItemId == cell.clusterItemId && !cell.clusterTail) {
+                    cellCustom.setCornerRadiusDp(16, 16, 2, 16);
+                    //cellCustom.setBackgroundResource(R.drawable.atlas_shape_rounded16_blue_no_bottom_right);
+                } else if (cell.clusterTail && cell.clusterHeadItemId != cell.clusterItemId) {
+                    cellCustom.setCornerRadiusDp(16, 2, 16, 16);
+                    //cellCustom.setBackgroundResource(R.drawable.atlas_shape_rounded16_blue_no_top_right);
+                } else if (cell.clusterHeadItemId != cell.clusterItemId && !cell.clusterTail) {
+                    cellCustom.setCornerRadiusDp(16, 2, 2, 16);
+                    //cellCustom.setBackgroundResource(R.drawable.atlas_shape_rounded16_blue_no_right);
+                }
+            } else {
+                if (cell.clusterHeadItemId == cell.clusterItemId && !cell.clusterTail) {
+                    cellCustom.setCornerRadiusDp(16, 16, 16, 2);
+                } else if (cell.clusterTail && cell.clusterHeadItemId != cell.clusterItemId) {
+                    cellCustom.setCornerRadiusDp(2, 16, 16, 16);
+                } else if (cell.clusterHeadItemId != cell.clusterItemId && !cell.clusterTail) {
+                    cellCustom.setCornerRadiusDp(2, 16, 16, 2);
+                }
+            }
+            return rootView;
+        }
     }
 
-    public static class Cell {
+    public abstract class Cell {
         public final MessagePart messagePart;
         private int clusterHeadItemId;
         private int clusterItemId;
@@ -449,9 +515,7 @@ public class AtlasMessagesList implements LayerChangeEventListener.MainThread {
             return builder.toString();
         }
 
-        public void onBind(View container) {
-            
-        }
+        public abstract View onBind(ViewGroup cellContainer);
     }
     
     Map<String, Bitmap> imageLruCache = Collections.synchronizedMap(new LinkedHashMap<String, Bitmap>(10, 0.75f, true) {
