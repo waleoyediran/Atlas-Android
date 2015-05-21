@@ -1,77 +1,62 @@
-<FrameLayout 
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    xmlns:atlas="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/atlas_background_white" >
+    android:background="@color/atlas_background_white">
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical" >
-        
-        <include layout="@layout/atlas_ab_stub"/>
-        
+        android:layout_height="match_parent">
+
+        <include
+            android:id="@+id/atlas_actionbar_stub"
+            layout="@layout/atlas_ab_stub"/>
+
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:layout_above="@+id/atlas_spacer"
+            android:layout_below="@+id/atlas_actionbar_stub"
             >
-            
-            <com.layer.atlas.AtlasMessagesList 
+
+            <com.layer.atlas.AtlasMessagesList
                 android:id="@+id/atlas_screen_messages_messages_list"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                atlas:myBubbleColor="#03a9f4"
-                atlas:myTextSize="10sp"
-                atlas:myTextColor="@color/atlas_text_white"
-                atlas:myTextTypeface="monospace"
-                atlas:theirTextSize="20sp"
-                atlas:theirBubbleColor="#84D4F8"
-                atlas:theirTextColor="@color/atlas_text_black87"
-                atlas:avatarBackgroundColor="#a489d4"
-                atlas:avatarTextColor="@color/atlas_text_white"
-                atlas:dateTextColor="#617D8A"
                 />
-            
-            <!-- 
-                
-             -->
-            
+
             <com.layer.atlas.AtlasParticipantPicker
-            	android:id="@+id/atlas_screen_messages_participants_picker"
-            	android:layout_width="match_parent"
+                android:id="@+id/atlas_screen_messages_participants_picker"
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
             	android:visibility="gone"
-                atlas:listTextColor="#cddc39"
-                atlas:listTextStyle="italic"
-                atlas:listTextTypeface="serif"
-                atlas:chipTextColor="#607d8b"
-                atlas:chipTextStyle="bold|italic"
-                atlas:chipTextTypeface="serif"
-                atlas:chipBackgroundColor="#ffc107"
-                atlas:inputTextColor="#795548"
-                atlas:inputTextStyle="bold"
-                atlas:inputTextTypeface="monospace"
             	/>
-            
         </FrameLayout>
 
-        <View android:layout_width="match_parent" android:layout_height="1px" android:background="@color/atlas_background_gray"/>
-        
+        <com.layer.atlas.AtlasTypingIndicator
+            android:id="@+id/atlas_typing_indicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/atlas_spacer"
+            android:layout_centerHorizontal="true"
+            />
+
+        <View
+            android:id="@+id/atlas_spacer"
+            android:layout_width="match_parent"
+            android:layout_height="1px"
+            android:layout_above="@+id/atlas_screen_messages_message_composer"
+            android:background="@color/atlas_background_gray"/>
+
         <com.layer.atlas.AtlasMessageComposer
             android:id="@+id/atlas_screen_messages_message_composer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            atlas:textSize="10sp"
-            atlas:textColor="#FFFF2030"
-            atlas:textTypeface="serif"
-            atlas:textStyle="italic"
+            android:layout_alignParentBottom="true"
             />
-    
-    </LinearLayout>
-    
+
+    </RelativeLayout>
+
     <include layout="@layout/atlas_ab_layout"/>
 
 </FrameLayout>

@@ -82,10 +82,9 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
     private int dateTextColor;
     private int avatarTextColor;
     private int avatarBackgroundColor;
-    
-    public void parseStyle(Context context, AttributeSet attrs) {
-        TypedArray ta = context.getResources().obtainAttributes(attrs, R.styleable.AtlasMessageList);
-        
+
+    public void parseStyle(Context context, AttributeSet attrs, int defStyle) {
+        TypedArray ta = context.getTheme().obtainStyledAttributes(attrs, R.styleable.AtlasMessageList, R.attr.AtlasMessageList, defStyle);
         this.myTextColor = ta.getColor(R.styleable.AtlasMessageList_myTextColor, context.getResources().getColor(R.color.atlas_text_black));
         this.myTextStyle = ta.getInt(R.styleable.AtlasMessageList_myTextStyle, Typeface.NORMAL);
         String myTextTypefaceName = ta.getString(R.styleable.AtlasMessageList_myTextTypeface); 
@@ -103,7 +102,8 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
 
         this.dateTextColor = ta.getColor(R.styleable.AtlasMessageList_dateTextColor, context.getResources().getColor(R.color.atlas_text_gray)); 
         this.avatarTextColor = ta.getColor(R.styleable.AtlasMessageList_avatarTextColor, context.getResources().getColor(R.color.atlas_text_black)); 
-        this.avatarBackgroundColor = ta.getColor(R.styleable.AtlasMessageList_avatarBackgroundColor, context.getResources().getColor(R.color.atlas_background_gray)); 
+        this.avatarBackgroundColor = ta.getColor(R.styleable.AtlasMessageList_avatarBackgroundColor, context.getResources().getColor(R.color.atlas_background_gray));
+        ta.recycle();
     }
     
     private void applyStyle() {
@@ -113,12 +113,11 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
     
     public AtlasMessagesList(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        parseStyle(context, attrs);
+        parseStyle(context, attrs, defStyle);
     }
 
     public AtlasMessagesList(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        parseStyle(context, attrs);
+        this(context, attrs, 0);
     }
 
     public AtlasMessagesList(Context context) {
@@ -128,6 +127,7 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
     public void init(LayerClient layerClient, final ContactProvider contactProvider) {
         if (layerClient == null) throw new IllegalArgumentException("LayerClient cannot be null");
         if (contactProvider == null) throw new IllegalArgumentException("ContactProvider cannot be null");
+        
         
         this.client = layerClient;
         LayoutInflater.from(getContext()).inflate(R.layout.atlas_messages_list, this);
@@ -248,7 +248,7 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
         messagesList.setOnItemClickListener(new OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Cell item = viewItems.get(position);
-                if (clickListener!= null) {
+                if (clickListener != null) {
                     clickListener.onItemClick(item);
                 }
             }
@@ -536,7 +536,7 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
                 rootView = LayoutInflater.from(cellContainer.getContext()).inflate(R.layout.atlas_view_messages_cell_image, cellContainer, false); 
                 imageView = (ImageView) rootView.findViewById(R.id.atlas_view_messages_cell_custom_image);
             }
-            
+
             // get BitmapDrawable
             // BitmapDrawable EMPTY_DRAWABLE = new BitmapDrawable(Bitmap.createBitmap(new int[] { Color.TRANSPARENT }, 1, 1, Bitmap.Config.ALPHA_8));
             int requiredWidth = cellContainer.getWidth() > 0 ? cellContainer.getWidth() : messagesList.getWidth();
