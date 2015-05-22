@@ -3,6 +3,7 @@ package com.layer.atlas.messenger;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
@@ -216,6 +217,10 @@ public class AtlasMessagesScreen extends Activity {
                     + ", data: " + (data == null ? "" : App101.toString(data.getExtras())) );
         
         if (resultCode != Activity.RESULT_OK) return;
+        if (data == null) {
+            if (debug) Log.w(TAG, "onActivityResult() no data... :( ");
+            return;
+        }
         
         switch (requestCode) {
             case REQUEST_CODE_CAMERA  :
@@ -225,10 +230,6 @@ public class AtlasMessagesScreen extends Activity {
                 break;
             case REQUEST_CODE_GALLERY :
                 // first check media gallery
-                if (data == null) {
-                    if (debug) Log.w(TAG, "onActivityResult() no data... :( ");
-                    return;
-                }
                 Uri selectedImageUri = data.getData();
                 // TODO: Mi4 requires READ_EXTERNAL_STORAGE permission for such operation
                 String selectedImagePath = getGalleryImagePath(selectedImageUri);
@@ -241,13 +242,6 @@ public class AtlasMessagesScreen extends Activity {
                 }
                 
                 if (resultFileName != null) {
-                    // create message and upload content
-                    File fileToUpload = new File(resultFileName);
-                    if (!fileToUpload.exists()) {
-                        if (debug) Log.w(TAG, "onActivityResult() file to upload doesn't exist, path: " + resultFileName);
-                        return;
-                    }
-                    
                     String mimeType = Atlas.MIME_TYPE_IMAGE_JPEG;
                     if (resultFileName.endsWith(".png")) mimeType = Atlas.MIME_TYPE_IMAGE_PNG;
                     
@@ -255,9 +249,19 @@ public class AtlasMessagesScreen extends Activity {
                     try {
                         LayerClient layerClient = ((App101) getApplication()).getLayerClient();
 
-                        FileInputStream fis;
-                        fis = new FileInputStream(fileToUpload);
-//                        Message msg = layerClient.newMessage(layerClient.newMessagePart(mimeType, fis, fileToUpload.length()));
+                        // create message and upload content
+                        InputStream fis = null;
+                        File fileToUpload = new File(resultFileName);
+                        if (fileToUpload.exists()) {
+                            fis = new FileInputStream(fileToUpload);
+                        } else {
+                            if (debug) Log.w(TAG, "onActivityResult() file to upload doesn't exist, path: " + resultFileName + ", trying ContentResolver");
+                            fis = getContentResolver().openInputStream(data.getData());
+                            if (fis == null) {
+                                if (debug) Log.w(TAG, "onActivityResult() cannot open stream with ContentResolver, uri: " + data.getData());
+                            }
+                        }
+                        // Message msg = layerClient.newMessage(layerClient.newMessagePart(mimeType, fis, fileToUpload.length()));
                         ByteArrayOutputStream baos = new ByteArrayOutputStream();;
                         byte[] buffer = new byte[65536];
                         int bytesRead = 0;
