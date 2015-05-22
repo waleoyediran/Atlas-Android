@@ -341,7 +341,7 @@ public class AtlasMessagesScreen extends Activity {
                 @Override
                 public void run() {
                     lastKnownLocation = location;
-                    if (debug) Log.w(TAG, "onLocationChanged() location: " + location);
+                    if (debug) Log.d(TAG, "onLocationChanged() location: " + location);
                 }
             });
         }

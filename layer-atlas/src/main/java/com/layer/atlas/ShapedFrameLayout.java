@@ -7,7 +7,6 @@ import android.graphics.Path.Direction;
 import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.util.TypedValue;
 import android.widget.FrameLayout;
 
 
@@ -18,7 +17,7 @@ import android.widget.FrameLayout;
 public class ShapedFrameLayout extends FrameLayout {
 
     private static final String TAG = ShapedFrameLayout.class.getSimpleName();
-    private static final boolean debug = true;
+    private static final boolean debug = false;
     
     private float[] corners = new float[] { 0, 0, 0, 0 };
     private boolean refreshShape = true;
@@ -69,7 +68,7 @@ public class ShapedFrameLayout extends FrameLayout {
         if (refreshShape) {
             shaper.reset();
             pathRect = new RectF(0, 0, width, height);
-            float[] roundRectRadii = roundRectRadii(corners);
+            float[] roundRectRadii = Atlas.getRoundRectRadii(corners, getResources().getDisplayMetrics());
             shaper.addRoundRect(pathRect, roundRectRadii,  Direction.CW);
             
             refreshShape = false;
@@ -83,21 +82,10 @@ public class ShapedFrameLayout extends FrameLayout {
         canvas.restoreToCount(saved);
     }
     
-    
-    
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
         refreshShape = true;
-    }
-
-    private float[] roundRectRadii(float[] cornerRadiusDp) {
-        float[] result = new float[8];
-        for (int i = 0; i < cornerRadiusDp.length; i++) {
-            result[i * 2] = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, cornerRadiusDp[i], getResources().getDisplayMetrics());
-            result[i * 2 + 1] = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, cornerRadiusDp[i], getResources().getDisplayMetrics());
-        }
-        return result;
     }
 
 }

@@ -5,6 +5,9 @@ import java.util.HashMap;
 
 import org.json.JSONObject;
 
+import android.util.DisplayMetrics;
+import android.util.TypedValue;
+
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.messaging.Conversation;
 import com.layer.sdk.messaging.Message;
@@ -34,6 +37,15 @@ public class Atlas {
 
     public LayerClient getLayerClient() {
         return layerClient;
+    }
+
+    public static float[] getRoundRectRadii(float[] cornerRadiusDp, final DisplayMetrics displayMetrics) {
+        float[] result = new float[8];
+        for (int i = 0; i < cornerRadiusDp.length; i++) {
+            result[i * 2] = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, cornerRadiusDp[i], displayMetrics);
+            result[i * 2 + 1] = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, cornerRadiusDp[i], displayMetrics);
+        }
+        return result;
     }
 
     public static class Contact {

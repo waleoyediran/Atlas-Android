@@ -1,9 +1,9 @@
 package com.layer.atlas;
 
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -14,6 +14,8 @@ import org.json.JSONObject;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.RoundRectShape;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,7 +46,7 @@ import com.layer.sdk.messaging.MessagePart;
  */
 public class AtlasMessagesList implements LayerChangeEventListener.MainThread {
     private static final String TAG = AtlasMessagesList.class.getSimpleName();
-    private static final boolean debug = true;
+    private static final boolean debug = false;
     
     private static final SimpleDateFormat sdf = new SimpleDateFormat("HH:mm a"); // TODO: localization required
     private static final SimpleDateFormat sdfDayOfWeek = new SimpleDateFormat("EEEE, LLL dd,"); // TODO: localization required
@@ -142,13 +144,19 @@ public class AtlasMessagesList implements LayerChangeEventListener.MainThread {
                 
                 View cellRootView = cell.onBind(cellContainer);
                 
+                boolean inContaier = false;
                 // cleanUp container
                 cellRootView.setVisibility(View.VISIBLE);
                 for (int iChild = 0; iChild < cellContainer.getChildCount(); iChild++) {
                     View child = cellContainer.getChildAt(iChild);
                     if (child != cellRootView) {
                         child.setVisibility(View.GONE);
+                    } else {
+                        inContaier = true;
                     }
+                }
+                if (!inContaier) {
+                    cellContainer.addView(cellRootView);
                 }
             }
             
@@ -196,7 +204,7 @@ public class AtlasMessagesList implements LayerChangeEventListener.MainThread {
                         destination.add(imageCell);
                         if (debug) Log.w(TAG, "cellForMessage() 3-image part found at partNo: " + partNo);
                         partNo++; // skip preview
-                        partNo++; // skip dimenstions part
+                        partNo++; // skip dimensions part
                     } catch (JSONException e) {
                         Log.e(TAG, "cellForMessage() cannot parse 3-part image", e);
                     }
@@ -368,7 +376,6 @@ public class AtlasMessagesList implements LayerChangeEventListener.MainThread {
             View cellText = cellContainer.findViewById(R.id.atlas_view_messages_cell_text);
             if (cellText == null) {
                 cellText = LayoutInflater.from(cellContainer.getContext()).inflate(R.layout.atlas_view_messages_cell_text, cellContainer, false);
-                cellContainer.addView(cellText);
             }
             
             cellText.setVisibility(View.VISIBLE);
@@ -440,7 +447,7 @@ public class AtlasMessagesList implements LayerChangeEventListener.MainThread {
             this.height = height;
         }
         @Override
-        public View onBind(ViewGroup cellContainer) {
+        public View onBind(final ViewGroup cellContainer) {
             
             View rootView = cellContainer.findViewById(R.id.atlas_view_messages_cell_custom);
             ImageView imageView = (ImageView) cellContainer.findViewById(R.id.atlas_view_messages_cell_custom_image);
@@ -448,18 +455,49 @@ public class AtlasMessagesList implements LayerChangeEventListener.MainThread {
             if (rootView == null) {
                 rootView = LayoutInflater.from(cellContainer.getContext()).inflate(R.layout.atlas_view_messages_cell_image, cellContainer, false); 
                 imageView = (ImageView) rootView.findViewById(R.id.atlas_view_messages_cell_custom_image);
-                cellContainer.addView(rootView);
             }
             
             // get BitmapDrawable
             // BitmapDrawable EMPTY_DRAWABLE = new BitmapDrawable(Bitmap.createBitmap(new int[] { Color.TRANSPARENT }, 1, 1, Bitmap.Config.ALPHA_8));
-            int requiredWidth = cellContainer.getWidth();
-            int requiredHeight = cellContainer.getHeight();
-            Bitmap bmp = getBitmap(messagePart, requiredWidth, requiredHeight);
-            if (bmp != null) {
+            int requiredWidth = cellContainer.getWidth() > 0 ? cellContainer.getWidth() : messagesList.getWidth();
+            int requiredHeight = cellContainer.getHeight() > 0 ? cellContainer.getHeight() : messagesList.getHeight();
+            MessagePart workingPart = previewPart != null ? previewPart : fullPart;
+            Bitmap bmp = imageCache.get(workingPart.getId().toString());
+            if (bmp != null && bmp.getWidth() >= requiredWidth / 2) {
                 imageView.setImageBitmap(bmp);
+                if (debug) Log.i(TAG, "getBitmap() returned from cache! " + bmp.getWidth() + "x" + bmp.getHeight() + " " + bmp.getByteCount() + " bytes" + " req: " + requiredWidth + "x" + requiredHeight + " for " + messagePart.getId());
             } else {
-                imageView.setImageResource(R.drawable.image_stub);
+                //adjust width/height
+                int stubWidth = requiredWidth;
+                int stubHeight = requiredHeight;
+                if (stubWidth > width) {
+                    stubWidth = width;
+                    stubHeight = height;
+                }
+                if (stubHeight > messagesList.getHeight()) {
+                    stubWidth = (int)(1.0 * stubWidth * stubHeight / messagesList.getHeight());
+                    stubHeight = messagesList.getHeight();
+                }
+                
+                final RoundRectShape roundRectShape = new RoundRectShape(Atlas.getRoundRectRadii(new float[] {16,16,16,16}, cellContainer.getResources().getDisplayMetrics()), null, null);
+                ShapeDrawable shapeDrawable = new ShapeDrawable(roundRectShape);
+                shapeDrawable.getPaint().setColor(R.color.atlas_background_gray);
+                //shapeDrawable.setBounds(0, 0, stubWidth, stubHeight);
+                shapeDrawable.setBounds(0, 0, 300, 300);
+                //imageView.getLayoutParams().width = stubWidth;
+                //imageView.getLayoutParams().height = stubHeight;
+                imageView.setImageDrawable(shapeDrawable); //imageView.setImageResource(R.drawable.image_stub);
+                imageView.requestLayout();
+                
+                requestBitmap(workingPart, requiredWidth, requiredHeight, new BitmapLoadListener() {
+                    public void onBitmapLoaded(MessagePart part) {
+                        cellContainer.post(new Runnable() {
+                            public void run() {
+                                messagesList.invalidateViews();
+                            }
+                        });
+                    }
+                });
             }
             
             ShapedFrameLayout cellCustom = (ShapedFrameLayout) rootView;
@@ -489,8 +527,172 @@ public class AtlasMessagesList implements LayerChangeEventListener.MainThread {
             }
             return rootView;
         }
-    }
 
+    }
+    
+    private static final int BITMAP_DECODE_RETRIES = 3;
+    private static final Object cacheLock = new Object();
+    final static Map<String, Bitmap> imageCache = new LinkedHashMap<String, Bitmap>(10, 1f, true) {
+        private static final long serialVersionUID = 1L;
+        protected boolean removeEldestEntry(Entry<String, Bitmap> eldest) {
+            if (this.size() > 10) {
+                synchronized (cacheLock) {
+                    for (int i = 0; i < queue.size(); i++) {
+                        final ImageSpec imageSpec = queue.get(i);
+                        if (eldest.getKey().equals(imageSpec.part.getId().toString())) {
+                            queue.remove(i);
+                            break;
+                        }
+                    }
+                }
+                return true;
+            }
+            if (debug) Log.d(TAG, "cache.removeEldest() nothing, size: " + imageCache.size() + ", queue: " + queue.size());
+            return false;
+        }
+    };
+    
+    final static ArrayList<ImageSpec> queue = new ArrayList<ImageSpec>();
+    static volatile boolean shutdownLoader = false;
+    
+    /**
+     * schedule messagePart at first position
+     * @param loadListener TODO
+     */
+    private static void requestBitmap(MessagePart messagePart, int requiredWidth, int requiredHeight, BitmapLoadListener loadListener) {
+        synchronized (cacheLock) {
+            ImageSpec spec = null;
+            for (int i = 0; i < queue.size(); i++) {
+                if (queue.get(i).part.getId().equals(messagePart.getId())) {
+                    spec = queue.remove(i);
+                }
+            }
+            if (spec == null) {
+                spec = new ImageSpec();
+                spec.part = messagePart;
+                spec.requiredHeight = requiredHeight;
+                spec.requiredWidth = requiredWidth;
+                spec.listener = loadListener;
+            }
+            queue.add(0, spec);
+            messagePart.download(imageLoader);
+            cacheLock.notifyAll();
+        }
+        if (debug) Log.w(TAG, "requestBitmap() cache: " + imageCache.size() + ", queue: " + queue.size());
+    }
+    
+    public static Bitmap decodeBitmap(MessagePart messagePart, int requiredWidth, int requiredHeight) {
+        // load
+        long started = System.currentTimeMillis();
+        BitmapFactory.Options opts = new BitmapFactory.Options();
+        opts.inJustDecodeBounds = true;
+        final InputStream dataStream = messagePart.getDataStream();
+        BitmapFactory.decodeStream(dataStream, null, opts);
+        int originalWidth = opts.outWidth;
+        int originalHeight = opts.outHeight;
+        int sampleSize = 1;
+        while (opts.outWidth / (sampleSize * 2) > requiredWidth) {
+            sampleSize *= 2;
+        }
+        
+        BitmapFactory.Options opts2 = new BitmapFactory.Options();
+        opts2.inSampleSize = sampleSize;
+        Bitmap bmp = BitmapFactory.decodeStream(messagePart.getDataStream(), null, opts2);
+        if (bmp != null) {
+            if (debug) Log.d(TAG, "decodeImage() decoded " + bmp.getWidth() + "x" + bmp.getHeight() 
+                    + " " + bmp.getByteCount() + " bytes" 
+                    + " req: " + requiredWidth + "x" + requiredHeight 
+                    + " original: " + originalWidth + "x" + originalHeight 
+                    + " sampleSize: " + sampleSize
+                    + " in " +(System.currentTimeMillis() - started) + "ms from: " + messagePart.getId());
+        } else {
+            if (debug) Log.d(TAG, "decodeImage() not decoded " + " req: " + requiredWidth + "x" + requiredHeight 
+                    + " in " +(System.currentTimeMillis() - started) + "ms from: " + messagePart.getId());
+        }
+        return bmp;
+    }
+    
+    private static ImageLoader imageLoader = new ImageLoader();
+    static {
+        if (debug) Log.w(TAG, "loaderThread.start() ");
+        imageLoader.setName("AtlasImageLoader");
+        imageLoader.start();
+    }
+    
+    private static class ImageLoader extends Thread implements LayerProgressListener {
+        public void run() {
+            while (!shutdownLoader) {
+                
+                ImageSpec spec = null ;
+                // search bitmap ready to inflate
+                // wait for queue
+                synchronized (cacheLock) {
+                    while (spec == null && !shutdownLoader) {
+                        try {
+                            cacheLock.wait();
+                            if (shutdownLoader) return;
+                            // picking from queue
+                            for (int i = 0; i < queue.size(); i++) {
+                                if (queue.get(0).part.isContentReady()) { // ready to inflate
+                                    spec = queue.remove(i);
+                                    break;
+                                }
+                            }
+                        } catch (InterruptedException e) {}
+                    }
+                }
+                
+                Bitmap bmp = decodeBitmap(spec.part, spec.requiredWidth, spec.requiredHeight);
+                
+                synchronized (cacheLock) {
+                    if (bmp != null) {
+                        imageCache.put(spec.part.getId().toString(), bmp);
+                        if (spec.listener != null) spec.listener.onBitmapLoaded(spec.part);
+                    } else if (spec.retries < BITMAP_DECODE_RETRIES) {
+                        spec.retries++;
+                        queue.add(spec);
+                        cacheLock.notifyAll();
+                    } /*else forget about this image, never put it back in queue */
+                }
+                
+                if (debug) Log.w(TAG, "ImageLoader.run() cache: " + imageCache.size() + ", queue: " + queue.size());
+            }
+        }
+        
+        @Override
+        public void onProgressStart(MessagePart part, Operation operation) {
+        }
+        @Override
+        public void onProgressUpdate(MessagePart part, Operation operation, long transferredBytes) {
+        }
+        @Override
+        public void onProgressComplete(MessagePart part, Operation operation) {
+            synchronized (cacheLock) {
+                cacheLock.notifyAll();
+            }
+        }
+        @Override
+        public void onProgressError(MessagePart part, Operation operation, Throwable cause) {
+            synchronized (cacheLock) {
+                queue.remove(part);
+                cacheLock.notifyAll();
+            }
+        }
+    }; 
+    
+    private static class ImageSpec {
+        public MessagePart part;
+        public int requiredWidth;
+        public int requiredHeight;
+        public int downloadProgress;
+        public int retries = 0;
+        public BitmapLoadListener listener;
+    }
+    
+    public static abstract class BitmapLoadListener {
+        public abstract void onBitmapLoaded(MessagePart part);
+    }
+    
     public abstract class Cell {
         public final MessagePart messagePart;
         private int clusterHeadItemId;
@@ -518,82 +720,6 @@ public class AtlasMessagesList implements LayerChangeEventListener.MainThread {
         public abstract View onBind(ViewGroup cellContainer);
     }
     
-    Map<String, Bitmap> imageLruCache = Collections.synchronizedMap(new LinkedHashMap<String, Bitmap>(10, 0.75f, true) {
-        private static final long serialVersionUID = 1L;
-        protected boolean removeEldestEntry(Entry<String, Bitmap> eldest) {
-            if (this.size() > 10) return true;
-            return false;
-        }
-    });
-    
-    public Bitmap getBitmap(final MessagePart messagePart, int requiredWidth, int requiredHeight) {
-        Bitmap cached = imageLruCache.get(messagePart.getId().toString());
-        if (cached != null && cached.getWidth() >= requiredWidth / 2) {
-            if (debug) Log.i(TAG, "getBitmap() returned from cache! " + cached.getWidth() + "x" + cached.getHeight() + " " + cached.getByteCount() + " bytes" + " req: " + requiredWidth + "x" + requiredHeight + " for " + messagePart.getId());
-            return cached;
-        }
-        
-        // load
-        long started = System.currentTimeMillis();
-        
-        if ( requiredWidth <= 0 || requiredHeight <= 0) {
-            requiredWidth = requiredWidth > 0 ? requiredWidth : messagesList.getWidth();
-            requiredHeight = requiredHeight > 0 ? requiredHeight : messagesList.getHeight();
-        }
-        if ( requiredWidth <= 0 || requiredHeight <= 0) {
-//            Display display = getWindowManager().getDefaultDisplay();
-//            Point size = new Point();
-//            display.getSize(size);
-            requiredWidth = requiredWidth > 0 ? requiredWidth : 100;    //size.x;
-            requiredHeight = requiredHeight > 0 ? requiredHeight : 100; //size.y;
-            
-            
-        }
-        messagePart.download(new LayerProgressListener() {
-            public void onProgressUpdate(MessagePart part, Operation operation, long transferredBytes) {
-                if (debug) Log.d(TAG, "onProgressUpdate() part: " + part+ " operation: " + operation+ " transferredBytes: " + transferredBytes);
-            }
-            public void onProgressStart(MessagePart part, Operation operation) {
-                if (debug) Log.d(TAG, "onProgressStart() part: " + part+ " operation: " + operation);
-            }
-            public void onProgressError(MessagePart part, Operation operation, Throwable cause) {
-                if (debug) Log.d(TAG, "onProgressError() part: " + part+ " operation: " + operation+ " cause: " + cause);
-            }
-            public void onProgressComplete(MessagePart part, Operation operation) {
-                if (debug) Log.d(TAG, "onProgressComplete() part: " + part+ " operation: " + operation);
-            }
-        });
-        BitmapFactory.Options opts = new BitmapFactory.Options();
-        opts.inJustDecodeBounds = true;
-        BitmapFactory.decodeStream(messagePart.getDataStream(), null, opts);
-        int originalWidth = opts.outWidth;
-        int originalHeight = opts.outHeight;
-        int sampleSize = 1;
-        while (opts.outWidth / (sampleSize * 2) > requiredWidth) {
-            sampleSize *= 2;
-        }
-        
-        BitmapFactory.Options opts2 = new BitmapFactory.Options();
-        opts2.inSampleSize = sampleSize;
-        Bitmap bmp = BitmapFactory.decodeStream(messagePart.getDataStream(), null, opts2);
-        if (bmp != null) {
-            if (debug) Log.d(TAG, "decodeImage() decoded " + bmp.getWidth() + "x" + bmp.getHeight() 
-                    + " " + bmp.getByteCount() + " bytes" 
-                    + " req: " + requiredWidth + "x" + requiredHeight 
-                    + " original: " + originalWidth + "x" + originalHeight 
-                    + " sampleSize: " + sampleSize
-                    + " in " +(System.currentTimeMillis() - started) + "ms from: " + messagePart.getId());
-        } else {
-            if (debug) Log.d(TAG, "decodeImage() not decoded " + " req: " + requiredWidth + "x" + requiredHeight 
-                    + " in " +(System.currentTimeMillis() - started) + "ms from: " + messagePart.getId());
-        }
-        
-        if (bmp != null) {
-            imageLruCache.put(messagePart.getId().toString(), bmp);
-        }
-        
-        return bmp;
-    }
     
     public interface ItemClickListener {
         public void onItemClick(Cell item);
