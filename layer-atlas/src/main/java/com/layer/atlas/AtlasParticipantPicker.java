@@ -5,22 +5,21 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.TreeSet;
 
+import android.content.Context;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnFocusChangeListener;
-import android.view.View.OnKeyListener;
-import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -31,7 +30,7 @@ import com.layer.atlas.Atlas.Contact;
  * @author Oleg Orlov
  * @since 27 Apr 2015
  */
-public class AtlasParticipantPicker {
+public class AtlasParticipantPicker extends FrameLayout {
 
     private static final String TAG = AtlasParticipantPicker.class.getSimpleName();
     private static final boolean debug = true;
@@ -42,23 +41,43 @@ public class AtlasParticipantPicker {
     private ListView contactsList;
     private ViewGroup selectedContactsContainer;
 
-    private ArrayList<Contact> selectedContacts = new ArrayList<Contact>();
+    private BaseAdapter contactsAdapter;
+    
     private TreeSet<String> skipUserIds = new TreeSet<String>();
+    private ArrayList<Contact> selectedContacts = new ArrayList<Contact>();
+    
+    private Contact[] allContacts = null;
+    private final ArrayList<Contact> contactsToSelect = new ArrayList<Contact>();
+    
+    public AtlasParticipantPicker(Context context, AttributeSet attrs, int defStyle) {
+        super(context, attrs, defStyle);
+    }
 
-    public AtlasParticipantPicker(View rootView, final AtlasContactProvider contactProvider, String[] userIdToSkip) {
+    public AtlasParticipantPicker(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
 
+    public AtlasParticipantPicker(Context context) {
+        super(context);
+    }
+
+    public void init(final AtlasContactProvider contactProvider, String[] userIdToSkip) {
+        if (contactProvider == null) throw new IllegalArgumentException("ContactProvider cannot be null");
+        
+        LayoutInflater.from(getContext()).inflate(R.layout.atlas_participants_picker, this);
+        
         if (userIdToSkip != null) skipUserIds.addAll(Arrays.asList(userIdToSkip));
 
-        final Contact[] allContacts = contactProvider.contactsMap.values().toArray(new Contact[contactProvider.contactsMap.size()]);
+        this.allContacts = contactProvider.contactsMap.values().toArray(new Contact[contactProvider.contactsMap.size()]);
         Arrays.sort(allContacts, Contact.FIRST_LAST_EMAIL_ASCENDING);
-        final ArrayList<Contact> contacts = new ArrayList<Contact>();
+        
         for (Contact contact : allContacts) {
             if (skipUserIds.contains(contact.userId)) continue;
-            contacts.add(contact);
+            contactsToSelect.add(contact);
         }
 
         // START OF -------------------- Participant Picker ----------------------------------------
-        this.rootView = rootView;
+        this.rootView = this;
         textFilter = (EditText) rootView.findViewById(R.id.atlas_participants_picker_text);
         contactsList = (ListView) rootView.findViewById(R.id.atlas_participants_picker_list);
         selectedContactsContainer = (ViewGroup) rootView.findViewById(R.id.atlas_participants_picker_names);
@@ -119,7 +138,6 @@ public class AtlasParticipantPicker {
             }
         });
 
-        final BaseAdapter contactsAdapter;
         contactsList.setAdapter(contactsAdapter = new BaseAdapter() {
             public View getView(int position, View convertView, ViewGroup parent) {
                 if (convertView == null) {
@@ -128,7 +146,7 @@ public class AtlasParticipantPicker {
 
                 TextView name = (TextView) convertView.findViewById(R.id.atlas_view_participants_picker_convert_name);
                 TextView avatarText = (TextView) convertView.findViewById(R.id.atlas_view_participants_picker_convert_ava);
-                Contact contact = contacts.get(position);
+                Contact contact = contactsToSelect.get(position);
 
                 name.setText(AtlasContactProvider.getContactFirstAndLast(contact));
                 avatarText.setText(AtlasContactProvider.getContactInitials(contact));
@@ -136,25 +154,26 @@ public class AtlasParticipantPicker {
             }
 
             public long getItemId(int position) {
-                return contacts.get(position).userId.hashCode();
+                return contactsToSelect.get(position).userId.hashCode();
             }
 
             public Object getItem(int position) {
-                return contacts.get(position);
+                return contactsToSelect.get(position);
             }
 
             public int getCount() {
-                return contacts.size();
+                return contactsToSelect.size();
             }
         });
 
         contactsList.setOnItemClickListener(new OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Contact contact = contacts.get(position);
+                Contact contact = contactsToSelect.get(position);
                 selectedContacts.add(contact);
                 refreshParticipants(selectedContacts);
                 textFilter.setText("");
                 textFilter.requestFocus();
+                filterContacts("");                 // refresh contactList
             }
 
         });
@@ -169,26 +188,7 @@ public class AtlasParticipantPicker {
                 if (debug) Log.w(TAG, "onTextChanged()     s: " + s + " start: " + start + " before: " + before + " count: " + count);
 
                 final String filter = s.toString().toLowerCase();
-                contacts.clear();
-                for (Contact contact : allContacts) {
-                    if (selectedContacts.contains(contacts)) continue;
-                    if (skipUserIds.contains(contact.userId)) continue;
-
-                    if (contact.firstName != null && contact.firstName.toLowerCase().contains(filter)) {
-                        contacts.add(contact);
-                        continue;
-                    }
-                    if (contact.lastName != null && contact.lastName.toLowerCase().contains(filter)) {
-                        contacts.add(contact);
-                        continue;
-                    }
-                    if (contact.email != null && contact.email.toLowerCase().contains(filter)) {
-                        contacts.add(contact);
-                        continue;
-                    }
-                }
-                Collections.sort(contacts, new Contact.FilteringComparator(filter));
-                contactsAdapter.notifyDataSetChanged();
+                filterContacts(filter);
             }
 
             public void afterTextChanged(Editable s) {
@@ -204,6 +204,7 @@ public class AtlasParticipantPicker {
 
                     selectedContacts.remove(selectedContacts.size() - 1);
                     refreshParticipants(selectedContacts);
+                    filterContacts("");
                     textFilter.requestFocus();
                 }
                 return false;
@@ -241,6 +242,29 @@ public class AtlasParticipantPicker {
         }
         selectedContactsContainer.requestLayout();
     }
+    
+    private void filterContacts(final String filter) {
+        contactsToSelect.clear();
+        for (Contact contact : allContacts) {
+            if (selectedContacts.contains(contact)) continue;
+            if (skipUserIds.contains(contact.userId)) continue;
+        
+            if (contact.firstName != null && contact.firstName.toLowerCase().contains(filter)) {
+                contactsToSelect.add(contact);
+                continue;
+            }
+            if (contact.lastName != null && contact.lastName.toLowerCase().contains(filter)) {
+                contactsToSelect.add(contact);
+                continue;
+            }
+            if (contact.email != null && contact.email.toLowerCase().contains(filter)) {
+                contactsToSelect.add(contact);
+                continue;
+            }
+        }
+        Collections.sort(contactsToSelect, new Contact.FilteringComparator(filter));
+        contactsAdapter.notifyDataSetChanged();
+    }
 
     public String[] getSelectedUserIds() {
         String[] userIds = new String[selectedContacts.size()];
@@ -251,7 +275,7 @@ public class AtlasParticipantPicker {
     }
 
     public void setVisibility(int visibility) {
-        rootView.setVisibility(visibility);
+        super.setVisibility(visibility);
         if (visibility == View.VISIBLE) {
             textFilter.requestFocus();
         }

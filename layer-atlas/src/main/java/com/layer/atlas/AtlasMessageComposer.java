@@ -2,14 +2,16 @@ package com.layer.atlas;
 
 import java.util.ArrayList;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.util.AttributeSet;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.MeasureSpec;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
@@ -23,7 +25,9 @@ import com.layer.sdk.messaging.MessagePart;
  * @author Oleg Orlov
  * @since 12 May 2015
  */
-public class AtlasMessageComposer {
+public class AtlasMessageComposer extends FrameLayout {
+    private static final String TAG = AtlasMessageComposer.class.getSimpleName();
+    private static final boolean debug = false;
     
     private TextView messageText;
     private View btnSend;
@@ -35,10 +39,36 @@ public class AtlasMessageComposer {
     
     private ArrayList<MenuItem> menuItems = new ArrayList<MenuItem>(); 
     
-    public AtlasMessageComposer(View rootView, LayerClient client) {
-        this.layerClient = client;
+    public AtlasMessageComposer(Context context, AttributeSet attrs, int defStyle) {
+        super(context, attrs, defStyle);
+    }
+
+    public AtlasMessageComposer(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
+
+    public AtlasMessageComposer(Context context) {
+        super(context);
+    }
+
+    /**
+     * Initialization is required to engage MessageComposer with LayerClient and Conversation 
+     * to send messages. 
+     * <p>
+     * If Conversation is not defined, "Send" action will not be able to send messages 
+     * 
+     * @param client - must be not null
+     * @param conversation - could be null. Conversation could be provided later using {@link #setConversation(Conversation)}
+     */
+    public void init(LayerClient client, Conversation conversation) {
+        if (client == null) throw new IllegalArgumentException("LayerClient cannot be null");
         
-        btnUpload = rootView.findViewById(R.id.atlas_message_composer_upload);
+        this.layerClient = client;
+        this.conv = conversation;
+        
+        LayoutInflater.from(getContext()).inflate(R.layout.atlas_message_composer, this);
+        
+        btnUpload = findViewById(R.id.atlas_message_composer_upload);
         btnUpload.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 final PopupWindow popupWindow = new PopupWindow(v.getContext());
@@ -74,9 +104,9 @@ public class AtlasMessageComposer {
             }
         });
         
-        messageText = (TextView) rootView.findViewById(R.id.atlas_message_composer_text);
+        messageText = (TextView) findViewById(R.id.atlas_message_composer_text);
         
-        btnSend = rootView.findViewById(R.id.atlas_message_composer_send);
+        btnSend = findViewById(R.id.atlas_message_composer_send);
         btnSend.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 
@@ -94,6 +124,8 @@ public class AtlasMessageComposer {
                     if (listener != null) {
                         boolean proceed = listener.beforeSend(msg);
                         if (!proceed) return;
+                    } else if (conv == null) {
+                        Log.e(TAG, "Cannot send message. Conversation is not set");
                     }
                     if (conv == null) return;
                     
@@ -118,7 +150,7 @@ public class AtlasMessageComposer {
         this.listener = listener;
     }
     
-    public Conversation getConv() {
+    public Conversation getConversation() {
         return conv;
     }
 

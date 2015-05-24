@@ -14,9 +14,10 @@
 
         <include layout="@layout/atlas_ab_stub"/>
         
-        <include 
-            layout="@layout/atlas_conversations_list"
+        <com.layer.atlas.AtlasConversationsList
             android:id="@+id/atlas_screen_conversations_conversations_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             />
         
     </LinearLayout>

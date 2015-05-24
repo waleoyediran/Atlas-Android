@@ -16,10 +16,11 @@
             android:layout_weight="1"
             >
             
-            <include
-            	android:id="@+id/atlas_screen_participants_picker_picker"
-            	layout="@layout/atlas_participants_picker"
-            	/>
+            <com.layer.atlas.AtlasParticipantPicker
+                android:id="@+id/atlas_screen_participants_picker_picker"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                />
             
         </FrameLayout>
         <LinearLayout 

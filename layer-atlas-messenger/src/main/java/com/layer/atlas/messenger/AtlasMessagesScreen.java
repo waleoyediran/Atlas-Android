@@ -83,22 +83,23 @@ public class AtlasMessagesScreen extends Activity {
             conv = app.getLayerClient().getConversation(uri);
         }
 
-        final View participantsPickerRoot = findViewById(R.id.atlas_screen_messages_participants_picker);
-        final AtlasParticipantPicker pp = new AtlasParticipantPicker(participantsPickerRoot, app.contactProvider, null);
+        final AtlasParticipantPicker participantsPicker = (AtlasParticipantPicker) findViewById(R.id.atlas_screen_messages_participants_picker);
+        participantsPicker.init(app.contactProvider, new String[] {app.getLayerClient().getAuthenticatedUserId()});
         if (convIsNew) {
-            pp.setVisibility(View.VISIBLE);
+            participantsPicker.setVisibility(View.VISIBLE);
         }
         
-        final AtlasMessageComposer messageComposer = new AtlasMessageComposer(findViewById(R.id.atlas_screen_messages_message_composer), app.getLayerClient());
-        messageComposer.setConversation(conv);
+        final AtlasMessageComposer messageComposer = (AtlasMessageComposer) findViewById(R.id.atlas_screen_messages_message_composer);
+        messageComposer.init(app.getLayerClient(), conv);
         messageComposer.setListener(new AtlasMessageComposer.Listener() {
             public boolean beforeSend(Message message) {
                 if (conv == null) { // create new one
-                    String[] userIds = pp.getSelectedUserIds();
+                    String[] userIds = participantsPicker.getSelectedUserIds();
                     conv = app.getLayerClient().newConversation(userIds);
-                    participantsPickerRoot.setVisibility(View.GONE);
+                    participantsPicker.setVisibility(View.GONE);
                     messageComposer.setConversation(conv);
                     messagesList.setConversation(conv);
+                    updateValues();
                 }
                 
                 // push
@@ -154,7 +155,8 @@ public class AtlasMessagesScreen extends Activity {
             }
         });
         
-        messagesList = new AtlasMessagesList(findViewById(R.id.atlas_screen_messages_messages_list), app.getLayerClient(), app.contactProvider);
+        messagesList = (AtlasMessagesList) findViewById(R.id.atlas_screen_messages_messages_list);
+        messagesList.init(app.getLayerClient(), app.contactProvider);
         messagesList.setConversation(conv);
         messagesList.setItemClickListener(new ItemClickListener() {
             public void onItemClick(Cell item) {

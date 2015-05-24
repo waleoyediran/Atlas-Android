@@ -1,8 +1,5 @@
 package com.layer.atlas.messenger;
 
-import com.layer.atlas.Atlas.AtlasContactProvider;
-import com.layer.atlas.AtlasParticipantPicker;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,6 +7,9 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.layer.atlas.Atlas.AtlasContactProvider;
+import com.layer.atlas.AtlasParticipantPicker;
 
 /**
  * @author Oleg Orlov
@@ -33,12 +33,12 @@ public class AtlasParticipantPickersScreen extends Activity {
         View cancelBtn = findViewById(R.id.atlas_screen_participants_picker_cancel);
         
         AtlasContactProvider contactProvider = ((App101) getApplication()).contactProvider;
-        View participantPickerRoot = findViewById(R.id.atlas_screen_participants_picker_picker);
-        final AtlasParticipantPicker pp = new AtlasParticipantPicker(participantPickerRoot, contactProvider, skipUserIds);
+        final AtlasParticipantPicker participantsPicker = (AtlasParticipantPicker) findViewById(R.id.atlas_screen_participants_picker_picker);
+        participantsPicker.init(contactProvider, skipUserIds);
         
         addBtn.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-                String[] selectedUserIds = pp.getSelectedUserIds();
+                String[] selectedUserIds = participantsPicker.getSelectedUserIds();
                 if (selectedUserIds.length == 0) return;
                 Intent result = new Intent();
                 result.putExtra(EXTRA_KEY_USERIDS_SELECTED, selectedUserIds);

@@ -7,8 +7,10 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
+import android.content.Context;
 import android.graphics.Typeface;
 import android.net.Uri;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +19,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.BaseAdapter;
+import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -37,7 +40,7 @@ import com.layer.sdk.messaging.Message.RecipientStatus;
  * @author Oleg Orlov
  * @since 14 May 2015
  */
-public class AtlasConversationsList implements LayerChangeEventListener.MainThread {
+public class AtlasConversationsList extends FrameLayout implements LayerChangeEventListener.MainThread {
     
     private static final String TAG = AtlasConversationsList.class.getSimpleName();
     private static final boolean debug = true;
@@ -52,8 +55,26 @@ public class AtlasConversationsList implements LayerChangeEventListener.MainThre
     private ConversationClickListener clickListener;
     private ConversationLongClickListener longClickListener;
     
-    public AtlasConversationsList(View rootView, final LayerClient layerClient, final AtlasContactProvider contactProvider) {
+    public AtlasConversationsList(Context context, AttributeSet attrs, int defStyle) {
+        super(context, attrs, defStyle);
+    }
+
+    public AtlasConversationsList(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
+
+    public AtlasConversationsList(Context context) {
+        super(context);
+    }
+
+    public void init(View rootView, final LayerClient layerClient, final AtlasContactProvider contactProvider) {
+        if (layerClient == null) throw new IllegalArgumentException("LayerClient cannot be null");
+        if (contactProvider == null) throw new IllegalArgumentException("ContactProvider cannot be null");
+        
         this.layerClient = layerClient;
+        
+        // inflate childs:
+        LayoutInflater.from(getContext()).inflate(R.layout.atlas_conversations_list, this);
         
         this.conversationsList = (ListView) rootView.findViewById(R.id.atlas_conversations_view);
         this.conversationsList.setAdapter(conversationsAdapter = new BaseAdapter() {

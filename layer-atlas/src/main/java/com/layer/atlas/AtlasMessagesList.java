@@ -12,10 +12,12 @@ import java.util.Map;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RoundRectShape;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,6 +25,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -44,7 +47,7 @@ import com.layer.sdk.messaging.MessagePart;
  * @author Oleg Orlov
  * @since 13 May 2015
  */
-public class AtlasMessagesList implements LayerChangeEventListener.MainThread {
+public class AtlasMessagesList extends FrameLayout implements LayerChangeEventListener.MainThread {
     private static final String TAG = AtlasMessagesList.class.getSimpleName();
     private static final boolean debug = false;
     
@@ -61,11 +64,28 @@ public class AtlasMessagesList implements LayerChangeEventListener.MainThread {
     
     private ItemClickListener clickListener;
     
-    public AtlasMessagesList(View rootView, LayerClient layerClient, final AtlasContactProvider contactsProvider) {
+    
+    public AtlasMessagesList(Context context, AttributeSet attrs, int defStyle) {
+        super(context, attrs, defStyle);
+    }
+
+    public AtlasMessagesList(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
+
+    public AtlasMessagesList(Context context) {
+        super(context);
+    }
+
+    public void init(LayerClient layerClient, final AtlasContactProvider contactsProvider) {
+        if (layerClient == null) throw new IllegalArgumentException("LayerClient cannot be null");
+        if (contactsProvider == null) throw new IllegalArgumentException("ContactProvider cannot be null");
+        
         this.client = layerClient;
+        LayoutInflater.from(getContext()).inflate(R.layout.atlas_messages_list, this);
         
         // --- message view
-        messagesList = (ListView) rootView.findViewById(R.id.atlas_messages_list);
+        messagesList = (ListView) findViewById(R.id.atlas_messages_list);
         messagesList.setAdapter(messagesAdapter = new BaseAdapter() {
             
             public View getView(int position, View convertView, ViewGroup parent) {

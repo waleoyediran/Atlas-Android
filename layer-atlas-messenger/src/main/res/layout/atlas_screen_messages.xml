@@ -10,20 +10,23 @@
         android:orientation="vertical" >
         
         <include layout="@layout/atlas_ab_stub"/>
+        
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
             >
             
-            <include 
+            <com.layer.atlas.AtlasMessagesList 
                 android:id="@+id/atlas_screen_messages_messages_list"
-                layout="@layout/atlas_messages_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 />
             
-            <include
+            <com.layer.atlas.AtlasParticipantPicker
             	android:id="@+id/atlas_screen_messages_participants_picker"
-            	layout="@layout/atlas_participants_picker"
+            	android:layout_width="match_parent"
+                android:layout_height="match_parent"
             	android:visibility="gone"
             	/>
             
@@ -31,9 +34,10 @@
 
         <View android:layout_width="match_parent" android:layout_height="1px" android:background="@color/atlas_background_gray"/>
         
-        <include 
+        <com.layer.atlas.AtlasMessageComposer
             android:id="@+id/atlas_screen_messages_message_composer"
-            layout="@layout/atlas_message_composer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             />
     
     </LinearLayout>

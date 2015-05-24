@@ -40,8 +40,8 @@ public class AtlasConversationsScreen extends Activity {
         
         this.app = (App101) getApplication();
         
-        View conversationsRoot = findViewById(R.id.atlas_screen_conversations_conversations_list);
-        this.conversationsList = new AtlasConversationsList(conversationsRoot, app.getLayerClient(), app.contactProvider);
+        this.conversationsList = (AtlasConversationsList)findViewById(R.id.atlas_screen_conversations_conversations_list);
+        this.conversationsList.init(conversationsList, app.getLayerClient(), app.contactProvider);
         conversationsList.setClickListener(new ConversationClickListener() {
             public void onItemClick(Conversation conversation) {
                 openChatScreen(conversation, false);
