@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- ####################### -->
+    <!-- Atlas Attribute Formats -->
+    <!-- ####################### -->
+    
+    <!-- conversations list -->
+    <attr name="titleTextColor"         format="color|reference"/>
+    <attr name="titleTextTypeface"      format="string|reference"/>
+    <attr name="titleTextStyle"         format="string|reference"/>
+    <attr name="subtitleTextColor"      format="color|reference"/>
+    <attr name="subtitleTextTypeface"   format="string|reference"/>
+    <attr name="subtitleTextStyle"      format="string|reference"/>
+    <attr name="cellReadBackground"     format="color|reference"/>
+    <attr name="cellUnreadBackground"   format="color|reference"/>
+    <attr name="dateTextColor"          format="color|reference"/>
+    <attr name="avatarTextColor"        format="color|reference"/>
+    <attr name="avatarBackgroundColor"  format="color|reference"/>
+    
+    <!-- message composer -->
+    <attr name="textColor"              format="color|reference"/>
+    <attr name="textSize"               format="dimension|reference"/>
+    <attr name="textTypeface"           format="string|reference"/>
+    <attr name="textStyle">             
+        <flag name="normal" value="0" /> 
+        <flag name="bold" value="1" />
+        <flag name="italic" value="2" />
+    </attr>
+    
+    <!-- messages list -->
+    <attr name="myBubbleColor"          format="color|reference"/>
+    <attr name="myTextColor"            format="color|reference"/>
+    <attr name="myTextSize"             format="dimension|reference"/>
+    <attr name="myTextTypeface"         format="string|reference"/>
+    <attr name="myTextStyle">             
+        <flag name="normal" value="0" /> 
+        <flag name="bold" value="1" />
+        <flag name="italic" value="2" />
+    </attr>
+    <attr name="theirBubbleColor"       format="color|reference"/>
+    <attr name="theirTextColor"         format="color|reference"/>
+    <attr name="theirTextSize"          format="dimension|reference"/>
+    <attr name="theirTextTypeface"      format="string|reference"/>
+    <attr name="theirTextStyle"         format="string|reference"/>
+    
+    <!-- participants picker -->
+    <attr name="entryTextColor"         format="color|reference"/>
+    <attr name="entryTextTypeface"      format="string|reference"/>
+    <attr name="entryTextStyle"         format="string|reference"/>
+    <attr name="listTextColor"          format="color|reference"/>
+    <attr name="listTextTypeface"       format="string|reference"/>
+    <attr name="listTextStyle"          format="string|reference"/>
+    <attr name="chipBackgroundColor"    format="color|reference"/>
+    <attr name="chipTextColor"          format="color|reference"/>
+    
+    
+    <!-- ###################### -->
+    <!-- Atlas Component Styles -->
+    <!-- ###################### -->
+    <attr name="AtlasConversationList"  format="reference"/>
+    <attr name="AtlasMessageComposer"   format="reference"/>
+    <attr name="AtlasMessageList"       format="reference"/>
+    <attr name="AtlasParticipantPicker" format="reference"/>
+
+    <!-- #################################### -->
+    <!-- Styleable Atlas Component Attributes -->
+    <!-- #################################### -->
+    <declare-styleable name="AtlasConversationList">
+        <attr name="titleTextColor"/>
+        <attr name="titleTextTypeface"/>
+        <attr name="titleTextStyle"/>
+        <attr name="subtitleTextColor"/>
+        <attr name="subtitleTextTypeface"/>
+        <attr name="subtitleTextStyle"/>
+        <attr name="cellReadBackground"/>
+        <attr name="cellUnreadBackground"/>
+        <attr name="dateTextColor"/>
+        <attr name="avatarTextColor"/>
+        <attr name="avatarBackgroundColor"/>
+    </declare-styleable>
+
+    <declare-styleable name="AtlasMessageComposer">
+        <attr name="textColor"/>
+        <attr name="textSize"/>
+        <attr name="textTypeface"/>
+        <attr name="textStyle"/>
+    </declare-styleable>
+
+    <declare-styleable name="AtlasMessageList">
+        <attr name="myBubbleColor"/>
+        <attr name="myTextColor"/>
+        <attr name="myTextSize"/>
+        <attr name="myTextTypeface"/>
+        <attr name="myTextStyle"/>
+        <attr name="theirBubbleColor"/>
+        <attr name="theirTextColor"/>
+        <attr name="theirTextSize"/>
+        <attr name="theirTextTypeface"/>
+        <attr name="theirTextStyle"/>
+    </declare-styleable>
+
+    <declare-styleable name="AtlasParticipantPicker">
+        <attr name="entryTextColor"/>
+        <attr name="entryTextTypeface"/>
+        <attr name="entryTextStyle"/>
+        <attr name="listTextColor"/>
+        <attr name="listTextTypeface"/>
+        <attr name="listTextStyle"/>
+        <attr name="avatarBackgroundColor"/>
+        <attr name="avatarTextColor"/>
+        <attr name="chipBackgroundColor"/>
+        <attr name="chipTextColor"/>
+    </declare-styleable>
+    
+    
+    
+    <!-- ############################## -->
+    <!-- Default Atlas Component Styles -->
+    <!-- ############################## -->
+    <style name="AtlasConversationList">
+        <item name="titleTextColor"         >@color/atlas_text_black</item>
+        <item name="titleTextTypeface"      >normal</item>
+        <item name="titleTextStyle"         >normal</item>
+        <item name="subtitleTextColor"      >@color/atlas_text_black</item>
+        <item name="subtitleTextTypeface"   >normal</item>
+        <item name="subtitleTextStyle"      >normal</item>
+        <item name="cellReadBackground"     >@color/atlas_background_white</item>
+        <item name="cellUnreadBackground"   >@color/atlas_background_gray</item>
+        <item name="dateTextColor"          >@color/atlas_text_black</item>
+        <item name="avatarTextColor"        >@color/atlas_text_black</item>
+        <item name="avatarBackgroundColor"  >@color/atlas_background_gray</item>
+    </style>
+
+    <style name="AtlasMessageComposer">
+        <item name="textColor"              >@color/atlas_text_black</item>
+        <item name="textSize"               >@dimen/atlas_text_size_general</item>
+        <item name="textTypeface"           >normal</item>
+        <item name="textStyle"              >normal</item>
+    </style>
+
+    <style name="AtlasMessageList">
+        <item name="myBubbleColor"          >@color/atlas_background_blue</item>
+        <item name="myTextColor"            >@color/atlas_text_white</item>
+        <item name="myTextSize"             >@dimen/atlas_text_size_general</item>
+        <item name="myTextTypeface"         >normal</item>
+        <item name="myTextStyle"            >normal</item>
+        <item name="theirBubbleColor"       >@color/atlas_background_gray</item>
+        <item name="theirTextColor"         >@color/atlas_text_black</item>
+        <item name="theirTextSize"          >@dimen/atlas_text_size_general</item>
+        <item name="theirTextTypeface"      >normal</item>
+        <item name="theirTextStyle"         >normal</item>
+    </style>
+
+    <style name="AtlasParticipantPicker">
+        <item name="entryTextColor"         >@color/atlas_text_black</item>
+        <item name="entryTextTypeface"      >normal</item>
+        <item name="entryTextStyle"         >normal</item>
+        <item name="listTextColor"          >@color/atlas_text_black</item>
+        <item name="listTextTypeface"       >normal</item>
+        <item name="listTextStyle"          >normal</item>
+        <item name="avatarBackgroundColor"  >@color/atlas_background_gray</item>
+        <item name="avatarTextColor"        >@color/atlas_text_black</item>
+        <item name="chipBackgroundColor"    >@color/atlas_background_gray</item>
+        <item name="chipTextColor"          >@color/atlas_text_black</item>
+    </style>
+    
+</resources>

@@ -3,7 +3,9 @@ package com.layer.atlas;
 import java.util.ArrayList;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -39,18 +41,42 @@ public class AtlasMessageComposer extends FrameLayout {
     
     private ArrayList<MenuItem> menuItems = new ArrayList<MenuItem>(); 
     
+    // styles
+    //<attr name="textColor"              format="color|reference"/>
+    private int textColor;
+    //<attr name="textSize"               format="dimension|reference"/>
+    private float textSize;
+    //<attr name="textTypeface"           format="string|reference"/>
+    private Typeface typeFace;
+    //<attr name="textStyle"              format="string|reference"/>
+    private int textStyle;
+    
+    //
     public AtlasMessageComposer(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+        
+        parseStyle(context, attrs);
     }
 
     public AtlasMessageComposer(Context context, AttributeSet attrs) {
         super(context, attrs);
+        
+        parseStyle(context, attrs);
     }
 
     public AtlasMessageComposer(Context context) {
         super(context);
     }
-
+    
+    public void parseStyle(Context context, AttributeSet attrs) {
+        TypedArray ta = context.getResources().obtainAttributes(attrs, R.styleable.AtlasMessageComposer);
+        this.textColor = ta.getColor(R.styleable.AtlasMessageComposer_textColor, context.getResources().getColor(R.color.atlas_text_black));
+        this.textSize  = ta.getDimension(R.styleable.AtlasMessageComposer_textSize, context.getResources().getDimension(R.dimen.atlas_text_size_general));
+        this.textStyle = ta.getInt(R.styleable.AtlasMessageComposer_textStyle, Typeface.NORMAL);
+        String typeFaceName = ta.getString(R.styleable.AtlasMessageComposer_textTypeface); 
+        this.typeFace  = typeFaceName != null ? Typeface.create(typeFaceName, textStyle) : null;
+    }
+    
     /**
      * Initialization is required to engage MessageComposer with LayerClient and Conversation 
      * to send messages. 
@@ -134,7 +160,13 @@ public class AtlasMessageComposer extends FrameLayout {
                 }
             }
         });
+        applyStyle();
+    }
     
+    private void applyStyle() {
+        messageText.setTextSize(textSize);
+        messageText.setTypeface(typeFace, textStyle);
+        messageText.setTextColor(textColor);
     }
 
     public void registerMenuItem(String title, OnClickListener clickListener) {

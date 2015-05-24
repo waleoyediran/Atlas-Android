@@ -1,5 +1,6 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:atlas="http://schemas.android.com/apk/com.layer.atlas.messenger"
     android:layout_width="match_parent"
     android:layout_height="match_parent" 
     android:background="@color/atlas_background_white"
@@ -9,7 +10,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        
         >
 
         <include layout="@layout/atlas_ab_stub"/>
