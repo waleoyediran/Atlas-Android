@@ -8,7 +8,10 @@ import java.util.Date;
 import java.util.List;
 
 import android.content.Context;
+import android.content.res.TypedArray;
+import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -55,12 +58,33 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
     private ConversationClickListener clickListener;
     private ConversationLongClickListener longClickListener;
     
+    //styles
+    private int titleTextColor;
+    private int titleTextStyle;
+    private Typeface titleTextTypeface;
+    private int titleUnreadTextColor;
+    private int titleUnreadTextStyle;
+    private Typeface titleUnreadTextTypeface;
+    private int subtitleTextColor;
+    private int subtitleTextStyle;
+    private Typeface subtitleTextTypeface;
+    private int subtitleUnreadTextColor;
+    private int subtitleUnreadTextStyle;
+    private Typeface subtitleUnreadTextTypeface;
+    private int cellBackgroundColor;
+    private int cellUnreadBackgroundColor;
+    private int dateTextColor;
+    private int avatarTextColor;
+    private int avatarBackgroundColor;
+    
     public AtlasConversationsList(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+        parseStyle(context, attrs);
     }
 
     public AtlasConversationsList(Context context, AttributeSet attrs) {
         super(context, attrs);
+        parseStyle(context, attrs);
     }
 
     public AtlasConversationsList(Context context) {
@@ -111,6 +135,8 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
                     String conterpartyUserId = allButMe.get(0);
                     Contact counterParty = contactProvider.contactsMap.get(conterpartyUserId);
                     textInitials.setText(AtlasContactProvider.getContactInitials(counterParty));
+                    textInitials.setTextColor(avatarTextColor);
+                    ((GradientDrawable) textInitials.getBackground()).setColor(avatarBackgroundColor);
                     avatarSingle.setVisibility(View.VISIBLE);
                     avatarMulti.setVisibility(View.GONE);
                 } else {
@@ -118,11 +144,15 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
                     String leftUserId = allButMe.get(0);
                     Contact left = contactProvider.contactsMap.get(leftUserId);
                     textInitialsLeft.setText(AtlasContactProvider.getContactInitials(left));
+                    textInitialsLeft.setTextColor(avatarTextColor);
+                    ((GradientDrawable) textInitialsLeft.getBackground()).setColor(avatarBackgroundColor);
                     
                     TextView textInitialsRight = (TextView) convertView.findViewById(R.id.atlas_view_conversations_list_convert_avatar_multi_right);
                     String rightUserId = allButMe.get(1);
                     Contact right = contactProvider.contactsMap.get(rightUserId);
                     textInitialsRight.setText(AtlasContactProvider.getContactInitials(right));
+                    textInitialsRight.setTextColor(avatarTextColor);
+                    ((GradientDrawable) textInitialsRight.getBackground()).setColor(avatarBackgroundColor);
                     
                     avatarSingle.setVisibility(View.GONE);
                     avatarMulti.setVisibility(View.VISIBLE);
@@ -144,15 +174,31 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
                     String userId = last.getSender().getUserId();                   // could be null for system messages 
                     String myId = layerClient.getAuthenticatedUserId();
                     if ((userId != null) && !userId.equals(myId) && last.getRecipientStatus(myId) != RecipientStatus.READ) {
-                        textLastMessage.setTypeface(null, Typeface.BOLD);
-                        participants.setTypeface(null, Typeface.BOLD);
+                        participants.setTextColor(titleUnreadTextColor);
+                        participants.setTypeface(titleUnreadTextTypeface, titleUnreadTextStyle);
+                        textLastMessage.setTypeface(subtitleUnreadTextTypeface, subtitleUnreadTextStyle);
+                        textLastMessage.setTextColor(subtitleUnreadTextColor);
+                        convertView.setBackgroundColor(cellUnreadBackgroundColor);
                     } else {
-                        textLastMessage.setTypeface(null, Typeface.NORMAL);
-                        participants.setTypeface(null, Typeface.NORMAL);
+                        participants.setTextColor(titleTextColor);
+                        participants.setTypeface(titleTextTypeface, titleTextStyle);
+                        textLastMessage.setTypeface(subtitleTextTypeface, subtitleTextStyle);
+                        textLastMessage.setTextColor(subtitleTextColor);
+                        convertView.setBackgroundColor(cellBackgroundColor);
                     }
                 } else {
                     textLastMessage.setText("");
+                    participants.setTextColor(titleTextColor);
+                    participants.setTypeface(titleTextTypeface, titleTextStyle);
+                    textLastMessage.setTypeface(subtitleTextTypeface, subtitleTextStyle);
+                    textLastMessage.setTextColor(subtitleTextColor);
+                    convertView.setBackgroundColor(cellBackgroundColor);
                 }
+                timeView.setTextColor(dateTextColor);
+                
+//                private int dateTextColor;
+//                private int avatarTextColor;
+//                private int avatarBackgroundColor;
                 
                 return convertView;
             }
@@ -195,6 +241,7 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
             public void onAuthenticationChallenge(LayerClient client, String nonce) {}
         });
         
+        applyStyle();
     }
     
     public void updateValues() {
@@ -232,6 +279,39 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
             });
         }
 
+    }
+    
+    public void parseStyle(Context context, AttributeSet attrs) {
+        TypedArray ta = context.getResources().obtainAttributes(attrs, R.styleable.AtlasConversationList);
+        this.titleTextColor = ta.getColor(R.styleable.AtlasConversationList_titleTextColor, context.getResources().getColor(R.color.atlas_text_black));
+        this.titleTextStyle = ta.getInt(R.styleable.AtlasConversationList_titleTextStyle, Typeface.NORMAL);
+        String titleTextTypefaceName = ta.getString(R.styleable.AtlasConversationList_titleTextTypeface); 
+        this.titleTextTypeface  = titleTextTypefaceName != null ? Typeface.create(titleTextTypefaceName, titleTextStyle) : null;
+        
+        this.titleUnreadTextColor = ta.getColor(R.styleable.AtlasConversationList_titleUnreadTextColor, context.getResources().getColor(R.color.atlas_text_black));
+        this.titleUnreadTextStyle = ta.getInt(R.styleable.AtlasConversationList_titleUnreadTextStyle, Typeface.BOLD);
+        String titleUnreadTextTypefaceName = ta.getString(R.styleable.AtlasConversationList_titleUnreadTextTypeface); 
+        this.titleUnreadTextTypeface  = titleUnreadTextTypefaceName != null ? Typeface.create(titleUnreadTextTypefaceName, titleUnreadTextStyle) : null;
+        
+        this.subtitleTextColor = ta.getColor(R.styleable.AtlasConversationList_subtitleTextColor, context.getResources().getColor(R.color.atlas_text_black));
+        this.subtitleTextStyle = ta.getInt(R.styleable.AtlasConversationList_subtitleTextStyle, Typeface.NORMAL);
+        String subtitleTextTypefaceName = ta.getString(R.styleable.AtlasConversationList_subtitleTextTypeface); 
+        this.subtitleTextTypeface  = subtitleTextTypefaceName != null ? Typeface.create(subtitleTextTypefaceName, subtitleTextStyle) : null;
+        
+        this.subtitleUnreadTextColor = ta.getColor(R.styleable.AtlasConversationList_subtitleUnreadTextColor, context.getResources().getColor(R.color.atlas_text_black));
+        this.subtitleUnreadTextStyle = ta.getInt(R.styleable.AtlasConversationList_subtitleUnreadTextStyle, Typeface.NORMAL);
+        String subtitleUnreadTextTypefaceName = ta.getString(R.styleable.AtlasConversationList_subtitleUnreadTextTypeface); 
+        this.subtitleUnreadTextTypeface  = subtitleUnreadTextTypefaceName != null ? Typeface.create(subtitleUnreadTextTypefaceName, subtitleUnreadTextStyle) : null;
+        
+        this.cellBackgroundColor = ta.getColor(R.styleable.AtlasConversationList_cellBackgroundColor, Color.TRANSPARENT); 
+        this.cellUnreadBackgroundColor = ta.getColor(R.styleable.AtlasConversationList_cellUnreadBackgroundColor, Color.TRANSPARENT); 
+        this.dateTextColor = ta.getColor(R.styleable.AtlasConversationList_dateTextColor, context.getResources().getColor(R.color.atlas_text_black)); 
+        this.avatarTextColor = ta.getColor(R.styleable.AtlasConversationList_avatarTextColor, context.getResources().getColor(R.color.atlas_text_black)); 
+        this.avatarBackgroundColor = ta.getColor(R.styleable.AtlasConversationList_avatarBackgroundColor, context.getResources().getColor(R.color.atlas_shape_avatar_gray)); 
+    }
+    
+    private void applyStyle() {
+        conversationsAdapter.notifyDataSetChanged();
     }
 
     @Override

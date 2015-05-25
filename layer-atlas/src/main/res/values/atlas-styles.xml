@@ -8,12 +8,30 @@
     <!-- conversations list -->
     <attr name="titleTextColor"         format="color|reference"/>
     <attr name="titleTextTypeface"      format="string|reference"/>
-    <attr name="titleTextStyle"         format="string|reference"/>
+    <attr name="titleTextStyle">          
+        <flag name="normal" value="0" /> 
+        <flag name="bold"   value="1" />
+        <flag name="italic" value="2" /></attr>
+    <attr name="titleUnreadTextColor"         format="color|reference"/>
+    <attr name="titleUnreadTextTypeface"      format="string|reference"/>
+    <attr name="titleUnreadTextStyle">             
+        <flag name="normal" value="0" /> 
+        <flag name="bold"   value="1" />
+        <flag name="italic" value="2" /></attr>
     <attr name="subtitleTextColor"      format="color|reference"/>
     <attr name="subtitleTextTypeface"   format="string|reference"/>
-    <attr name="subtitleTextStyle"      format="string|reference"/>
-    <attr name="cellReadBackground"     format="color|reference"/>
-    <attr name="cellUnreadBackground"   format="color|reference"/>
+    <attr name="subtitleTextStyle">
+        <flag name="normal" value="0" /> 
+        <flag name="bold"   value="1" />
+        <flag name="italic" value="2" /></attr>
+    <attr name="subtitleUnreadTextColor"      format="color|reference"/>
+    <attr name="subtitleUnreadTextTypeface"   format="string|reference"/>
+    <attr name="subtitleUnreadTextStyle">
+        <flag name="normal" value="0" /> 
+        <flag name="bold"   value="1" />
+        <flag name="italic" value="2" /></attr>
+    <attr name="cellBackgroundColor"         format="color|reference"/>
+    <attr name="cellUnreadBackgroundColor"   format="color|reference"/>
     <attr name="dateTextColor"          format="color|reference"/>
     <attr name="avatarTextColor"        format="color|reference"/>
     <attr name="avatarBackgroundColor"  format="color|reference"/>
@@ -76,11 +94,17 @@
         <attr name="titleTextColor"/>
         <attr name="titleTextTypeface"/>
         <attr name="titleTextStyle"/>
+        <attr name="titleUnreadTextColor"/>
+        <attr name="titleUnreadTextTypeface"/>
+        <attr name="titleUnreadTextStyle"/>
         <attr name="subtitleTextColor"/>
         <attr name="subtitleTextTypeface"/>
         <attr name="subtitleTextStyle"/>
-        <attr name="cellReadBackground"/>
-        <attr name="cellUnreadBackground"/>
+        <attr name="subtitleUnreadTextColor"/>
+        <attr name="subtitleUnreadTextTypeface"/>
+        <attr name="subtitleUnreadTextStyle"/>
+        <attr name="cellBackgroundColor"/>
+        <attr name="cellUnreadBackgroundColor"/>
         <attr name="dateTextColor"/>
         <attr name="avatarTextColor"/>
         <attr name="avatarBackgroundColor"/>
@@ -131,11 +155,17 @@
         <item name="titleTextColor"         >@color/atlas_text_black</item>
         <item name="titleTextTypeface"      >normal</item>
         <item name="titleTextStyle"         >normal</item>
+        <item name="titleUnreadTextColor"   >@color/atlas_text_black</item>
+        <item name="titleUnreadTextTypeface">normal</item>
+        <item name="titleUnreadTextStyle"   >bold</item>
         <item name="subtitleTextColor"      >@color/atlas_text_black</item>
         <item name="subtitleTextTypeface"   >normal</item>
         <item name="subtitleTextStyle"      >normal</item>
-        <item name="cellReadBackground"     >@color/atlas_background_white</item>
-        <item name="cellUnreadBackground"   >@color/atlas_background_gray</item>
+        <item name="subtitleUnreadTextColor"      >@color/atlas_text_black</item>
+        <item name="subtitleUnreadTextTypeface"   >normal</item>
+        <item name="subtitleUnreadTextStyle"      >bold</item>
+        <item name="cellBackgroundColor"    >@color/atlas_background_white</item>
+        <item name="cellUnreadBackgroundColor"    >@color/atlas_background_gray</item>
         <item name="dateTextColor"          >@color/atlas_text_black</item>
         <item name="avatarTextColor"        >@color/atlas_text_black</item>
         <item name="avatarBackgroundColor"  >@color/atlas_background_gray</item>
