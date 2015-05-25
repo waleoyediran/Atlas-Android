@@ -6,6 +6,9 @@ import java.util.Collections;
 import java.util.TreeSet;
 
 import android.content.Context;
+import android.content.res.TypedArray;
+import android.graphics.Typeface;
+import android.graphics.drawable.GradientDrawable;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
@@ -49,18 +52,32 @@ public class AtlasParticipantPicker extends FrameLayout {
     private Contact[] allContacts = null;
     private final ArrayList<Contact> contactsToSelect = new ArrayList<Contact>();
     
+    // styles
+    private int inputTextColor;
+    private Typeface inputTextTypeface;
+    private int inputTextStyle;
+    private int listTextColor;
+    private Typeface listTextTypeface;
+    private int listTextStyle;
+    private int chipBackgroundColor;
+    private int chipTextColor;
+    private Typeface chipTextTypeface;
+    private int chipTextStyle;
+    
     public AtlasParticipantPicker(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+        parseStyle(context, attrs);
     }
 
     public AtlasParticipantPicker(Context context, AttributeSet attrs) {
         super(context, attrs);
+        parseStyle(context, attrs);
     }
 
     public AtlasParticipantPicker(Context context) {
         super(context);
     }
-
+    
     public void init(final AtlasContactProvider contactProvider, String[] userIdToSkip) {
         if (contactProvider == null) throw new IllegalArgumentException("ContactProvider cannot be null");
         
@@ -150,6 +167,13 @@ public class AtlasParticipantPicker extends FrameLayout {
 
                 name.setText(AtlasContactProvider.getContactFirstAndLast(contact));
                 avatarText.setText(AtlasContactProvider.getContactInitials(contact));
+                
+                // apply styles
+                name.setTextColor(listTextColor);
+                name.setTypeface(listTextTypeface, listTextStyle);
+                avatarText.setTextColor(listTextColor);
+                avatarText.setTypeface(listTextTypeface, listTextStyle);
+                
                 return convertView;
             }
 
@@ -211,7 +235,8 @@ public class AtlasParticipantPicker extends FrameLayout {
             }
         });
         // END OF ---------------------- Participant Picker ---------------------------------------- 
-
+        
+        applyStyle();
     }
 
     public void refreshParticipants(final ArrayList<Contact> selectedContacts) {
@@ -226,7 +251,7 @@ public class AtlasParticipantPicker extends FrameLayout {
         if (debug) Log.w(TAG, "refreshParticipants() childs left: " + selectedContactsContainer.getChildCount());
         for (Contact contactToAdd : selectedContacts) {
             View contactView = LayoutInflater.from(selectedContactsContainer.getContext()).inflate(R.layout.atlas_view_participants_picker_name_convert, selectedContactsContainer, false);
-
+            
             TextView avaText = (TextView) contactView.findViewById(R.id.atlas_view_participants_picker_name_convert_ava);
             avaText.setText(AtlasContactProvider.getContactInitials(contactToAdd));
             TextView nameText = (TextView) contactView.findViewById(R.id.atlas_view_participants_picker_name_convert_name);
@@ -235,6 +260,16 @@ public class AtlasParticipantPicker extends FrameLayout {
 
             selectedContactsContainer.addView(contactView, selectedContactsContainer.getChildCount() - 1);
             if (debug) Log.w(TAG, "refreshParticipants() child added: " + contactView + ", for: " + contactToAdd);
+            
+            // apply styles
+            avaText.setTextColor(chipTextColor);
+            avaText.setTypeface(chipTextTypeface, chipTextStyle);
+            nameText.setTextColor(chipTextColor);
+            nameText.setTypeface(chipTextTypeface, chipTextStyle);
+            View container = contactView.findViewById(R.id.atlas_view_participants_picker_name_convert);
+            GradientDrawable drawable = (GradientDrawable) container.getBackground();
+            drawable.setColor(chipBackgroundColor);
+            
         }
         if (selectedContacts.size() == 0) {
             LayoutParams params = new LayoutParams(textFilter.getLayoutParams());
@@ -265,6 +300,33 @@ public class AtlasParticipantPicker extends FrameLayout {
         Collections.sort(contactsToSelect, new Contact.FilteringComparator(filter));
         contactsAdapter.notifyDataSetChanged();
     }
+    
+    public void parseStyle(Context context, AttributeSet attrs) {
+        TypedArray ta = context.getResources().obtainAttributes(attrs, R.styleable.AtlasParticipantPicker);
+        this.inputTextColor = ta.getColor(R.styleable.AtlasParticipantPicker_inputTextColor, context.getResources().getColor(R.color.atlas_text_black));
+        this.inputTextStyle = ta.getInt(R.styleable.AtlasParticipantPicker_inputTextStyle, Typeface.NORMAL);
+        String inputTextTypefaceName = ta.getString(R.styleable.AtlasParticipantPicker_inputTextTypeface); 
+        this.inputTextTypeface  = inputTextTypefaceName != null ? Typeface.create(inputTextTypefaceName, inputTextStyle) : null;
+        
+        this.listTextColor = ta.getColor(R.styleable.AtlasParticipantPicker_listTextColor, context.getResources().getColor(R.color.atlas_text_black));
+        this.listTextStyle = ta.getInt(R.styleable.AtlasParticipantPicker_listTextStyle, Typeface.NORMAL);
+        String listTextTypefaceName = ta.getString(R.styleable.AtlasParticipantPicker_listTextTypeface); 
+        this.listTextTypeface  = listTextTypefaceName != null ? Typeface.create(listTextTypefaceName, inputTextStyle) : null;
+        
+        this.chipBackgroundColor = ta.getColor(R.styleable.AtlasParticipantPicker_chipBackgroundColor, context.getResources().getColor(R.color.atlas_background_gray)); 
+        this.chipTextColor = ta.getColor(R.styleable.AtlasParticipantPicker_chipTextColor, context.getResources().getColor(R.color.atlas_text_black)); 
+        this.chipTextStyle = ta.getInt(R.styleable.AtlasParticipantPicker_chipTextStyle, Typeface.NORMAL);
+        String chipTextTypefaceName = ta.getString(R.styleable.AtlasParticipantPicker_chipTextTypeface); 
+        this.chipTextTypeface  = chipTextTypefaceName != null ? Typeface.create(chipTextTypefaceName, inputTextStyle) : null;
+    }
+    
+    private void applyStyle() {
+        refreshParticipants(selectedContacts);
+        contactsAdapter.notifyDataSetChanged();
+        textFilter.setTextColor(inputTextColor);
+        textFilter.setTypeface(inputTextTypeface, inputTextStyle);
+    }
+
 
     public String[] getSelectedUserIds() {
         String[] userIds = new String[selectedContacts.size()];

@@ -25,34 +25,40 @@
     <attr name="textStyle">             
         <flag name="normal" value="0" /> 
         <flag name="bold" value="1" />
-        <flag name="italic" value="2" />
-    </attr>
+        <flag name="italic" value="2" /></attr>
     
     <!-- messages list -->
     <attr name="myBubbleColor"          format="color|reference"/>
     <attr name="myTextColor"            format="color|reference"/>
     <attr name="myTextSize"             format="dimension|reference"/>
     <attr name="myTextTypeface"         format="string|reference"/>
-    <attr name="myTextStyle">             
-        <flag name="normal" value="0" /> 
-        <flag name="bold" value="1" />
-        <flag name="italic" value="2" />
-    </attr>
+    <attr name="myTextStyle"            format="string|reference"/>  
     <attr name="theirBubbleColor"       format="color|reference"/>
     <attr name="theirTextColor"         format="color|reference"/>
     <attr name="theirTextSize"          format="dimension|reference"/>
     <attr name="theirTextTypeface"      format="string|reference"/>
-    <attr name="theirTextStyle"         format="string|reference"/>
+    <attr name="theirTextStyle"         format="string|reference"/>             
     
     <!-- participants picker -->
-    <attr name="entryTextColor"         format="color|reference"/>
-    <attr name="entryTextTypeface"      format="string|reference"/>
-    <attr name="entryTextStyle"         format="string|reference"/>
+    <attr name="inputTextColor"         format="color|reference"/>
+    <attr name="inputTextTypeface"      format="string|reference"/>
+    <attr name="inputTextStyle">             
+        <flag name="normal" value="0" /> 
+        <flag name="bold" value="1" />
+        <flag name="italic" value="2" /></attr>
     <attr name="listTextColor"          format="color|reference"/>
     <attr name="listTextTypeface"       format="string|reference"/>
-    <attr name="listTextStyle"          format="string|reference"/>
+    <attr name="listTextStyle">             
+        <flag name="normal" value="0" /> 
+        <flag name="bold" value="1" />
+        <flag name="italic" value="2" /></attr>
     <attr name="chipBackgroundColor"    format="color|reference"/>
     <attr name="chipTextColor"          format="color|reference"/>
+    <attr name="chipTextTypeface"       format="string|reference"/>
+    <attr name="chipTextStyle">             
+        <flag name="normal" value="0" /> 
+        <flag name="bold" value="1" />
+        <flag name="italic" value="2" /></attr>
     
     
     <!-- ###################### -->
@@ -101,9 +107,9 @@
     </declare-styleable>
 
     <declare-styleable name="AtlasParticipantPicker">
-        <attr name="entryTextColor"/>
-        <attr name="entryTextTypeface"/>
-        <attr name="entryTextStyle"/>
+        <attr name="inputTextColor"/>
+        <attr name="inputTextTypeface"/>
+        <attr name="inputTextStyle"/>
         <attr name="listTextColor"/>
         <attr name="listTextTypeface"/>
         <attr name="listTextStyle"/>
@@ -111,6 +117,9 @@
         <attr name="avatarTextColor"/>
         <attr name="chipBackgroundColor"/>
         <attr name="chipTextColor"/>
+        <attr name="chipTextTypeface"/>
+        <attr name="chipTextStyle"/>
+        
     </declare-styleable>
     
     
@@ -153,9 +162,9 @@
     </style>
 
     <style name="AtlasParticipantPicker">
-        <item name="entryTextColor"         >@color/atlas_text_black</item>
-        <item name="entryTextTypeface"      >normal</item>
-        <item name="entryTextStyle"         >normal</item>
+        <item name="inputTextColor"         >@color/atlas_text_black</item>
+        <item name="inputTextTypeface"      >normal</item>
+        <item name="inputTextStyle"         >normal</item>
         <item name="listTextColor"          >@color/atlas_text_black</item>
         <item name="listTextTypeface"       >normal</item>
         <item name="listTextStyle"          >normal</item>
@@ -163,6 +172,8 @@
         <item name="avatarTextColor"        >@color/atlas_text_black</item>
         <item name="chipBackgroundColor"    >@color/atlas_background_gray</item>
         <item name="chipTextColor"          >@color/atlas_text_black</item>
+        <item name="chipTextTypeface"      >normal</item>
+        <item name="chipTextStyle"          >@color/atlas_text_black</item>
     </style>
     
 </resources>

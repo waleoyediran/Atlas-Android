@@ -30,6 +30,16 @@
             	android:layout_width="match_parent"
                 android:layout_height="match_parent"
             	android:visibility="gone"
+                atlas:listTextColor="#cddc39"
+                atlas:listTextStyle="italic"
+                atlas:listTextTypeface="serif"
+                atlas:chipTextColor="#607d8b"
+                atlas:chipTextStyle="bold|italic"
+                atlas:chipTextTypeface="serif"
+                atlas:chipBackgroundColor="#ffc107"
+                atlas:inputTextColor="#795548"
+                atlas:inputTextStyle="bold"
+                atlas:inputTextTypeface="monospace"
             	/>
             
         </FrameLayout>
