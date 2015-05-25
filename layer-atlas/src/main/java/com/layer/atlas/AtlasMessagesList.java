@@ -13,12 +13,16 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Typeface;
+import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RoundRectShape;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -64,13 +68,59 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
     
     private ItemClickListener clickListener;
     
+    //styles
+    private int myBubbleColor;
+    private int myTextColor;
+    private int myTextStyle;
+    //private float myTextSize;
+    private Typeface myTextTypeface;
+    
+    private int otherBubbleColor;
+    private int otherTextColor;
+    private int otherTextStyle;
+    //private float otherTextSize;
+    private Typeface otherTextTypeface;
+
+    private int dateTextColor;
+    private int avatarTextColor;
+    private int avatarBackgroundColor;
+    
+    public void parseStyle(Context context, AttributeSet attrs) {
+        TypedArray ta = context.getResources().obtainAttributes(attrs, R.styleable.AtlasMessageList);
+        
+        this.myTextColor = ta.getColor(R.styleable.AtlasMessageList_myTextColor, context.getResources().getColor(R.color.atlas_text_black));
+        this.myTextStyle = ta.getInt(R.styleable.AtlasMessageList_myTextStyle, Typeface.NORMAL);
+        String myTextTypefaceName = ta.getString(R.styleable.AtlasMessageList_myTextTypeface); 
+        this.myTextTypeface  = myTextTypefaceName != null ? Typeface.create(myTextTypefaceName, myTextStyle) : null;
+        //this.myTextSize = ta.getDimension(R.styleable.AtlasMessageList_myTextSize, context.getResources().getDimension(R.dimen.atlas_text_size_general));
+
+        this.otherTextColor = ta.getColor(R.styleable.AtlasMessageList_theirTextColor, context.getResources().getColor(R.color.atlas_text_black));
+        this.otherTextStyle = ta.getInt(R.styleable.AtlasMessageList_theirTextStyle, Typeface.NORMAL);
+        String otherTextTypefaceName = ta.getString(R.styleable.AtlasMessageList_theirTextTypeface); 
+        this.otherTextTypeface  = otherTextTypefaceName != null ? Typeface.create(otherTextTypefaceName, otherTextStyle) : null;
+        //this.otherTextSize = ta.getDimension(R.styleable.AtlasMessageList_theirTextSize, context.getResources().getDimension(R.dimen.atlas_text_size_general));
+        
+        this.myBubbleColor  = ta.getColor(R.styleable.AtlasMessageList_myBubbleColor, context.getResources().getColor(R.color.atlas_background_blue));
+        this.otherBubbleColor = ta.getColor(R.styleable.AtlasMessageList_theirBubbleColor, context.getResources().getColor(R.color.atlas_background_gray));
+
+        this.dateTextColor = ta.getColor(R.styleable.AtlasMessageList_dateTextColor, context.getResources().getColor(R.color.atlas_text_gray)); 
+        this.avatarTextColor = ta.getColor(R.styleable.AtlasMessageList_avatarTextColor, context.getResources().getColor(R.color.atlas_text_black)); 
+        this.avatarBackgroundColor = ta.getColor(R.styleable.AtlasMessageList_avatarBackgroundColor, context.getResources().getColor(R.color.atlas_background_gray)); 
+    }
+    
+    private void applyStyle() {
+        messagesAdapter.notifyDataSetChanged();
+    }
+
     
     public AtlasMessagesList(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+        parseStyle(context, attrs);
     }
 
     public AtlasMessagesList(Context context, AttributeSet attrs) {
         super(context, attrs);
+        parseStyle(context, attrs);
     }
 
     public AtlasMessagesList(Context context) {
@@ -154,6 +204,11 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
                 if (!msg.getSender().getUserId().equals(client.getAuthenticatedUserId())) {
                     msg.markAsRead();
                 }
+                
+                timeBarDay.setTextColor(dateTextColor);
+                timeBarTime.setTextColor(dateTextColor);
+                textAvatar.setTextColor(avatarTextColor);
+                ((GradientDrawable)textAvatar.getBackground()).setColor(avatarBackgroundColor);
                 
                 return convertView;
             }
@@ -430,6 +485,10 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
                 } else if (cell.clusterHeadItemId != cell.clusterItemId && !cell.clusterTail) {
                     textMy.setBackgroundResource(R.drawable.atlas_shape_rounded16_blue_no_right);
                 }
+                ((GradientDrawable)textMy.getBackground()).setColor(myBubbleColor);
+                textMy.setTextColor(myTextColor);
+                //textMy.setTextSize(TypedValue.COMPLEX_UNIT_DIP, myTextSize);
+                textMy.setTypeface(myTextTypeface, myTextStyle);
             } else {
                 textOther.setVisibility(View.VISIBLE);
                 textOther.setText(text);
@@ -443,6 +502,10 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
                 } else if (cell.clusterHeadItemId != cell.clusterItemId && !cell.clusterTail) {
                     textOther.setBackgroundResource(R.drawable.atlas_shape_rounded16_gray_no_left);
                 }
+                ((GradientDrawable)textOther.getBackground()).setColor(otherBubbleColor);
+                textOther.setTextColor(otherTextColor);
+                //textOther.setTextSize(TypedValue.COMPLEX_UNIT_DIP, otherTextSize);
+                textOther.setTypeface(otherTextTypeface, otherTextStyle);
             }
             return cellText;
             

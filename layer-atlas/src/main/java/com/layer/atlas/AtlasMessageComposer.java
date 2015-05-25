@@ -42,13 +42,9 @@ public class AtlasMessageComposer extends FrameLayout {
     private ArrayList<MenuItem> menuItems = new ArrayList<MenuItem>(); 
     
     // styles
-    //<attr name="textColor"              format="color|reference"/>
     private int textColor;
-    //<attr name="textSize"               format="dimension|reference"/>
-    private float textSize;
-    //<attr name="textTypeface"           format="string|reference"/>
+    //private float textSize;
     private Typeface typeFace;
-    //<attr name="textStyle"              format="string|reference"/>
     private int textStyle;
     
     //
@@ -71,7 +67,7 @@ public class AtlasMessageComposer extends FrameLayout {
     public void parseStyle(Context context, AttributeSet attrs) {
         TypedArray ta = context.getResources().obtainAttributes(attrs, R.styleable.AtlasMessageComposer);
         this.textColor = ta.getColor(R.styleable.AtlasMessageComposer_textColor, context.getResources().getColor(R.color.atlas_text_black));
-        this.textSize  = ta.getDimension(R.styleable.AtlasMessageComposer_textSize, context.getResources().getDimension(R.dimen.atlas_text_size_general));
+        //this.textSize  = ta.getDimension(R.styleable.AtlasMessageComposer_textSize, context.getResources().getDimension(R.dimen.atlas_text_size_general));
         this.textStyle = ta.getInt(R.styleable.AtlasMessageComposer_textStyle, Typeface.NORMAL);
         String typeFaceName = ta.getString(R.styleable.AtlasMessageComposer_textTypeface); 
         this.typeFace  = typeFaceName != null ? Typeface.create(typeFaceName, textStyle) : null;
@@ -164,7 +160,7 @@ public class AtlasMessageComposer extends FrameLayout {
     }
     
     private void applyStyle() {
-        messageText.setTextSize(textSize);
+        //messageText.setTextSize(textSize);
         messageText.setTypeface(typeFace, textStyle);
         messageText.setTextColor(textColor);
     }

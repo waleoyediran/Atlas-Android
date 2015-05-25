@@ -23,7 +23,21 @@
                 android:id="@+id/atlas_screen_messages_messages_list"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                atlas:myBubbleColor="#03a9f4"
+                atlas:myTextSize="10sp"
+                atlas:myTextColor="@color/atlas_text_white"
+                atlas:myTextTypeface="monospace"
+                atlas:theirTextSize="20sp"
+                atlas:theirBubbleColor="#84D4F8"
+                atlas:theirTextColor="@color/atlas_text_black87"
+                atlas:avatarBackgroundColor="#a489d4"
+                atlas:avatarTextColor="@color/atlas_text_white"
+                atlas:dateTextColor="#617D8A"
                 />
+            
+            <!-- 
+                
+             -->
             
             <com.layer.atlas.AtlasParticipantPicker
             	android:id="@+id/atlas_screen_messages_participants_picker"

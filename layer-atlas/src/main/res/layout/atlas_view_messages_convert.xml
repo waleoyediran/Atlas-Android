@@ -63,6 +63,7 @@
                 android:id="@+id/atlas_view_messages_convert_initials"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:textSize="@dimen/atlas_text_size_smaller2"
                 android:background="@drawable/atlas_shape_circle_gray"
                 android:text="TS" 
                 android:gravity="center" />
