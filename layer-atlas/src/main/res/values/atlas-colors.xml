@@ -15,7 +15,11 @@
     <color name="atlas_background_blue">#2196F3</color>
     <color name="atlas_background_gray">#EBEBEB</color>
     <color name="atlas_background_transparent">#00FFFFFF</color>
-    
+
+    <color name="atlas_qr_mask">#80000000</color>
+    <color name="atlas_qr_laser">#FF2196F3</color>
+    <color name="atlas_qr_result">#FFFFFFFF</color>
+
     <color name="atlas0_background">#F2F9FF</color>
     <color name="atlas1_light">#B7DEFF</color>
     <color name="atlas2_views">#D8EDFF</color>

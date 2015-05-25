@@ -34,8 +34,6 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.layer.atlas.Atlas.AtlasContactProvider;
-import com.layer.atlas.Atlas.Contact;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.changes.LayerChange;
 import com.layer.sdk.changes.LayerChange.Type;
@@ -127,9 +125,9 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
         super(context);
     }
 
-    public void init(LayerClient layerClient, final AtlasContactProvider contactsProvider) {
+    public void init(LayerClient layerClient, final ContactProvider contactProvider) {
         if (layerClient == null) throw new IllegalArgumentException("LayerClient cannot be null");
-        if (contactsProvider == null) throw new IllegalArgumentException("ContactProvider cannot be null");
+        if (contactProvider == null) throw new IllegalArgumentException("ContactProvider cannot be null");
         
         this.client = layerClient;
         LayoutInflater.from(getContext()).inflate(R.layout.atlas_messages_list, this);
@@ -183,7 +181,7 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
                     timeBar.setVisibility(View.GONE);
                 }
                 
-                Contact contact = contactsProvider.contactsMap.get(userId);
+                Contact contact = contactProvider.get(userId);
                 TextView textAvatar = (TextView) convertView.findViewById(R.id.atlas_view_messages_convert_initials);
                 View spacerRight = convertView.findViewById(R.id.atlas_view_messages_convert_spacer_right);
                 if (myMessage) {
@@ -191,7 +189,7 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
                     textAvatar.setVisibility(View.INVISIBLE);
                 } else {
                     spacerRight.setVisibility(View.VISIBLE);
-                    String displayText = contact != null ? AtlasContactProvider.getContactInitials(contact) : "";
+                    String displayText = contact != null ? contact.getInitials() : "";
                     textAvatar.setText(displayText);
                     textAvatar.setVisibility(View.VISIBLE);
                 }
@@ -531,7 +529,6 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
         }
         @Override
         public View onBind(final ViewGroup cellContainer) {
-            
             View rootView = cellContainer.findViewById(R.id.atlas_view_messages_cell_custom);
             ImageView imageView = (ImageView) cellContainer.findViewById(R.id.atlas_view_messages_cell_custom_image);
              
@@ -564,7 +561,7 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
                 
                 final RoundRectShape roundRectShape = new RoundRectShape(Atlas.getRoundRectRadii(new float[] {16,16,16,16}, cellContainer.getResources().getDisplayMetrics()), null, null);
                 ShapeDrawable shapeDrawable = new ShapeDrawable(roundRectShape);
-                shapeDrawable.getPaint().setColor(R.color.atlas_background_gray);
+                shapeDrawable.getPaint().setColor(cellContainer.getResources().getColor(R.color.atlas_background_gray));
                 //shapeDrawable.setBounds(0, 0, stubWidth, stubHeight);
                 shapeDrawable.setBounds(0, 0, 300, 300);
                 //imageView.getLayoutParams().width = stubWidth;

@@ -26,9 +26,6 @@ import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.layer.atlas.Atlas.AtlasContactProvider;
-import com.layer.atlas.Atlas.Contact;
-
 /**
  * @author Oleg Orlov
  * @since 27 Apr 2015
@@ -77,15 +74,15 @@ public class AtlasParticipantPicker extends FrameLayout {
     public AtlasParticipantPicker(Context context) {
         super(context);
     }
-    
-    public void init(final AtlasContactProvider contactProvider, String[] userIdToSkip) {
+
+    public void init(final ContactProvider contactProvider, String[] userIdToSkip) {
         if (contactProvider == null) throw new IllegalArgumentException("ContactProvider cannot be null");
         
         LayoutInflater.from(getContext()).inflate(R.layout.atlas_participants_picker, this);
         
         if (userIdToSkip != null) skipUserIds.addAll(Arrays.asList(userIdToSkip));
 
-        this.allContacts = contactProvider.contactsMap.values().toArray(new Contact[contactProvider.contactsMap.size()]);
+        this.allContacts = contactProvider.getAll().toArray(new Contact[contactProvider.getAll().size()]);
         Arrays.sort(allContacts, Contact.FIRST_LAST_EMAIL_ASCENDING);
         
         for (Contact contact : allContacts) {
@@ -165,8 +162,8 @@ public class AtlasParticipantPicker extends FrameLayout {
                 TextView avatarText = (TextView) convertView.findViewById(R.id.atlas_view_participants_picker_convert_ava);
                 Contact contact = contactsToSelect.get(position);
 
-                name.setText(AtlasContactProvider.getContactFirstAndLast(contact));
-                avatarText.setText(AtlasContactProvider.getContactInitials(contact));
+                name.setText(contact.getFirstAndLast());
+                avatarText.setText(contact.getInitials());
                 
                 // apply styles
                 name.setTextColor(listTextColor);
@@ -235,7 +232,7 @@ public class AtlasParticipantPicker extends FrameLayout {
             }
         });
         // END OF ---------------------- Participant Picker ---------------------------------------- 
-        
+
         applyStyle();
     }
 
@@ -251,11 +248,11 @@ public class AtlasParticipantPicker extends FrameLayout {
         if (debug) Log.w(TAG, "refreshParticipants() childs left: " + selectedContactsContainer.getChildCount());
         for (Contact contactToAdd : selectedContacts) {
             View contactView = LayoutInflater.from(selectedContactsContainer.getContext()).inflate(R.layout.atlas_view_participants_picker_name_convert, selectedContactsContainer, false);
-            
+
             TextView avaText = (TextView) contactView.findViewById(R.id.atlas_view_participants_picker_name_convert_ava);
-            avaText.setText(AtlasContactProvider.getContactInitials(contactToAdd));
+            avaText.setText(contactToAdd.getInitials());
             TextView nameText = (TextView) contactView.findViewById(R.id.atlas_view_participants_picker_name_convert_name);
-            nameText.setText(AtlasContactProvider.getContactFirstAndLast(contactToAdd));
+            nameText.setText(contactToAdd.getFirstAndLast());
             contactView.setTag(contactToAdd);
 
             selectedContactsContainer.addView(contactView, selectedContactsContainer.getChildCount() - 1);
@@ -300,7 +297,7 @@ public class AtlasParticipantPicker extends FrameLayout {
         Collections.sort(contactsToSelect, new Contact.FilteringComparator(filter));
         contactsAdapter.notifyDataSetChanged();
     }
-    
+
     public void parseStyle(Context context, AttributeSet attrs) {
         TypedArray ta = context.getResources().obtainAttributes(attrs, R.styleable.AtlasParticipantPicker);
         this.inputTextColor = ta.getColor(R.styleable.AtlasParticipantPicker_inputTextColor, context.getResources().getColor(R.color.atlas_text_black));

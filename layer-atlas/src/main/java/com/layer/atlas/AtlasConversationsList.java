@@ -26,8 +26,6 @@ import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.layer.atlas.Atlas.AtlasContactProvider;
-import com.layer.atlas.Atlas.Contact;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.changes.LayerChange;
 import com.layer.sdk.changes.LayerChangeEvent;
@@ -91,7 +89,7 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
         super(context);
     }
 
-    public void init(View rootView, final LayerClient layerClient, final AtlasContactProvider contactProvider) {
+    public void init(View rootView, final LayerClient layerClient, final ContactProvider contactProvider) {
         if (layerClient == null) throw new IllegalArgumentException("LayerClient cannot be null");
         if (contactProvider == null) throw new IllegalArgumentException("ContactProvider cannot be null");
         
@@ -119,8 +117,9 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
                     if (layerClient.getAuthenticatedUserId().equals(userId)) {
                         continue;
                     }
-                    Contact contact = contactProvider.contactsMap.get(userId);
-                    String name = allButMe.size() > 1 ? AtlasContactProvider.getContactFirstAndL(contact) : AtlasContactProvider.getContactFirstAndLast(contact);
+                    Contact contact = contactProvider.get(userId);
+                    if (contact == null) continue;
+                    String name = allButMe.size() > 1 ? contact.getFirstAndL() : contact.getFirstAndLast();
                     if (sb.length() > 0) sb.append(", ");
                     sb.append(name != null ? name : userId);
                 }
@@ -133,8 +132,8 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
                 View avatarMulti = convertView.findViewById(R.id.atlas_view_conversations_list_convert_avatar_multi);
                 if (allButMe.size() < 2) {
                     String conterpartyUserId = allButMe.get(0);
-                    Contact counterParty = contactProvider.contactsMap.get(conterpartyUserId);
-                    textInitials.setText(AtlasContactProvider.getContactInitials(counterParty));
+                    Contact counterParty = contactProvider.get(conterpartyUserId);
+                    if (counterParty != null) textInitials.setText(counterParty.getInitials());
                     textInitials.setTextColor(avatarTextColor);
                     ((GradientDrawable) textInitials.getBackground()).setColor(avatarBackgroundColor);
                     avatarSingle.setVisibility(View.VISIBLE);
@@ -142,15 +141,15 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
                 } else {
                     TextView textInitialsLeft = (TextView) convertView.findViewById(R.id.atlas_view_conversations_list_convert_avatar_multi_left);
                     String leftUserId = allButMe.get(0);
-                    Contact left = contactProvider.contactsMap.get(leftUserId);
-                    textInitialsLeft.setText(AtlasContactProvider.getContactInitials(left));
+                    Contact left = contactProvider.get(leftUserId);
+                    if (left != null) textInitialsLeft.setText(left.getInitials());
                     textInitialsLeft.setTextColor(avatarTextColor);
                     ((GradientDrawable) textInitialsLeft.getBackground()).setColor(avatarBackgroundColor);
                     
                     TextView textInitialsRight = (TextView) convertView.findViewById(R.id.atlas_view_conversations_list_convert_avatar_multi_right);
                     String rightUserId = allButMe.get(1);
-                    Contact right = contactProvider.contactsMap.get(rightUserId);
-                    textInitialsRight.setText(AtlasContactProvider.getContactInitials(right));
+                    Contact right = contactProvider.get(rightUserId);
+                    if (right != null) textInitialsRight.setText(right.getInitials());
                     textInitialsRight.setTextColor(avatarTextColor);
                     ((GradientDrawable) textInitialsRight.getBackground()).setColor(avatarBackgroundColor);
                     
@@ -280,7 +279,7 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
         }
 
     }
-    
+
     public void parseStyle(Context context, AttributeSet attrs) {
         TypedArray ta = context.getResources().obtainAttributes(attrs, R.styleable.AtlasConversationList);
         this.titleTextColor = ta.getColor(R.styleable.AtlasConversationList_titleTextColor, context.getResources().getColor(R.color.atlas_text_black));

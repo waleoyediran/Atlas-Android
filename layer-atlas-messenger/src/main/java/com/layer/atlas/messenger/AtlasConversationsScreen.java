@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.zxing.integration.android.IntentIntegrator;
 import com.layer.atlas.AtlasConversationsList;
 import com.layer.atlas.AtlasConversationsList.ConversationClickListener;
 import com.layer.atlas.AtlasConversationsList.ConversationLongClickListener;
@@ -27,52 +28,64 @@ public class AtlasConversationsScreen extends Activity {
 
     private static final int REQUEST_CODE_LOGIN_SCREEN = 191;
     private static final int REQUEST_CODE_SETTINGS_SCREEN = 192;
-    
+
     private App101 app;
-    
+
     private View btnNewConversation;
     private AtlasConversationsList conversationsList;
-    
+    private boolean isInialized = false;
+    private boolean forceLogout = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.atlas_screen_conversations);
-        
         this.app = (App101) getApplication();
-        
-        this.conversationsList = (AtlasConversationsList)findViewById(R.id.atlas_screen_conversations_conversations_list);
-        this.conversationsList.init(conversationsList, app.getLayerClient(), app.contactProvider);
-        conversationsList.setClickListener(new ConversationClickListener() {
-            public void onItemClick(Conversation conversation) {
-                openChatScreen(conversation, false);
-            }
-        });
-        conversationsList.setLongClickListener(new ConversationLongClickListener() {
-            public void onItemLongClick(Conversation conversation) {
-                conversation.delete(DeletionMode.ALL_PARTICIPANTS);
-                updateValues();
-                Toast.makeText(AtlasConversationsScreen.this, "Deleted: " + conversation, Toast.LENGTH_SHORT).show();;
-            }
-        });
-        
-        btnNewConversation = findViewById(R.id.atlas_conversation_screen_new_conversation);
-        btnNewConversation.setOnClickListener(new OnClickListener() {
-            public void onClick(View v) {
-                Intent intent = new Intent(v.getContext(), AtlasMessagesScreen.class);
-                intent.putExtra(AtlasMessagesScreen.EXTRA_CONVERSATION_IS_NEW, true);
-                startActivity(intent);
-                return;
-            }
-        });
-        
-        prepareActionBar();
     }
 
+    private synchronized void initializeViews() {
+        if (app.getLayerClient() == null) {
+            return;
+        }
+
+        if (!isInialized) {
+            this.conversationsList = (AtlasConversationsList) findViewById(R.id.atlas_screen_conversations_conversations_list);
+            this.conversationsList.init(conversationsList, app.getLayerClient(), app.getContactProvider());
+            conversationsList.setClickListener(new ConversationClickListener() {
+                public void onItemClick(Conversation conversation) {
+                    openChatScreen(conversation, false);
+                }
+            });
+            conversationsList.setLongClickListener(new ConversationLongClickListener() {
+                public void onItemLongClick(Conversation conversation) {
+                    conversation.delete(DeletionMode.ALL_PARTICIPANTS);
+                    updateValues();
+                    Toast.makeText(AtlasConversationsScreen.this, "Deleted: " + conversation, Toast.LENGTH_SHORT).show();
+                    ;
+                }
+            });
+
+            btnNewConversation = findViewById(R.id.atlas_conversation_screen_new_conversation);
+            btnNewConversation.setOnClickListener(new OnClickListener() {
+                public void onClick(View v) {
+                    Intent intent = new Intent(v.getContext(), AtlasMessagesScreen.class);
+                    intent.putExtra(AtlasMessagesScreen.EXTRA_CONVERSATION_IS_NEW, true);
+                    startActivity(intent);
+                    return;
+                }
+            });
+
+            prepareActionBar();
+            isInialized = true;
+        }
+        app.getLayerClient().registerEventListener(conversationsList);
+        updateValues();
+    }
+    
     private void updateValues() {
         conversationsList.updateValues();
     }
-    
-    private boolean forceLogout = false;
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -81,42 +94,70 @@ public class AtlasConversationsScreen extends Activity {
             return;
         }
         if (requestCode == REQUEST_CODE_SETTINGS_SCREEN && resultCode == RESULT_OK) {
-            forceLogout = data.getBooleanExtra(AtlasSettingsScreen.EXTRA_FORCE_LOGOUT, false);
+            forceLogout = data.getBooleanExtra(AtlasSettingsScreen.EXTRA_FORCE_LOGOUT, false);  // user logged out
+            return;
+        }
+        if (requestCode == IntentIntegrator.REQUEST_CODE && resultCode == RESULT_OK) {
+            String qrCodeAppId = IntentIntegrator.parseActivityResult(requestCode, resultCode, data).getContents();
+            Log.w(TAG, "Captured App ID: " + qrCodeAppId);
+            try {
+                app.initLayerClient(qrCodeAppId);
+                initializeViews();
+            } catch (IllegalArgumentException e) {
+                if (debug) Log.w(TAG, "Not a valid Layer QR code app ID: " + qrCodeAppId);
+            }
         }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        App101 app = (App101) getApplication();
-        app.getLayerClient().registerEventListener(conversationsList);
+        if (debug) Log.w(TAG, "onResume()");
+
+        // Initialize a LayerClient with an App ID
+        if (app.getAppId() == null) {
+            if (App101.DEMO_MODE) {
+                // Launch QR code activity to capture App ID
+                IntentIntegrator integrator = new IntentIntegrator(this)
+                        .setCaptureActivity(QRCaptureActivity.class)
+                        .setDesiredBarcodeFormats(IntentIntegrator.QR_CODE_TYPES)
+                        .setPrompt(getResources().getString(R.string.atlas_screen_qr_prompt))
+                        .setOrientationLocked(true);
+                integrator.initiateScan();
+                return;
+            }
+            throw new IllegalArgumentException("No app ID provided");
+        } else if (app.getLayerClient() == null) {
+            // Use provided App ID to initialize new client
+            app.initLayerClient(app.getAppId());
+        }
         
-        if (debug) Log.w(TAG, "onResume() authenticated: " + app.getLayerClient().isAuthenticated());
-        // check for first time launch and Settings/LogOut 
-        if (!app.getLayerClient().isAuthenticated() || forceLogout) {
+        // Optionally launch the login screen
+        if ((app.getLayerClient() != null) && (!app.getLayerClient().isAuthenticated() || forceLogout)) {
             forceLogout = false;
             Intent intent = new Intent(this, AtlasLoginScreen.class);
             startActivityForResult(intent, REQUEST_CODE_LOGIN_SCREEN);
             return;
         }
         
-        updateValues();
+        initializeViews();
     }
-    
+
     @Override
     protected void onPause() {
         super.onPause();
-        App101 app = (App101) getApplication();
-        app.getLayerClient().unregisterEventListener(conversationsList);
+        if (app.getLayerClient() != null) {
+            app.getLayerClient().unregisterEventListener(conversationsList);
+        }
     }
-    
+
     public void openChatScreen(Conversation conv, boolean newConversation) {
         Context context = this;
         Intent intent = new Intent(context, AtlasMessagesScreen.class);
         intent.putExtra(AtlasMessagesScreen.EXTRA_CONVERSATION_URI, conv.getId().toString());
         startActivity(intent);
     }
-    
+
     private void prepareActionBar() {
         ((TextView)findViewById(R.id.atlas_actionbar_title_text)).setText("Conversations");
         ImageView menuBtn = (ImageView) findViewById(R.id.atlas_actionbar_left_btn);
@@ -128,7 +169,7 @@ public class AtlasConversationsScreen extends Activity {
                 startActivityForResult(intent, REQUEST_CODE_SETTINGS_SCREEN);
             }
         });
-        
+
         ImageView searchBtn = (ImageView) findViewById(R.id.atlas_actionbar_right_btn);
         searchBtn.setImageResource(R.drawable.atlas_ctl_btn_search);
         searchBtn.setVisibility(View.VISIBLE);
@@ -138,6 +179,6 @@ public class AtlasConversationsScreen extends Activity {
             }
         });
     }
-    
+
 
 }

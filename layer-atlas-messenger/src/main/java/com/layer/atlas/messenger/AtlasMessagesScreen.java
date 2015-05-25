@@ -32,8 +32,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.layer.atlas.Atlas;
-import com.layer.atlas.Atlas.AtlasContactProvider;
-import com.layer.atlas.Atlas.Contact;
+import com.layer.atlas.Contact;
 import com.layer.atlas.AtlasMessageComposer;
 import com.layer.atlas.AtlasMessagesList;
 import com.layer.atlas.AtlasMessagesList.Cell;
@@ -84,7 +83,7 @@ public class AtlasMessagesScreen extends Activity {
         }
 
         final AtlasParticipantPicker participantsPicker = (AtlasParticipantPicker) findViewById(R.id.atlas_screen_messages_participants_picker);
-        participantsPicker.init(app.contactProvider, new String[] {app.getLayerClient().getAuthenticatedUserId()});
+        participantsPicker.init(app.getContactProvider(), new String[] {app.getLayerClient().getAuthenticatedUserId()});
         if (convIsNew) {
             participantsPicker.setVisibility(View.VISIBLE);
         }
@@ -103,8 +102,8 @@ public class AtlasMessagesScreen extends Activity {
                 }
                 
                 // push
-                Contact myContact = app.contactProvider.contactsMap.get(app.getLayerClient().getAuthenticatedUserId());
-                String senderName = AtlasContactProvider.getContactFirstAndLast(myContact);
+                Contact myContact = app.getContactProvider().get(app.getLayerClient().getAuthenticatedUserId());
+                String senderName = myContact.getFirstAndLast();
                 Map<String, String> metadata = new HashMap<String, String>();
                 boolean bug = true;
                 String text = bug ? "LayerPush! Check message!"  : Atlas.Tools.toString(message);
@@ -156,7 +155,7 @@ public class AtlasMessagesScreen extends Activity {
         });
         
         messagesList = (AtlasMessagesList) findViewById(R.id.atlas_screen_messages_messages_list);
-        messagesList.init(app.getLayerClient(), app.contactProvider);
+        messagesList.init(app.getLayerClient(), app.getContactProvider());
         messagesList.setConversation(conv);
         messagesList.setItemClickListener(new ItemClickListener() {
             public void onItemClick(Cell item) {
@@ -202,8 +201,9 @@ public class AtlasMessagesScreen extends Activity {
         StringBuilder sb = new StringBuilder();
         for (String userId : conv.getParticipants()) {
             if (app.getLayerClient().getAuthenticatedUserId().equals(userId)) continue;
-            Contact contact = app.contactProvider.contactsMap.get(userId);
-            String initials = conv.getParticipants().size() > 2 ? AtlasContactProvider.getContactFirstAndL(contact) : AtlasContactProvider.getContactFirstAndLast(contact);
+            Contact contact = app.getContactProvider().get(userId);
+            if (contact == null) continue;
+            String initials = conv.getParticipants().size() > 2 ? contact.getFirstAndL() : contact.getFirstAndLast();
             if (sb.length() > 0) sb.append(", ");
             sb.append(initials != null ? initials : userId);
         }

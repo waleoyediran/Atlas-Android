@@ -1,289 +1,113 @@
 package com.layer.atlas.messenger;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.util.EntityUtils;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.Application;
-import android.content.SharedPreferences;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
-import com.layer.atlas.Atlas;
-import com.layer.atlas.Atlas.Contact;
+import com.layer.atlas.ContactProvider;
+import com.layer.atlas.messenger.provider.DemoContactProviderCallback;
+import com.layer.atlas.messenger.provider.DemoIdentityProvider;
+import com.layer.atlas.messenger.provider.FullContactProviderCallback;
+import com.layer.atlas.messenger.provider.FullIdentityProvider;
+import com.layer.atlas.messenger.provider.IdentityProvider;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.LayerClient.Options;
-import com.layer.sdk.exceptions.LayerException;
-import com.layer.sdk.listeners.LayerConnectionListener;
-import com.layer.sdk.messaging.Message;
-import com.layer.sdk.messaging.MessagePart;
+
+import java.util.Iterator;
 
 /**
  * @author Oleg Orlov
  * @since March 3, 2015
  */
-public class App101 extends Application {
-    /** */
+public class App101 extends Application implements AppIdCallback {
     private static final String TAG = App101.class.getSimpleName();
-    private static final boolean debug = true;
-    
-    private static final String UNIQING_APP_ID = "2043446e-ccfa-11e4-90af-1d6c000000f4";
-    private static final String PROD_APP_ID = "9ec30af8-5591-11e4-af9e-f7a201004a3b";
-    //private static final String APP_ID = DefaultConfig.kevin_standalone ? UNIQING_APP_ID : PROD_APP_ID;
-    //private static final String APP_ID = "24f43c32-4d95-11e4-b3a2-0fd00000020d"; // staging
-    private static final String APP_ID = PROD_APP_ID;
-
+    private static final boolean DEBUG = true;
     private static final String GCM_SENDER_ID = "565052870572";
-//    private static final String GCM_SENDER_ID = "565052870572"; // staging
-    
-//    private static final String USER_EMAIL = "hhdad@mailforspam.com";
-    //private static final String USER_EMAIL = "ulady@mailforspam.com";
-    //private static final String USER_EMAIL = "hhsample@mailforspam.com";
-//    private static final String USER_EMAIL = "hhdadst@mailforspam.com";
-    
-    private static final String PROVIDER_ADDRESS = "http://layer-identity-provider.herokuapp.com";
-    private static final String URL_SIGN_IN_RAILS = "https://layer-identity-provider.herokuapp.com/users/sign_in.json";
-        
-    public interface keys {
-        public static final String CONVERSATION_URI = "conversation.uri";
-        public static final String USER_ID = "user.id";
-        public static final String AUTH_TOKEN = "auth.token";
-        public static final String CONTACTS = "contact.list";
-    }
-    
-    private LayerClient layerClient;
 
-    public String login;
-    public String authToken;
-    public Atlas.AtlasContactProvider contactProvider = new Atlas.AtlasContactProvider();
-    
+    public static final boolean DEMO_MODE = true;   // Enables QR code flow with user limits */
+
+    // Set appId here to bypass QR code scanning.
+    private String appId = null;
+    //private String appId = "b257c416-016a-11e5-9933-84d0e30072a2"; // steven QR-code production
+    //private String appId = "9ec30af8-5591-11e4-af9e-f7a201004a3b"; // non-QR-code production
+
+    private LayerClient layerClient;
+    private IdentityProvider identityProvider;
+    private ContactProvider contactProvider;
+
+    public interface keys {
+        String CONVERSATION_URI = "conversation.uri";
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
-        
-        loadPreferences();
+        loadAppId();
+
+        if (DEMO_MODE) {
+            identityProvider = new DemoIdentityProvider(this);
+            contactProvider = new ContactProvider(this, new DemoContactProviderCallback(this));
+        } else {
+            identityProvider = new FullIdentityProvider(getApplicationContext(), this);
+            contactProvider = new ContactProvider(this, new FullContactProviderCallback(this, (FullIdentityProvider) identityProvider));
+        }
     }
 
-    public boolean isAuthenticated() {
-        return authToken != null;
-    }
-    
     public LayerClient getLayerClient() {
-        if (layerClient == null) {
-            layerClient = initLayerClient();
-        }
         return layerClient;
     }
 
-    private LayerClient initLayerClient() {
-        final LayerClient resultClient = (LayerClient.newInstance(this, APP_ID, new Options()
+    public void initLayerClient(final String localAppId) {
+        final LayerClient client = LayerClient.newInstance(this, localAppId, new Options()
                 .broadcastPushInForeground(true)
-                .googleCloudMessagingSenderId(GCM_SENDER_ID)
-        ));
-        
-        if (debug) Log.w(TAG, "onCreate() client created");
-        
-        resultClient.registerConnectionListener(new LayerConnectionListener() {
-            public void onConnectionConnected(LayerClient client) {
-                Log.w(TAG, "onConnectionConnected() ");
-            }
-            
-            public void onConnectionDisconnected(LayerClient client) {
-                Log.e(TAG, "onConnectionDisconnected() ");
-            }
-            
-            public void onConnectionError(LayerClient client, LayerException exception) {
-                Log.e(TAG, "onConnectionError() ", exception);
-            }
-        });
-                        
-        if (!resultClient.isAuthenticated()) resultClient.authenticate();
-        else if (!resultClient.isConnected()) resultClient.connect();
-        if (debug) Log.w(TAG, "onCreate() Layer launched");
-        
-        
-        if (debug) Log.d(TAG, "onCreate() Refreshing Contacts");
-        new Thread(new Runnable() {
-            public void run() {
-                synchronized (App101.this) {
-                    while (authToken == null) {
-                        try {
-                            App101.this.wait(1000);
-                        } catch (InterruptedException e) {}
-                    }
-                }
-                
-                try {
-                    String responseString = requestJson(
-                            "https://layer-identity-provider.herokuapp.com/users.json", new String[][] {
-                            {"X_LAYER_APP_ID", APP_ID}, 
-                            {"X_AUTH_TOKEN", authToken}, 
-                            {"X_AUTH_EMAIL", login}});
-                    if (debug) Log.w(TAG, "contacts() result: " + responseString);
-                    savePref(keys.CONTACTS, responseString);
-                    
-                    loadContacts(responseString, contactProvider.contactsMap);
-                } catch (Exception e) {
-                    Log.e(TAG, "contacts() ", e);
-                }
-            }
+                .googleCloudMessagingSenderId(GCM_SENDER_ID));
+        if (DEBUG) Log.w(TAG, "onCreate() client created");
 
-        }).start();
-        return resultClient;
-    }
-    
-    private App101 savePref(String key, String value) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        prefs.edit().putString(key, value).commit();
-        return this;
-    }
-    public void savePrefs() {
-        savePref(keys.AUTH_TOKEN, authToken);
-        savePref(keys.USER_ID, login);
-    }
-    
-    private void loadPreferences() {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        authToken = prefs.getString(keys.AUTH_TOKEN, null);
-        login = prefs.getString(keys.USER_ID, null);
-        String contactsJson = prefs.getString(keys.CONTACTS, null); 
-        if (contactsJson != null) {
-            loadContacts(contactsJson, contactProvider.contactsMap);
-        }
-    }
-    
-    /**
-     * 
-     * @return [ eit, authToken, error ]
-     */
-    public static String[] requestToken(String userEmail, String userPassw, final String nonce) throws JSONException {
-        JSONObject rootObject = new JSONObject();
-        rootObject.put("nonce", nonce);
-        rootObject.put("user", new JSONObject()
-        .put("email", userEmail)
-        .put("password", userPassw));
-        
-        String responseEntity = requestJson(URL_SIGN_IN_RAILS, 
-                new String[][] {{"X_LAYER_APP_ID", APP_ID}}, rootObject.toString());
-        
-        if (debug) Log.d(TAG, "onAuthenticationChallenge() responseEntity:\n" + responseEntity);
-        
-        final JSONObject jsonResp = new JSONObject(responseEntity);
-        
-        String eit = jsonResp.optString("layer_identity_token");
-        if (debug) Log.w(TAG, "onAuthenticationChallenge() token: \n" + eit + "\n");
-        
-        String authToken = jsonResp.optString("authentication_token");
-        
-        String error = jsonResp.optString("error", null);
-        
-        return new String[] {eit, authToken, error};
+        setAppId(localAppId);
+        layerClient = client;
+
+        if (!client.isAuthenticated()) client.authenticate();
+        else if (!client.isConnected()) client.connect();
+        if (DEBUG) Log.w(TAG, "onCreate() Layer launched");
+
+        if (DEBUG) Log.d(TAG, "onCreate() Refreshing Contacts");
+        getContactProvider().refresh();
     }
 
-    public static Map<String, Contact> loadContacts(String jsonContactList, Map<String, Contact> where) {
-        HashMap<String, Contact> result = new HashMap<String, Contact>();
-        try {
-            JSONArray jsonArr = new JSONArray(jsonContactList);
-            for (int i = 0; i < jsonArr.length(); i++) {
-                JSONObject jObject = jsonArr.getJSONObject(i);
-                Contact contact = Contact.fromRecord(jObject);
-                result.put(contact.userId, contact);
-            }
-        } catch (JSONException e) {
-            Log.e(TAG, "loadContacts() json parsing error. json: " + jsonContactList, e);
-            return null;
-        }
-        if (debug) Log.d(TAG, "loadContacts() " + result.size() + " contacts loaded");
-        
-        if (where != null) {
-            where.putAll(result);
-            return where;
-        }
-        return result;
+    public ContactProvider getContactProvider() {
+        return contactProvider;
     }
 
-    public static Message message(String text, LayerClient layerClient) {
-        MessagePart messagePart = layerClient.newMessagePart(text);
-        Message result = layerClient.newMessage(messagePart);
-        return result;
+    public IdentityProvider getIdentityProvider() {
+        return identityProvider;
     }
-    
-    public static String requestJson(String url) {
-        return requestJson(url, null, null, false);
+
+    public void setAppId(String appId) {
+        this.appId = appId;
+        getSharedPreferences("app", MODE_PRIVATE).edit().putString("appId", appId).commit();
     }
-    public static String requestJson(String url, String[][] headers) {
-        return requestJson(url, headers, null, false);
-    }
-    public static String requestJson(String url, String[][] headers, boolean post) {
-        return requestJson(url, headers, null, post);
-    }
-    public static String requestJson(String url, String requestBody) {
-        return requestJson(url, null, requestBody, true);
-    }
-    public static String requestJson(String url, String[][] headers, String requestBody) {
-        return requestJson(url, headers, requestBody, true);
-    }
-    public static String requestJson(String url, String[][] headers, String requestBody, boolean post) {
-        HttpRequest req = post ? new HttpPost(url) : new HttpGet(url);
-        req.setHeader("Content-Type", "application/json");
-        req.setHeader("Accept", "application/json");
-        if (headers != null) {
-            for (String[] header : headers) {
-                req.setHeader(header[0], header[1]);
-            }
-        }
-        try {
-            if (post && requestBody != null) {
-                StringEntity entity = new StringEntity(requestBody, "UTF-8");
-                entity.setContentType("application/json");
-                ((HttpPost)req).setEntity(entity);
-            }
-            HttpResponse response = (new DefaultHttpClient()).execute(post ? ((HttpPost)req): ((HttpGet)req));
-            String responseString = EntityUtils.toString(response.getEntity());
-            return responseString;
-        } catch (Exception e) {
-            Log.e(TAG, "requestJson() url: " + url, e);
-            return null;
+
+    private void loadAppId() {
+        if (appId == null) {
+            appId = getSharedPreferences("app", MODE_PRIVATE).getString("appId", null);
         }
     }
-    
-    public static StringBuilder toString(SQLiteDatabase db, String table) {
-        StringBuilder sb = new StringBuilder();
-        Cursor cur = db.query(table, null, null, null, null, null, null);
-        int rowNum = 0;
-        while (cur.moveToNext()) {
-            sb.append(rowNum == 0 ? "" : "\n").append(rowNum).append(": ");
-            for (int i = 0; i < cur.getColumnCount(); i++) {
-                sb.append(i == 0 ? "; ":"").append(cur.getString(i));
-            }
-        }
-        return sb;
+
+    @Override
+    public String getAppId() {
+        return appId;
     }
 
     /**
      * Converts a Bundle to the human readable string.
      *
-     * @param items the collection for example, {@link java.util.ArrayList}, {@link java.util.HashSet} etc.
+     * @param bundle the collection for example, {@link java.util.ArrayList}, {@link java.util.HashSet} etc.
      * @return the converted string
      */
     public static String toString(Bundle bundle) {
         return toString(bundle, ", ", "");
     }
-    
+
     public static String toString(Bundle bundle, String separator, String firstSeparator) {
         if (bundle == null) return "null";
         StringBuilder sb = new StringBuilder("[");
@@ -296,5 +120,4 @@ public class App101 extends Application {
         sb.append("]");
         return sb.toString();
     }
-
 }

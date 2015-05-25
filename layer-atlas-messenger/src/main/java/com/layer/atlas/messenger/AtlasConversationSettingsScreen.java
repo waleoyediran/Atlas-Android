@@ -1,9 +1,5 @@
 package com.layer.atlas.messenger;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -22,9 +18,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.layer.atlas.Atlas.AtlasContactProvider;
-import com.layer.atlas.Atlas.Contact;
+import com.layer.atlas.Contact;
 import com.layer.sdk.messaging.Conversation;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
 
 /**
  * @author Oleg Orlov
@@ -105,7 +104,7 @@ public class AtlasConversationSettingsScreen extends Activity {
         Contact[] contacts = new Contact[conv.getParticipants().size()];
         int i = 0;
         for (String userId : conv.getParticipants()) {
-            Contact c = app101.contactProvider.contactsMap.get(userId);
+            Contact c = app101.getContactProvider().get(userId);
             contacts[i++] = c;
         }
         Arrays.sort(contacts, Contact.FIRST_LAST_EMAIL_ASCENDING);
@@ -114,9 +113,9 @@ public class AtlasConversationSettingsScreen extends Activity {
             View convert = getLayoutInflater().inflate(R.layout.atlas_screen_conversation_settings_participant_convert, namesList, false);
             
             TextView avaText = (TextView) convert.findViewById(R.id.atlas_screen_conversation_settings_convert_ava);
-            avaText.setText(AtlasContactProvider.getContactInitials(contacts[iContact]));
+            avaText.setText(contacts[iContact].getInitials());
             TextView nameText = (TextView) convert.findViewById(R.id.atlas_screen_conversation_settings_convert_name);
-            nameText.setText(AtlasContactProvider.getContactFirstAndLast(contacts[iContact]));
+            nameText.setText(contacts[iContact].getFirstAndLast());
             
             convert.setTag(contacts[iContact]);
             convert.setOnLongClickListener(contactLongClickListener);
@@ -130,7 +129,7 @@ public class AtlasConversationSettingsScreen extends Activity {
         public boolean onLongClick(View v) {
             Contact contact = (Contact) v.getTag();
             conv.removeParticipants(contact.userId);
-            Toast.makeText(v.getContext(), "Removing " + AtlasContactProvider.getContactFirstAndLast(contact), Toast.LENGTH_LONG).show();
+            Toast.makeText(v.getContext(), "Removing " + contact.getFirstAndLast(), Toast.LENGTH_LONG).show();
             updateValues();
             return true;
         }
@@ -138,8 +137,6 @@ public class AtlasConversationSettingsScreen extends Activity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        if (debug) Log.w(TAG, "onActivityResult() requestCode: " + requestCode + ", resultCode: " + requestCode
-//                + ", data: " + (data != null ? Log.toString(data.getExtras()) : "null"));
         if (requestCode == REQUEST_CODE_ADD_PARTICIPANT && resultCode == RESULT_OK) {
             String[] addedParticipants = data.getStringArrayExtra(AtlasParticipantPickersScreen.EXTRA_KEY_USERIDS_SELECTED);
             conv.addParticipants(addedParticipants);

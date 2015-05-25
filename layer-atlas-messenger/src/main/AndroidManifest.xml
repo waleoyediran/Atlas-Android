@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.layer.atlas.messenger"
-    android:versionCode="1"
-    android:versionName="0.9.1" >
+    android:versionCode="2"
+    android:versionName="0.9.2" >
 
     <uses-sdk
         android:minSdkVersion="14"
@@ -20,10 +20,16 @@
     <!-- GCM -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
-    
-    <!--  camera for Atlas -->
-    <uses-feature android:name="android.hardware.camera" android:required="false" />
-    
+
+    <!-- QR Code Scanner -->
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-feature android:name="android.hardware.camera" android:required="false"/>
+    <uses-feature android:name="android.hardware.camera.front" android:required="false"/>
+    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false"/>
+    <uses-feature android:name="android.hardware.camera.flash" android:required="false"/>
+    <uses-feature android:name="android.hardware.screen.landscape" android:required="false" />
+    <uses-feature android:name="android.hardware.wifi" android:required="false"/>
+
     <!--  location access -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
@@ -34,7 +40,7 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
-        
+
         <activity
             android:name=".AtlasConversationsScreen"
             android:label="@string/app_name" >
@@ -43,36 +49,41 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        
+
         <activity
             android:name=".AtlasMessagesScreen"
             android:configChanges="orientation|keyboardHidden"
             android:label="@string/atlas_screen_messages_title" >
         </activity>
-        
+
         <activity
             android:name=".AtlasConversationSettingsScreen"
             android:configChanges="orientation|keyboardHidden"
             android:label="@string/atlas_screen_messages_title" >
         </activity>
-        
+
         <activity
             android:name=".AtlasSettingsScreen"
             android:label="@string/atlas_screen_settings_title" >
         </activity>
-        
+
         <activity
             android:name=".AtlasLoginScreen"
             android:label="@string/atlas_screen_settings_title" >
         </activity>
-        
+
         <activity
             android:name=".AtlasParticipantPickersScreen"
             android:configChanges="orientation|keyboardHidden"
             android:label="ScreenTest: remove me from manifest" >
         </activity>
-        
-        <!-- Receive all kinds of Push events from Layer (native push, GCM, etc) -->
+
+        <activity android:name=".QRCaptureActivity"
+                  android:clearTaskOnLaunch="true"
+                  android:screenOrientation="portrait"
+                  android:stateNotNeeded="true"
+                  android:theme="@style/android:Theme.Black.NoTitleBar.Fullscreen"
+                  android:windowSoftInputMode="stateAlwaysHidden" />
 
         <receiver android:name=".App101PushReceiver" >
             <intent-filter>
