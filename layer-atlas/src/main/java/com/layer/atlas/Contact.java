@@ -19,10 +19,10 @@ public class Contact {
     public String getFirstAndL() {
         StringBuilder sb = new StringBuilder();
         if (firstName != null && firstName.trim().length() > 0) {
-            sb.append(firstName.trim()).append(" ");
+            sb.append(firstName.trim());
         }
         if (lastName != null && lastName.trim().length() > 0) {
-            sb.append(lastName.trim().charAt(0));
+            sb.append(" ").append(lastName.trim().charAt(0));
             sb.append(".");
         }
         return sb.toString();
@@ -31,10 +31,10 @@ public class Contact {
     public String getFirstAndLast() {
         StringBuilder sb = new StringBuilder();
         if (firstName != null && firstName.trim().length() > 0) {
-            sb.append(firstName.trim()).append(" ");
+            sb.append(firstName.trim());
         }
         if (lastName != null && lastName.trim().length() > 0) {
-            sb.append(lastName.trim());
+            sb.append(" ").append(lastName.trim());
         }
         return sb.toString();
     }

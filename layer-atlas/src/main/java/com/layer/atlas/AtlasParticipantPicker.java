@@ -63,12 +63,11 @@ public class AtlasParticipantPicker extends FrameLayout {
     
     public AtlasParticipantPicker(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        parseStyle(context, attrs);
+        parseStyle(context, attrs, defStyle);
     }
 
     public AtlasParticipantPicker(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        parseStyle(context, attrs);
+        this(context, attrs, 0);
     }
 
     public AtlasParticipantPicker(Context context) {
@@ -170,7 +169,6 @@ public class AtlasParticipantPicker extends FrameLayout {
                 name.setTypeface(listTextTypeface, listTextStyle);
                 avatarText.setTextColor(listTextColor);
                 avatarText.setTypeface(listTextTypeface, listTextStyle);
-                
                 return convertView;
             }
 
@@ -298,8 +296,8 @@ public class AtlasParticipantPicker extends FrameLayout {
         contactsAdapter.notifyDataSetChanged();
     }
 
-    public void parseStyle(Context context, AttributeSet attrs) {
-        TypedArray ta = context.getResources().obtainAttributes(attrs, R.styleable.AtlasParticipantPicker);
+    public void parseStyle(Context context, AttributeSet attrs, int defStyle) {
+        TypedArray ta = context.getTheme().obtainStyledAttributes(attrs, R.styleable.AtlasParticipantPicker, R.attr.AtlasParticipantPicker, defStyle);
         this.inputTextColor = ta.getColor(R.styleable.AtlasParticipantPicker_inputTextColor, context.getResources().getColor(R.color.atlas_text_black));
         this.inputTextStyle = ta.getInt(R.styleable.AtlasParticipantPicker_inputTextStyle, Typeface.NORMAL);
         String inputTextTypefaceName = ta.getString(R.styleable.AtlasParticipantPicker_inputTextTypeface); 
@@ -315,6 +313,7 @@ public class AtlasParticipantPicker extends FrameLayout {
         this.chipTextStyle = ta.getInt(R.styleable.AtlasParticipantPicker_chipTextStyle, Typeface.NORMAL);
         String chipTextTypefaceName = ta.getString(R.styleable.AtlasParticipantPicker_chipTextTypeface); 
         this.chipTextTypeface  = chipTextTypefaceName != null ? Typeface.create(chipTextTypefaceName, inputTextStyle) : null;
+        ta.recycle();
     }
     
     private void applyStyle() {

@@ -83,8 +83,8 @@
         <flag name="normal" value="0" /> 
         <flag name="bold" value="1" />
         <flag name="italic" value="2" /></attr>
-    
-    
+
+
     <!-- ###################### -->
     <!-- Atlas Component Styles -->
     <!-- ###################### -->
@@ -92,6 +92,20 @@
     <attr name="AtlasMessageComposer"   format="reference"/>
     <attr name="AtlasMessageList"       format="reference"/>
     <attr name="AtlasParticipantPicker" format="reference"/>
+    <attr name="AtlasTypingIndicator"   format="reference"/>
+
+
+    <!-- ############ -->
+    <!-- Atlas Styles -->
+    <!-- ############ -->
+    <style name="Theme.Atlas.Light" parent="android:Theme">
+        <item name="AtlasConversationList">@style/AtlasConversationList</item>
+        <item name="AtlasMessageComposer">@style/AtlasMessageComposer</item>
+        <item name="AtlasMessageList">@style/AtlasMessageList</item>
+        <item name="AtlasParticipantPicker">@style/AtlasParticipantPicker</item>
+        <item name="AtlasTypingIndicator">@style/AtlasTypingIndicator</item>
+    </style>
+
 
     <!-- #################################### -->
     <!-- Styleable Atlas Component Attributes -->
@@ -152,9 +166,14 @@
         <attr name="chipTextColor"/>
         <attr name="chipTextTypeface"/>
         <attr name="chipTextStyle"/>
-        
     </declare-styleable>
-    
+
+    <declare-styleable name="AtlasTypingIndicator">
+        <attr name="textColor"/>
+        <attr name="textSize"/>
+        <attr name="textTypeface"/>
+        <attr name="textStyle"/>
+    </declare-styleable>
     
     
     <!-- ############################## -->
@@ -214,8 +233,15 @@
         <item name="avatarTextColor"        >@color/atlas_text_black</item>
         <item name="chipBackgroundColor"    >@color/atlas_background_gray</item>
         <item name="chipTextColor"          >@color/atlas_text_black</item>
-        <item name="chipTextTypeface"      >normal</item>
-        <item name="chipTextStyle"          >@color/atlas_text_black</item>
+        <item name="chipTextTypeface"       >normal</item>
+        <item name="chipTextStyle"          >normal</item>
+    </style>
+    
+    <style name="AtlasTypingIndicator">
+        <item name="textColor"              >@color/atlas_text_black</item>
+        <item name="textSize"               >@dimen/atlas_text_size_general</item>
+        <item name="textTypeface"           >normal</item>
+        <item name="textStyle"              >normal</item>
     </style>
     
 </resources>

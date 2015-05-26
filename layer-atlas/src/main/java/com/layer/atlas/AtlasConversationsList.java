@@ -77,12 +77,11 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
     
     public AtlasConversationsList(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        parseStyle(context, attrs);
+        parseStyle(context, attrs, defStyle);
     }
 
     public AtlasConversationsList(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        parseStyle(context, attrs);
+        this(context, attrs, 0);
     }
 
     public AtlasConversationsList(Context context) {
@@ -102,7 +101,7 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
         this.conversationsList.setAdapter(conversationsAdapter = new BaseAdapter() {
             
             public View getView(int position, View convertView, ViewGroup parent) {
-                if (convertView == null) { 
+                if (convertView == null) {
                     convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.atlas_view_conversations_list_convert, parent, false);
                 }
                 
@@ -277,11 +276,10 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
                 }
             });
         }
-
     }
 
-    public void parseStyle(Context context, AttributeSet attrs) {
-        TypedArray ta = context.getResources().obtainAttributes(attrs, R.styleable.AtlasConversationList);
+    public void parseStyle(Context context, AttributeSet attrs, int defStyle) {
+        TypedArray ta = context.getTheme().obtainStyledAttributes(attrs, R.styleable.AtlasConversationList, R.attr.AtlasConversationList, defStyle);
         this.titleTextColor = ta.getColor(R.styleable.AtlasConversationList_titleTextColor, context.getResources().getColor(R.color.atlas_text_black));
         this.titleTextStyle = ta.getInt(R.styleable.AtlasConversationList_titleTextStyle, Typeface.NORMAL);
         String titleTextTypefaceName = ta.getString(R.styleable.AtlasConversationList_titleTextTypeface); 
@@ -306,7 +304,8 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
         this.cellUnreadBackgroundColor = ta.getColor(R.styleable.AtlasConversationList_cellUnreadBackgroundColor, Color.TRANSPARENT); 
         this.dateTextColor = ta.getColor(R.styleable.AtlasConversationList_dateTextColor, context.getResources().getColor(R.color.atlas_text_black)); 
         this.avatarTextColor = ta.getColor(R.styleable.AtlasConversationList_avatarTextColor, context.getResources().getColor(R.color.atlas_text_black)); 
-        this.avatarBackgroundColor = ta.getColor(R.styleable.AtlasConversationList_avatarBackgroundColor, context.getResources().getColor(R.color.atlas_shape_avatar_gray)); 
+        this.avatarBackgroundColor = ta.getColor(R.styleable.AtlasConversationList_avatarBackgroundColor, context.getResources().getColor(R.color.atlas_shape_avatar_gray));
+        ta.recycle();
     }
     
     private void applyStyle() {

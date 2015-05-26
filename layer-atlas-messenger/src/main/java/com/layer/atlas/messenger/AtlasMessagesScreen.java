@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -24,6 +25,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -32,6 +34,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.layer.atlas.Atlas;
+import com.layer.atlas.AtlasTypingIndicator;
 import com.layer.atlas.Contact;
 import com.layer.atlas.AtlasMessageComposer;
 import com.layer.atlas.AtlasMessagesList;
@@ -67,6 +70,7 @@ public class AtlasMessagesScreen extends Activity {
     private Handler uiHandler;
     
     private AtlasMessagesList messagesList;
+    private AtlasTypingIndicator typingIndicator;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,28 +104,28 @@ public class AtlasMessagesScreen extends Activity {
                     messagesList.setConversation(conv);
                     updateValues();
                 }
-                
+
                 // push
                 Contact myContact = app.getContactProvider().get(app.getLayerClient().getAuthenticatedUserId());
                 String senderName = myContact.getFirstAndLast();
                 Map<String, String> metadata = new HashMap<String, String>();
                 boolean bug = true;
-                String text = bug ? "LayerPush! Check message!"  : Atlas.Tools.toString(message);
+                String text = bug ? "LayerPush! Check message!" : Atlas.Tools.toString(message);
                 if (senderName != null && !senderName.isEmpty()) {
                     metadata.put(Message.ReservedMetadataKeys.PushNotificationAlertMessageKey.getKey(), senderName + ": " + text);
                 } else {
                     metadata.put(Message.ReservedMetadataKeys.PushNotificationAlertMessageKey.getKey(), text);
                 }
                 message.setMetadata(metadata);
-                
+
                 return true;
             }
         });
         
         messageComposer.registerMenuItem("Photo", new OnClickListener() {
             public void onClick(View v) {
-                Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE); 
-                startActivityForResult(cameraIntent, REQUEST_CODE_CAMERA); 
+                Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+                startActivityForResult(cameraIntent, REQUEST_CODE_CAMERA);
             }
         });
 
@@ -174,12 +178,17 @@ public class AtlasMessagesScreen extends Activity {
                             startActivity(openMapIntent);
                             if (debug) Log.w(TAG, "onItemClick() starting Map: " + uriString);
                         } else {
-                            if (debug) Log.w(TAG, "onItemClick() No Activity to start Map: " + geoUri);
+                            if (debug)
+                                Log.w(TAG, "onItemClick() No Activity to start Map: " + geoUri);
                         }
-                    } catch (JSONException ignored) {}
+                    } catch (JSONException ignored) {
+                    }
                 }
             }
         });
+        
+        typingIndicator = (AtlasTypingIndicator)findViewById(R.id.atlas_typing_indicator);
+        typingIndicator.init(conv, app.getContactProvider(), null);
         
         // location manager for inserting locations:
         this.locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
@@ -335,7 +344,7 @@ public class AtlasMessagesScreen extends Activity {
         }
         
         App101 app = (App101) getApplication();
-        app.getLayerClient().registerEventListener(messagesList);
+        app.getLayerClient().registerEventListener(messagesList).registerTypingIndicator(typingIndicator.clear());
     }
     
     private static final int LOCATION_EXPIRATION_TIME = 60 * 1000; // 1 minute 
@@ -362,7 +371,7 @@ public class AtlasMessagesScreen extends Activity {
         
         locationManager.removeUpdates(locationTracker);
         App101 app = (App101) getApplication();
-        app.getLayerClient().unregisterEventListener(messagesList);
+        app.getLayerClient().unregisterEventListener(messagesList).unregisterTypingIndicator(typingIndicator.clear());
     }
 
     @Override
