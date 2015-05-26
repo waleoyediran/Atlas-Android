@@ -139,6 +139,7 @@ public class AtlasMessageComposer extends FrameLayout {
 
             @Override
             public void afterTextChanged(Editable s) {
+                if (conv == null) return;
                 try {
                     if (s.length() > 0) {
                         conv.send(LayerTypingIndicatorListener.TypingIndicator.STARTED);
