@@ -42,6 +42,8 @@ public class App101 extends Application implements AppIdCallback {
     @Override
     public void onCreate() {
         super.onCreate();
+        //LayerClient.enableLogging();
+        LayerClient.applicationCreated(this);
         loadAppId();
 
         if (DEMO_MODE) {

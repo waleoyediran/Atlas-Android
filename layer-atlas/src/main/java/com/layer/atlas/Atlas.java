@@ -67,6 +67,7 @@ public class Atlas {
                     sb.append(new String(mp.getData()));
                 } else {
                     sb.append("Attachment: Image");
+                    break;
                 }
             }
             return sb.toString();

@@ -174,15 +174,14 @@ public class ParticipantProvider implements Atlas.ParticipantProvider {
         }
 
         for (Participant p : getAll()) {
-            if (p.firstName != null && !p.firstName.toLowerCase().contains(filter)) {
+            boolean matches = false;
+            if (p.firstName != null && p.firstName.toLowerCase().contains(filter)) matches = true;
+            if (!matches && p.lastName != null && p.lastName.toLowerCase().contains(filter)) matches = true;
+            if (matches) {
+                result.put(p.getId(), p);
+            } else {
                 result.remove(p.getId());
-                continue;
             }
-            if (p.lastName != null && !p.lastName.toLowerCase().contains(filter)) {
-                result.remove(p.getId());
-                continue;
-            }
-            result.put(p.getId(), p);
         }
         return result;
     }

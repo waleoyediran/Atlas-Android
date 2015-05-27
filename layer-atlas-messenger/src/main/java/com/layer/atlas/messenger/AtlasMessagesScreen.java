@@ -106,15 +106,15 @@ public class AtlasMessagesScreen extends Activity {
                 Participant myParticipant = app.getParticipantProvider().get(app.getLayerClient().getAuthenticatedUserId());
                 String senderName = Atlas.getFullName(myParticipant);
                 Map<String, String> metadata = new HashMap<String, String>();
-                boolean bug = true;
-                String text = bug ? "LayerPush! Check message!" : Atlas.Tools.toString(message);
-                if (senderName != null && !senderName.isEmpty()) {
-                    metadata.put(Message.ReservedMetadataKeys.PushNotificationAlertMessageKey.getKey(), senderName + ": " + text);
-                } else {
-                    metadata.put(Message.ReservedMetadataKeys.PushNotificationAlertMessageKey.getKey(), text);
+                String text = Atlas.Tools.toString(message);
+                if (!text.isEmpty()) {
+                    if (senderName != null && !senderName.isEmpty()) {
+                        metadata.put(Message.ReservedMetadataKeys.PushNotificationAlertMessageKey.getKey(), senderName + ": " + text);
+                    } else {
+                        metadata.put(Message.ReservedMetadataKeys.PushNotificationAlertMessageKey.getKey(), text);
+                    }
+                    message.setMetadata(metadata);
                 }
-                message.setMetadata(metadata);
-
                 return true;
             }
         });
