@@ -1,12 +1,14 @@
 package com.layer.atlas;
 
+import java.text.SimpleDateFormat;
+import java.util.Comparator;
+import java.util.Map;
+
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 
 import com.layer.sdk.messaging.Message;
 import com.layer.sdk.messaging.MessagePart;
-
-import java.util.Map;
 
 /**
  * @author Oleg Orlov
@@ -47,7 +49,7 @@ public class Atlas {
         StringBuilder sb = new StringBuilder();
         if (p.getFirstName() != null && p.getFirstName().trim().length() > 0) {
             sb.append(p.getFirstName().trim());
-        }
+    }
         if (p.getLastName() != null && p.getLastName().trim().length() > 0) {
             sb.append(" ").append(p.getLastName().trim());
         }
@@ -55,6 +57,9 @@ public class Atlas {
     }
 
     public static final class Tools {
+        public static final SimpleDateFormat sdf = new SimpleDateFormat("HH:mm a"); // TODO: localization required
+        public static final SimpleDateFormat sdfDayOfWeek = new SimpleDateFormat("EEEE, LLL dd,"); // TODO: localization required
+        
         public static String toString(Message msg) {
             StringBuilder sb = new StringBuilder();
             int attaches = 0;
@@ -121,6 +126,35 @@ public class Atlas {
          * @return The Participant with the given ID, or `null` if not available.
          */
         Atlas.Participant getParticipant(String userId);
+    }
+
+    public static final class FilteringComparator implements Comparator<Atlas.Participant> {
+        private final String filter;
+    
+        /**
+         * @param filter - the less indexOf(filter) the less order of participant
+         */
+        public FilteringComparator(String filter) {
+            this.filter = filter;
+        }
+    
+        @Override
+        public int compare(Atlas.Participant lhs, Atlas.Participant rhs) {
+            int result = subCompareCaseInsensitive(lhs.getFirstName(), rhs.getFirstName());
+            if (result != 0) return result;
+            return subCompareCaseInsensitive(lhs.getLastName(), rhs.getLastName());
+        }
+    
+        private int subCompareCaseInsensitive(String lhs, String rhs) {
+            int left = lhs != null ? lhs.toLowerCase().indexOf(filter) : -1;
+            int right = rhs != null ? rhs.toLowerCase().indexOf(filter) : -1;
+    
+            if (left == -1 && right == -1) return 0;
+            if (left != -1 && right == -1) return -1;
+            if (left == -1 && right != -1) return 1;
+            if (left - right != 0) return left - right;
+            return String.CASE_INSENSITIVE_ORDER.compare(lhs, rhs);
+        }
     }
     
 }

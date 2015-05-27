@@ -1,7 +1,8 @@
 package com.layer.atlas;
 
-import java.text.SimpleDateFormat;
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -26,6 +27,7 @@ import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.layer.atlas.Atlas.Tools;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.changes.LayerChange;
 import com.layer.sdk.changes.LayerChangeEvent;
@@ -75,9 +77,13 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
     private int avatarTextColor;
     private int avatarBackgroundColor;
     
+    // date 
+    private final DateFormat dateFormat;
+
     public AtlasConversationsList(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         parseStyle(context, attrs, defStyle);
+        this.dateFormat = android.text.format.DateFormat.getDateFormat(context);
     }
 
     public AtlasConversationsList(Context context, AttributeSet attrs) {
@@ -86,6 +92,7 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
 
     public AtlasConversationsList(Context context) {
         super(context);
+        this.dateFormat = android.text.format.DateFormat.getDateFormat(context);
     }
 
     public void init(View rootView, final LayerClient layerClient, final Atlas.ParticipantProvider participantProvider) {
@@ -171,9 +178,8 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
                     textLastMessage.setText(lastMessageText);
                     
                     Date sentAt = last.getSentAt();
-                    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
                     if (sentAt == null) timeView.setText("...");
-                    else                timeView.setText(sdf.format(sentAt));
+                    else                timeView.setText(formatTime(sentAt));
 
                     String userId = last.getSender().getUserId();                   // could be null for system messages 
                     String myId = layerClient.getAuthenticatedUserId();
@@ -199,11 +205,6 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
                     convertView.setBackgroundColor(cellBackgroundColor);
                 }
                 timeView.setTextColor(dateTextColor);
-                
-//                private int dateTextColor;
-//                private int avatarTextColor;
-//                private int avatarBackgroundColor;
-                
                 return convertView;
             }
             public long getItemId(int position) {
@@ -316,6 +317,27 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
     
     private void applyStyle() {
         conversationsAdapter.notifyDataSetChanged();
+    }
+    
+    public String formatTime(Date sentAt) {
+        if (sentAt == null) sentAt = new Date();
+
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        long todayMidnight = cal.getTimeInMillis();
+        long yesterMidnight = todayMidnight - (24 * 60 * 60 * 1000); // 24h less
+        
+        String timeBarDayText = null;
+        if (sentAt.getTime() > todayMidnight) {
+            timeBarDayText = Tools.sdf.format(sentAt.getTime()); 
+        } else if (sentAt.getTime() > yesterMidnight) {
+            timeBarDayText = "Yesterday";
+        } else {
+            timeBarDayText = dateFormat.format(sentAt);
+        }
+        return timeBarDayText;
     }
 
     @Override

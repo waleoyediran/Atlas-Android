@@ -1,7 +1,6 @@
 package com.layer.atlas;
 
 import java.io.InputStream;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -33,6 +32,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.layer.atlas.Atlas.Tools;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.changes.LayerChange;
 import com.layer.sdk.changes.LayerChange.Type;
@@ -52,9 +52,6 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
     private static final String TAG = AtlasMessagesList.class.getSimpleName();
     private static final boolean debug = false;
     
-    private static final SimpleDateFormat sdf = new SimpleDateFormat("HH:mm a"); // TODO: localization required
-    private static final SimpleDateFormat sdfDayOfWeek = new SimpleDateFormat("EEEE, LLL dd,"); // TODO: localization required
-
     private static final boolean CLUSTERED_BUBBLES = false;
     
     private ListView messagesList;
@@ -159,7 +156,6 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
                 TextView timeBarDay = (TextView) convertView.findViewById(R.id.atlas_view_messages_convert_timebar_day);
                 TextView timeBarTime = (TextView) convertView.findViewById(R.id.atlas_view_messages_convert_timebar_time);
                 if (cell.timeHeader) {
-                    timeBar.setVisibility(View.VISIBLE);
 
                     Calendar cal = Calendar.getInstance();
                     cal.set(Calendar.HOUR_OF_DAY, 0);
@@ -170,14 +166,18 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
                     Date sentAt = cell.messagePart.getMessage().getSentAt();
                     if (sentAt == null) sentAt = new Date();
                     
+                    String timeBarTimeText = Tools.sdf.format(sentAt.getTime());
+                    String timeBarDayText = null;
                     if (sentAt.getTime() > todayMidnight) {
-                        timeBarDay.setText("Today"); 
+                        timeBarDayText = "Today"; 
                     } else if (sentAt.getTime() > yesterMidnight) {
-                        timeBarDay.setText("Yesterday");
+                        timeBarDayText = "Yesterday";
                     } else {
-                        timeBarDay.setText(sdfDayOfWeek.format(sentAt));
+                        timeBarDayText = Tools.sdfDayOfWeek.format(sentAt);
                     }
-                    timeBarTime.setText(sdf.format(sentAt.getTime()));
+                    timeBarDay.setText(timeBarDayText);
+                    timeBarTime.setText(timeBarTimeText);
+                    timeBar.setVisibility(View.VISIBLE);
                 } else {
                     timeBar.setVisibility(View.GONE);
                 }

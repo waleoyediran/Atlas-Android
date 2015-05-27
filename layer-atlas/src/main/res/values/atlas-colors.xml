@@ -6,7 +6,8 @@
 	
     <color name="atlas_bubble_blue">#21AAE1</color>
     
-    <color name="atlas_text_blue">#FF2196F3</color>
+    <color name="atlas_text_blue">#21AAE1</color>
+    <color name="atlas_text_blue_bright">#FF2196F3</color>
     <color name="atlas_text_gray">#86000000</color>
     <color name="atlas_text_black">#FF000000</color>
     <color name="atlas_text_black87">#DD000000</color>

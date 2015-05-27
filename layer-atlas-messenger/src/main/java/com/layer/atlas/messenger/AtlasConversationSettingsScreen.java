@@ -16,6 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.layer.atlas.Atlas;
+import com.layer.atlas.Atlas.FilteringComparator;
 import com.layer.sdk.messaging.Conversation;
 
 /**
@@ -79,7 +80,7 @@ public class AtlasConversationSettingsScreen extends Activity {
             Participant participant = app101.getParticipantProvider().get(userId);
             participants[i++] = participant;
         }
-        Arrays.sort(participants);
+        Arrays.sort(participants, new FilteringComparator(""));
         
         for (int iContact = 0; iContact < participants.length; iContact++) {
             View convert = getLayoutInflater().inflate(R.layout.atlas_screen_conversation_settings_participant_convert, namesList, false);

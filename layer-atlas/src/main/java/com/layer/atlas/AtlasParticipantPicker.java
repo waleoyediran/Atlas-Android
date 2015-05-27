@@ -8,6 +8,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeSet;
 
+import com.layer.atlas.Atlas.Participant;
+import com.layer.atlas.Atlas.ParticipantProvider;
+
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Typeface;
@@ -44,12 +47,11 @@ public class AtlasParticipantPicker extends FrameLayout {
     private ListView participantsList;
     private ViewGroup selectedParticipantsContainer;
 
-    private Atlas.ParticipantProvider participantProvider;
+    private ParticipantProvider participantProvider;
 
     private TreeSet<String> skipUserIds = new TreeSet<String>();
-    private final Map<String, Atlas.Participant> allParticipantMap = new HashMap<String, Atlas.Participant>();
-    private final Map<String, Atlas.Participant> filterParticipantMap = new HashMap<String, Atlas.Participant>();
-    private ArrayList<ParticipantEntry> selectedParticipants = new ArrayList<ParticipantEntry>();
+    private final Map<String, Participant> filteredParticipants = new HashMap<String, Participant>();
+    private ArrayList<String> selectedParticipantIds = new ArrayList<String>();
     private final ArrayList<ParticipantEntry> participantsForAdapter = new ArrayList<ParticipantEntry>();
 
     private BaseAdapter participantsAdapter;
@@ -79,14 +81,13 @@ public class AtlasParticipantPicker extends FrameLayout {
         super(context);
     }
 
-    public void init(String[] userIdToSkip, Atlas.ParticipantProvider participantProvider) {
+    public void init(String[] userIdToSkip, ParticipantProvider participantProvider) {
         if (participantProvider == null) throw new IllegalArgumentException("ParticipantProvider cannot be null");
         
         LayoutInflater.from(getContext()).inflate(R.layout.atlas_participants_picker, this);
 
         this.participantProvider = participantProvider;
         if (userIdToSkip != null) skipUserIds.addAll(Arrays.asList(userIdToSkip));
-        participantProvider.getParticipants(null, allParticipantMap);
         
         // START OF -------------------- Participant Picker ----------------------------------------
         this.rootView = this;
@@ -192,8 +193,8 @@ public class AtlasParticipantPicker extends FrameLayout {
         participantsList.setOnItemClickListener(new OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 ParticipantEntry entry = participantsForAdapter.get(position);
-                selectedParticipants.add(entry);
-                refreshParticipants(selectedParticipants);
+                selectedParticipantIds.add(entry.id);
+                refreshParticipants(selectedParticipantIds);
                 textFilter.setText("");
                 textFilter.requestFocus();
                 filterParticipants("");                 // refresh participantList
@@ -223,10 +224,10 @@ public class AtlasParticipantPicker extends FrameLayout {
         textFilter.setOnKeyListener(new OnKeyListener() {
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 if (debug) Log.w(TAG, "onKey() keyCode: " + keyCode + ", event: " + event);
-                if (keyCode == KeyEvent.KEYCODE_DEL && event.getAction() == KeyEvent.ACTION_DOWN && textFilter.getText().length() == 0 && selectedParticipants.size() > 0) {
+                if (keyCode == KeyEvent.KEYCODE_DEL && event.getAction() == KeyEvent.ACTION_DOWN && textFilter.getText().length() == 0 && selectedParticipantIds.size() > 0) {
 
-                    selectedParticipants.remove(selectedParticipants.size() - 1);
-                    refreshParticipants(selectedParticipants);
+                    selectedParticipantIds.remove(selectedParticipantIds.size() - 1);
+                    refreshParticipants(selectedParticipantIds);
                     filterParticipants("");
                     textFilter.requestFocus();
                 }
@@ -240,7 +241,7 @@ public class AtlasParticipantPicker extends FrameLayout {
         applyStyle();
     }
 
-    private void refreshParticipants(final ArrayList<ParticipantEntry> selectedParticipants) {
+    private void refreshParticipants(final ArrayList<String> selectedParticipantIds) {
 
         // remove name_converts first. Better to keep editText in place rather than add/remove that force keyboard to blink
         for (int i = selectedParticipantsContainer.getChildCount() - 1; i >= 0; i--) {
@@ -250,17 +251,18 @@ public class AtlasParticipantPicker extends FrameLayout {
             }
         }
         if (debug) Log.w(TAG, "refreshParticipants() childs left: " + selectedParticipantsContainer.getChildCount());
-        for (ParticipantEntry entryToAdd : selectedParticipants) {
+        for (String id : selectedParticipantIds) {
+            Participant entry = participantProvider.getParticipant(id);
             View participantView = LayoutInflater.from(selectedParticipantsContainer.getContext()).inflate(R.layout.atlas_view_participants_picker_name_convert, selectedParticipantsContainer, false);
 
             TextView avaText = (TextView) participantView.findViewById(R.id.atlas_view_participants_picker_name_convert_ava);
-            avaText.setText(Atlas.getInitials(entryToAdd.participant));
+            avaText.setText(Atlas.getInitials(entry));
             TextView nameText = (TextView) participantView.findViewById(R.id.atlas_view_participants_picker_name_convert_name);
-            nameText.setText(Atlas.getFullName(entryToAdd.participant));
-            participantView.setTag(entryToAdd);
+            nameText.setText(Atlas.getFullName(entry));
+            participantView.setTag(entry);
 
             selectedParticipantsContainer.addView(participantView, selectedParticipantsContainer.getChildCount() - 1);
-            if (debug) Log.w(TAG, "refreshParticipants() child added: " + participantView + ", for: " + entryToAdd);
+            if (debug) Log.w(TAG, "refreshParticipants() child added: " + participantView + ", for: " + entry);
             
             // apply styles
             avaText.setTextColor(chipTextColor);
@@ -272,7 +274,7 @@ public class AtlasParticipantPicker extends FrameLayout {
             drawable.setColor(chipBackgroundColor);
             
         }
-        if (selectedParticipants.size() == 0) {
+        if (selectedParticipantIds.size() == 0) {
             LayoutParams params = new LayoutParams(textFilter.getLayoutParams());
             params.width = LayoutParams.MATCH_PARENT;
         }
@@ -280,10 +282,10 @@ public class AtlasParticipantPicker extends FrameLayout {
     }
     
     private void filterParticipants(final String filter) {
-        participantProvider.getParticipants(filter, filterParticipantMap);
+        participantProvider.getParticipants(filter, filteredParticipants);
         participantsForAdapter.clear();
-        for (Map.Entry<String, Atlas.Participant> entry : filterParticipantMap.entrySet()) {
-            if (selectedParticipants.contains(entry.getValue())) continue;
+        for (Map.Entry<String, Participant> entry : filteredParticipants.entrySet()) {
+            if (selectedParticipantIds.contains(entry.getKey())) continue;
             if (skipUserIds.contains(entry.getKey())) continue;
             participantsForAdapter.add(new ParticipantEntry(entry.getValue(), entry.getKey()));
         }
@@ -312,17 +314,17 @@ public class AtlasParticipantPicker extends FrameLayout {
     }
     
     private void applyStyle() {
-        refreshParticipants(selectedParticipants);
+        refreshParticipants(selectedParticipantIds);
         participantsAdapter.notifyDataSetChanged();
         textFilter.setTextColor(inputTextColor);
         textFilter.setTypeface(inputTextTypeface, inputTextStyle);
     }
 
     public String[] getSelectedUserIds() {
-        String[] userIds = new String[selectedParticipants.size()];
+        String[] userIds = new String[selectedParticipantIds.size()];
         int i = 0;
-        for (ParticipantEntry entry : selectedParticipants) {
-            userIds[i++] = entry.id;
+        for (String id : selectedParticipantIds) {
+            userIds[i++] = id;
         }
         return userIds;
     }
@@ -334,7 +336,7 @@ public class AtlasParticipantPicker extends FrameLayout {
         }
     }
 
-    private static final class FilteringComparator implements Comparator<Atlas.Participant> {
+    private static final class FilteringComparator implements Comparator<Participant> {
         private final String filter;
 
         /**
@@ -345,7 +347,7 @@ public class AtlasParticipantPicker extends FrameLayout {
         }
 
         @Override
-        public int compare(Atlas.Participant lhs, Atlas.Participant rhs) {
+        public int compare(Participant lhs, Participant rhs) {
             int result = subCompareCaseInsensitive(lhs.getFirstName(), rhs.getFirstName());
             if (result != 0) return result;
             return subCompareCaseInsensitive(lhs.getLastName(), rhs.getLastName());
@@ -377,11 +379,11 @@ public class AtlasParticipantPicker extends FrameLayout {
     }
     
     private static class ParticipantEntry {
-        final Atlas.Participant participant;
+        final Participant participant;
         final String id;
 
-        public ParticipantEntry(Atlas.Participant participant, String id) {
-            if (participant == null) throw new IllegalArgumentException("Atlas.Participant cannot be null");
+        public ParticipantEntry(Participant participant, String id) {
+            if (participant == null) throw new IllegalArgumentException("Participant cannot be null");
             if (id == null) throw new IllegalArgumentException("ID cannot be null");
             this.participant = participant;
             this.id = id;

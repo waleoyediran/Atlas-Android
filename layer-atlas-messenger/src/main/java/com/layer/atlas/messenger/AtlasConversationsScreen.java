@@ -12,14 +12,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.zxing.integration.android.IntentIntegrator;
-import com.layer.atlas.Atlas;
 import com.layer.atlas.AtlasConversationsList;
 import com.layer.atlas.AtlasConversationsList.ConversationClickListener;
 import com.layer.atlas.AtlasConversationsList.ConversationLongClickListener;
 import com.layer.sdk.LayerClient.DeletionMode;
 import com.layer.sdk.messaging.Conversation;
-
-import java.util.ArrayList;
 
 /**
  * @author Oleg Orlov
@@ -174,7 +171,7 @@ public class AtlasConversationsScreen extends Activity {
 
         ImageView searchBtn = (ImageView) findViewById(R.id.atlas_actionbar_right_btn);
         searchBtn.setImageResource(R.drawable.atlas_ctl_btn_search);
-        searchBtn.setVisibility(View.VISIBLE);
+        searchBtn.setVisibility(View.GONE);
         searchBtn.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 Toast.makeText(v.getContext(), "Title should be replaced by edit text here...", Toast.LENGTH_LONG).show();

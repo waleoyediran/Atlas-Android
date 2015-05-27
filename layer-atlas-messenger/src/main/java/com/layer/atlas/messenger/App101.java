@@ -1,19 +1,19 @@
 package com.layer.atlas.messenger;
 
+import java.util.Iterator;
+
 import android.app.Application;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.layer.atlas.messenger.provider.DemoParticipantProviderCallback;
 import com.layer.atlas.messenger.provider.DemoIdentityProvider;
-import com.layer.atlas.messenger.provider.FullParticipantProviderCallback;
+import com.layer.atlas.messenger.provider.DemoParticipantProviderCallback;
 import com.layer.atlas.messenger.provider.FullIdentityProvider;
+import com.layer.atlas.messenger.provider.FullParticipantProviderCallback;
 import com.layer.atlas.messenger.provider.IdentityProvider;
 import com.layer.atlas.messenger.provider.ParticipantProvider;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.LayerClient.Options;
-
-import java.util.Iterator;
 
 /**
  * @author Oleg Orlov
@@ -27,8 +27,8 @@ public class App101 extends Application implements AppIdCallback {
     public static final boolean DEMO_MODE = true;   // Enables QR code flow with user limits */
 
     // Set appId here to bypass QR code scanning.
-    //private String appId = null;
-    private String appId = "b257c416-016a-11e5-9933-84d0e30072a2"; // steven QR-code production
+    private String appId = null;
+    //private String appId = "b257c416-016a-11e5-9933-84d0e30072a2"; // steven QR-code production
     //private String appId = "9ec30af8-5591-11e4-af9e-f7a201004a3b"; // non-QR-code production
 
     private LayerClient layerClient;
