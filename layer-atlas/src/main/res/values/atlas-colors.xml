@@ -14,7 +14,8 @@
     <color name="atlas_text_white">#FFFFFFFF</color>
     
     <color name="atlas_background_white">#FFFFFFFF</color>
-    <color name="atlas_background_blue">#2196F3</color>
+    <color name="atlas_background_blue">#21AAE1</color>
+    <color name="atlas_background_blue_bright">#2196F3</color>
     <color name="atlas_background_gray">#EBEBEB</color>
     <color name="atlas_background_transparent">#00FFFFFF</color>
 

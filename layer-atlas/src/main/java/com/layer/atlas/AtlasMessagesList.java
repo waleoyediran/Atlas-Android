@@ -1,6 +1,7 @@
 package com.layer.atlas;
 
 import java.io.InputStream;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -54,6 +55,8 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
     
     private static final boolean CLUSTERED_BUBBLES = false;
     
+    private final DateFormat timeFormat;
+    
     private ListView messagesList;
     private BaseAdapter messagesAdapter;
 
@@ -80,38 +83,11 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
     private int dateTextColor;
     private int avatarTextColor;
     private int avatarBackgroundColor;
-
-    public void parseStyle(Context context, AttributeSet attrs, int defStyle) {
-        TypedArray ta = context.getTheme().obtainStyledAttributes(attrs, R.styleable.AtlasMessageList, R.attr.AtlasMessageList, defStyle);
-        this.myTextColor = ta.getColor(R.styleable.AtlasMessageList_myTextColor, context.getResources().getColor(R.color.atlas_text_black));
-        this.myTextStyle = ta.getInt(R.styleable.AtlasMessageList_myTextStyle, Typeface.NORMAL);
-        String myTextTypefaceName = ta.getString(R.styleable.AtlasMessageList_myTextTypeface); 
-        this.myTextTypeface  = myTextTypefaceName != null ? Typeface.create(myTextTypefaceName, myTextStyle) : null;
-        //this.myTextSize = ta.getDimension(R.styleable.AtlasMessageList_myTextSize, context.getResources().getDimension(R.dimen.atlas_text_size_general));
-
-        this.otherTextColor = ta.getColor(R.styleable.AtlasMessageList_theirTextColor, context.getResources().getColor(R.color.atlas_text_black));
-        this.otherTextStyle = ta.getInt(R.styleable.AtlasMessageList_theirTextStyle, Typeface.NORMAL);
-        String otherTextTypefaceName = ta.getString(R.styleable.AtlasMessageList_theirTextTypeface); 
-        this.otherTextTypeface  = otherTextTypefaceName != null ? Typeface.create(otherTextTypefaceName, otherTextStyle) : null;
-        //this.otherTextSize = ta.getDimension(R.styleable.AtlasMessageList_theirTextSize, context.getResources().getDimension(R.dimen.atlas_text_size_general));
-        
-        this.myBubbleColor  = ta.getColor(R.styleable.AtlasMessageList_myBubbleColor, context.getResources().getColor(R.color.atlas_bubble_blue));
-        this.otherBubbleColor = ta.getColor(R.styleable.AtlasMessageList_theirBubbleColor, context.getResources().getColor(R.color.atlas_background_gray));
-
-        this.dateTextColor = ta.getColor(R.styleable.AtlasMessageList_dateTextColor, context.getResources().getColor(R.color.atlas_text_gray)); 
-        this.avatarTextColor = ta.getColor(R.styleable.AtlasMessageList_avatarTextColor, context.getResources().getColor(R.color.atlas_text_black)); 
-        this.avatarBackgroundColor = ta.getColor(R.styleable.AtlasMessageList_avatarBackgroundColor, context.getResources().getColor(R.color.atlas_background_gray));
-        ta.recycle();
-    }
-    
-    private void applyStyle() {
-        messagesAdapter.notifyDataSetChanged();
-    }
-
     
     public AtlasMessagesList(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         parseStyle(context, attrs, defStyle);
+        this.timeFormat = android.text.format.DateFormat.getTimeFormat(context);
     }
 
     public AtlasMessagesList(Context context, AttributeSet attrs) {
@@ -120,6 +96,7 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
 
     public AtlasMessagesList(Context context) {
         super(context);
+        this.timeFormat = android.text.format.DateFormat.getTimeFormat(context);
     }
 
     public void init(LayerClient layerClient, final Atlas.ParticipantProvider participantProvider) {
@@ -166,7 +143,7 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
                     Date sentAt = cell.messagePart.getMessage().getSentAt();
                     if (sentAt == null) sentAt = new Date();
                     
-                    String timeBarTimeText = Tools.sdf.format(sentAt.getTime());
+                    String timeBarTimeText = timeFormat.format(sentAt.getTime());
                     String timeBarDayText = null;
                     if (sentAt.getTime() > todayMidnight) {
                         timeBarDayText = "Today"; 
@@ -257,6 +234,33 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
         // --- end of messageView
     }
     
+    public void parseStyle(Context context, AttributeSet attrs, int defStyle) {
+        TypedArray ta = context.getTheme().obtainStyledAttributes(attrs, R.styleable.AtlasMessageList, R.attr.AtlasMessageList, defStyle);
+        this.myTextColor = ta.getColor(R.styleable.AtlasMessageList_myTextColor, context.getResources().getColor(R.color.atlas_text_black));
+        this.myTextStyle = ta.getInt(R.styleable.AtlasMessageList_myTextStyle, Typeface.NORMAL);
+        String myTextTypefaceName = ta.getString(R.styleable.AtlasMessageList_myTextTypeface); 
+        this.myTextTypeface  = myTextTypefaceName != null ? Typeface.create(myTextTypefaceName, myTextStyle) : null;
+        //this.myTextSize = ta.getDimension(R.styleable.AtlasMessageList_myTextSize, context.getResources().getDimension(R.dimen.atlas_text_size_general));
+
+        this.otherTextColor = ta.getColor(R.styleable.AtlasMessageList_theirTextColor, context.getResources().getColor(R.color.atlas_text_black));
+        this.otherTextStyle = ta.getInt(R.styleable.AtlasMessageList_theirTextStyle, Typeface.NORMAL);
+        String otherTextTypefaceName = ta.getString(R.styleable.AtlasMessageList_theirTextTypeface); 
+        this.otherTextTypeface  = otherTextTypefaceName != null ? Typeface.create(otherTextTypefaceName, otherTextStyle) : null;
+        //this.otherTextSize = ta.getDimension(R.styleable.AtlasMessageList_theirTextSize, context.getResources().getDimension(R.dimen.atlas_text_size_general));
+        
+        this.myBubbleColor  = ta.getColor(R.styleable.AtlasMessageList_myBubbleColor, context.getResources().getColor(R.color.atlas_bubble_blue));
+        this.otherBubbleColor = ta.getColor(R.styleable.AtlasMessageList_theirBubbleColor, context.getResources().getColor(R.color.atlas_background_gray));
+
+        this.dateTextColor = ta.getColor(R.styleable.AtlasMessageList_dateTextColor, context.getResources().getColor(R.color.atlas_text_gray)); 
+        this.avatarTextColor = ta.getColor(R.styleable.AtlasMessageList_avatarTextColor, context.getResources().getColor(R.color.atlas_text_black)); 
+        this.avatarBackgroundColor = ta.getColor(R.styleable.AtlasMessageList_avatarBackgroundColor, context.getResources().getColor(R.color.atlas_background_gray));
+        ta.recycle();
+    }
+    
+    private void applyStyle() {
+        messagesAdapter.notifyDataSetChanged();
+    }
+
     protected void buildCellForMessage(Message msg, ArrayList<Cell> destination) {
         
         final ArrayList<MessagePart> parts = new ArrayList<MessagePart>(msg.getMessageParts());

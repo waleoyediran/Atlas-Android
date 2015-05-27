@@ -79,11 +79,13 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
     
     // date 
     private final DateFormat dateFormat;
+    private final DateFormat timeFormat;
 
     public AtlasConversationsList(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         parseStyle(context, attrs, defStyle);
         this.dateFormat = android.text.format.DateFormat.getDateFormat(context);
+        this.timeFormat = android.text.format.DateFormat.getTimeFormat(context);
     }
 
     public AtlasConversationsList(Context context, AttributeSet attrs) {
@@ -93,6 +95,7 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
     public AtlasConversationsList(Context context) {
         super(context);
         this.dateFormat = android.text.format.DateFormat.getDateFormat(context);
+        this.timeFormat = android.text.format.DateFormat.getTimeFormat(context);
     }
 
     public void init(View rootView, final LayerClient layerClient, final Atlas.ParticipantProvider participantProvider) {
@@ -329,15 +332,15 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
         long todayMidnight = cal.getTimeInMillis();
         long yesterMidnight = todayMidnight - (24 * 60 * 60 * 1000); // 24h less
         
-        String timeBarDayText = null;
+        String timeText = null;
         if (sentAt.getTime() > todayMidnight) {
-            timeBarDayText = Tools.sdf.format(sentAt.getTime()); 
+            timeText = timeFormat.format(sentAt.getTime()); 
         } else if (sentAt.getTime() > yesterMidnight) {
-            timeBarDayText = "Yesterday";
+            timeText = "Yesterday";
         } else {
-            timeBarDayText = dateFormat.format(sentAt);
+            timeText = dateFormat.format(sentAt);
         }
-        return timeBarDayText;
+        return timeText;
     }
 
     @Override
