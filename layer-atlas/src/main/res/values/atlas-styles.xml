@@ -109,8 +109,8 @@
         <item name="subtitleUnreadTextColor"      >@color/atlas_text_black</item>
         <item name="subtitleUnreadTextTypeface"   >normal</item>
         <item name="subtitleUnreadTextStyle"      >bold</item>
-        <item name="cellBackgroundColor"    >@color/atlas_background_white</item>
-        <item name="cellUnreadBackgroundColor"    >@color/atlas_background_gray</item>
+        <item name="cellBackgroundColor"          >@android:color/transparent</item>
+        <item name="cellUnreadBackgroundColor"    >@android:color/transparent</item>
         <item name="dateTextColor"          >@color/atlas_text_blue</item>
         <item name="avatarTextColor"        >@color/atlas_text_black</item>
         <item name="avatarBackgroundColor"  >@color/atlas_background_gray</item>

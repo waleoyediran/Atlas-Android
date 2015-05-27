@@ -62,13 +62,11 @@ public class Atlas {
         
         public static String toString(Message msg) {
             StringBuilder sb = new StringBuilder();
-            int attaches = 0;
             for (MessagePart mp : msg.getMessageParts()) {
                 if ("text/plain".equals(mp.getMimeType())) {
                     sb.append(new String(mp.getData()));
                 } else {
-                    sb.append("attach").append(attaches++)
-                            .append(":").append(mp.getMimeType());
+                    sb.append("Attachment: Image");
                 }
             }
             return sb.toString();
