@@ -81,7 +81,7 @@ public class AtlasTypingIndicator extends FrameLayout implements LayerTypingIndi
     private void applyStyle() {
         mTextView.setTextColor(mTextColor);
         mTextView.setTypeface(mTextTypeface);
-        mTextView.setTextSize(mTextSize);
+        //mTextView.setTextSize(mTextSize);
     }
 
     /**
