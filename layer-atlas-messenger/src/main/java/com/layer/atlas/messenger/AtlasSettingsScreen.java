@@ -20,13 +20,52 @@ import org.w3c.dom.Text;
  * @author Oleg Orlov
  * @since 17 Apr 2015
  */
-public class AtlasSettingsScreen extends Activity implements LayerAuthenticationListener, LayerConnectionListener {
+public class AtlasSettingsScreen extends Activity {
 
     public static final String EXTRA_FORCE_LOGOUT = "settings.force.logout";
 
     private App101 app;
     private TextView usernameTextView;
     private TextView statusTextView;
+    
+    private final LayerAuthenticationListener authListener = new LayerAuthenticationListener() {
+        @Override
+        public void onAuthenticated(LayerClient layerClient, String s) {
+            updateValues();
+        }
+
+        @Override
+        public void onDeauthenticated(LayerClient layerClient) {
+            updateValues();
+        }
+
+        @Override
+        public void onAuthenticationChallenge(LayerClient layerClient, String s) {
+            updateValues();
+        }
+
+        @Override
+        public void onAuthenticationError(LayerClient layerClient, LayerException e) {
+            updateValues();
+        }
+    };
+ 
+    private final LayerConnectionListener connectionListener = new LayerConnectionListener() {
+        @Override
+        public void onConnectionConnected(LayerClient layerClient) {
+            updateValues();
+        }
+
+        @Override
+        public void onConnectionDisconnected(LayerClient layerClient) {
+            updateValues();
+        }
+
+        @Override
+        public void onConnectionError(LayerClient layerClient, LayerException e) {
+            updateValues();
+        }
+    };
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,15 +106,15 @@ public class AtlasSettingsScreen extends Activity implements LayerAuthentication
     protected void onResume() {
         super.onResume();
         app.getLayerClient()
-                .registerAuthenticationListener(this)
-                .registerConnectionListener(this);
+                .registerAuthenticationListener(authListener)
+                .registerConnectionListener(connectionListener);
     }
 
     @Override
     protected void onPause() {
         app.getLayerClient()
-                .unregisterAuthenticationListener(this)
-                .unregisterConnectionListener(this);
+                .unregisterAuthenticationListener(authListener)
+                .unregisterConnectionListener(connectionListener);
         super.onPause();
     }
 
@@ -88,40 +127,5 @@ public class AtlasSettingsScreen extends Activity implements LayerAuthentication
                 finish();
             }
         });
-    }
-
-    @Override
-    public void onConnectionError(LayerClient layerClient, LayerException e) {
-        updateValues();
-    }
-
-    @Override
-    public void onConnectionDisconnected(LayerClient layerClient) {
-        updateValues();
-    }
-
-    @Override
-    public void onConnectionConnected(LayerClient layerClient) {
-        updateValues();
-    }
-
-    @Override
-    public void onAuthenticated(LayerClient layerClient, String s) {
-        updateValues();
-    }
-
-    @Override
-    public void onDeauthenticated(LayerClient layerClient) {
-        updateValues();
-    }
-
-    @Override
-    public void onAuthenticationChallenge(LayerClient layerClient, String s) {
-        updateValues();
-    }
-
-    @Override
-    public void onAuthenticationError(LayerClient layerClient, LayerException e) {
-        updateValues();
     }
 }
