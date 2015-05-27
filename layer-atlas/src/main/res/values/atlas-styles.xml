@@ -1,89 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- ####################### -->
-    <!-- Atlas Attribute Formats -->
-    <!-- ####################### -->
-    
-    <!-- conversations list -->
-    <attr name="titleTextColor"         format="color|reference"/>
-    <attr name="titleTextTypeface"      format="string|reference"/>
-    <attr name="titleTextStyle">          
-        <flag name="normal" value="0" /> 
-        <flag name="bold"   value="1" />
-        <flag name="italic" value="2" /></attr>
-    <attr name="titleUnreadTextColor"         format="color|reference"/>
-    <attr name="titleUnreadTextTypeface"      format="string|reference"/>
-    <attr name="titleUnreadTextStyle">             
-        <flag name="normal" value="0" /> 
-        <flag name="bold"   value="1" />
-        <flag name="italic" value="2" /></attr>
-    <attr name="subtitleTextColor"      format="color|reference"/>
-    <attr name="subtitleTextTypeface"   format="string|reference"/>
-    <attr name="subtitleTextStyle">
-        <flag name="normal" value="0" /> 
-        <flag name="bold"   value="1" />
-        <flag name="italic" value="2" /></attr>
-    <attr name="subtitleUnreadTextColor"      format="color|reference"/>
-    <attr name="subtitleUnreadTextTypeface"   format="string|reference"/>
-    <attr name="subtitleUnreadTextStyle">
-        <flag name="normal" value="0" /> 
-        <flag name="bold"   value="1" />
-        <flag name="italic" value="2" /></attr>
-    <attr name="cellBackgroundColor"         format="color|reference"/>
-    <attr name="cellUnreadBackgroundColor"   format="color|reference"/>
-    <attr name="dateTextColor"          format="color|reference"/>
-    <attr name="avatarTextColor"        format="color|reference"/>
-    <attr name="avatarBackgroundColor"  format="color|reference"/>
-    
-    <!-- message composer -->
-    <attr name="textColor"              format="color|reference"/>
-    <attr name="textSize"               format="dimension|reference"/>
-    <attr name="textTypeface"           format="string|reference"/>
-    <attr name="textStyle">             
-        <flag name="normal" value="0" /> 
-        <flag name="bold"   value="1" />
-        <flag name="italic" value="2" /></attr>
-    
-    <!-- messages list -->
-    <attr name="myBubbleColor"          format="color|reference"/>
-    <attr name="myTextColor"            format="color|reference"/>
-    <attr name="myTextSize"             format="dimension|reference"/>
-    <attr name="myTextTypeface"         format="string|reference"/>
-    <attr name="myTextStyle">             
-        <flag name="normal" value="0" /> 
-        <flag name="bold"   value="1" />
-        <flag name="italic" value="2" /></attr>  
-    <attr name="theirBubbleColor"       format="color|reference"/>
-    <attr name="theirTextColor"         format="color|reference"/>
-    <attr name="theirTextSize"          format="dimension|reference"/>
-    <attr name="theirTextTypeface"      format="string|reference"/>
-    <attr name="theirTextStyle">             
-        <flag name="normal" value="0" /> 
-        <flag name="bold"   value="1" />
-        <flag name="italic" value="2" /></attr>             
-    
-    <!-- participants picker -->
-    <attr name="inputTextColor"         format="color|reference"/>
-    <attr name="inputTextTypeface"      format="string|reference"/>
-    <attr name="inputTextStyle">             
-        <flag name="normal" value="0" /> 
-        <flag name="bold" value="1" />
-        <flag name="italic" value="2" /></attr>
-    <attr name="listTextColor"          format="color|reference"/>
-    <attr name="listTextTypeface"       format="string|reference"/>
-    <attr name="listTextStyle">             
-        <flag name="normal" value="0" /> 
-        <flag name="bold" value="1" />
-        <flag name="italic" value="2" /></attr>
-    <attr name="chipBackgroundColor"    format="color|reference"/>
-    <attr name="chipTextColor"          format="color|reference"/>
-    <attr name="chipTextTypeface"       format="string|reference"/>
-    <attr name="chipTextStyle">             
-        <flag name="normal" value="0" /> 
-        <flag name="bold" value="1" />
-        <flag name="italic" value="2" /></attr>
-
 
     <!-- ###################### -->
     <!-- Atlas Component Styles -->
@@ -95,9 +12,9 @@
     <attr name="AtlasTypingIndicator"   format="reference"/>
 
 
-    <!-- ############ -->
-    <!-- Atlas Styles -->
-    <!-- ############ -->
+    <!-- ########### -->
+    <!-- Atlas Style -->
+    <!-- ########### -->
     <style name="Theme.Atlas.Light" parent="android:Theme">
         <item name="AtlasConversationList">@style/AtlasConversationList</item>
         <item name="AtlasMessageComposer">@style/AtlasMessageComposer</item>
@@ -243,5 +160,90 @@
         <item name="textTypeface"           >normal</item>
         <item name="textStyle"              >normal</item>
     </style>
-    
+
+
+    <!-- ####################### -->
+    <!-- Atlas Attribute Formats -->
+    <!-- ####################### -->
+
+    <!-- conversations list -->
+    <attr name="titleTextColor"         format="color|reference"/>
+    <attr name="titleTextTypeface"      format="string|reference"/>
+    <attr name="titleTextStyle">
+        <flag name="normal" value="0" />
+        <flag name="bold"   value="1" />
+        <flag name="italic" value="2" /></attr>
+    <attr name="titleUnreadTextColor"         format="color|reference"/>
+    <attr name="titleUnreadTextTypeface"      format="string|reference"/>
+    <attr name="titleUnreadTextStyle">
+        <flag name="normal" value="0" />
+        <flag name="bold"   value="1" />
+        <flag name="italic" value="2" /></attr>
+    <attr name="subtitleTextColor"      format="color|reference"/>
+    <attr name="subtitleTextTypeface"   format="string|reference"/>
+    <attr name="subtitleTextStyle">
+        <flag name="normal" value="0" />
+        <flag name="bold"   value="1" />
+        <flag name="italic" value="2" /></attr>
+    <attr name="subtitleUnreadTextColor"      format="color|reference"/>
+    <attr name="subtitleUnreadTextTypeface"   format="string|reference"/>
+    <attr name="subtitleUnreadTextStyle">
+        <flag name="normal" value="0" />
+        <flag name="bold"   value="1" />
+        <flag name="italic" value="2" /></attr>
+    <attr name="cellBackgroundColor"         format="color|reference"/>
+    <attr name="cellUnreadBackgroundColor"   format="color|reference"/>
+    <attr name="dateTextColor"          format="color|reference"/>
+    <attr name="avatarTextColor"        format="color|reference"/>
+    <attr name="avatarBackgroundColor"  format="color|reference"/>
+
+    <!-- message composer -->
+    <attr name="textColor"              format="color|reference"/>
+    <attr name="textSize"               format="dimension|reference"/>
+    <attr name="textTypeface"           format="string|reference"/>
+    <attr name="textStyle">
+        <flag name="normal" value="0" />
+        <flag name="bold"   value="1" />
+        <flag name="italic" value="2" /></attr>
+
+    <!-- messages list -->
+    <attr name="myBubbleColor"          format="color|reference"/>
+    <attr name="myTextColor"            format="color|reference"/>
+    <attr name="myTextSize"             format="dimension|reference"/>
+    <attr name="myTextTypeface"         format="string|reference"/>
+    <attr name="myTextStyle">
+        <flag name="normal" value="0" />
+        <flag name="bold"   value="1" />
+        <flag name="italic" value="2" /></attr>
+    <attr name="theirBubbleColor"       format="color|reference"/>
+    <attr name="theirTextColor"         format="color|reference"/>
+    <attr name="theirTextSize"          format="dimension|reference"/>
+    <attr name="theirTextTypeface"      format="string|reference"/>
+    <attr name="theirTextStyle">
+        <flag name="normal" value="0" />
+        <flag name="bold"   value="1" />
+        <flag name="italic" value="2" /></attr>
+
+    <!-- participants picker -->
+    <attr name="inputTextColor"         format="color|reference"/>
+    <attr name="inputTextTypeface"      format="string|reference"/>
+    <attr name="inputTextStyle">
+        <flag name="normal" value="0" />
+        <flag name="bold" value="1" />
+        <flag name="italic" value="2" /></attr>
+    <attr name="listTextColor"          format="color|reference"/>
+    <attr name="listTextTypeface"       format="string|reference"/>
+    <attr name="listTextStyle">
+        <flag name="normal" value="0" />
+        <flag name="bold" value="1" />
+        <flag name="italic" value="2" /></attr>
+    <attr name="chipBackgroundColor"    format="color|reference"/>
+    <attr name="chipTextColor"          format="color|reference"/>
+    <attr name="chipTextTypeface"       format="string|reference"/>
+    <attr name="chipTextStyle">
+        <flag name="normal" value="0" />
+        <flag name="bold" value="1" />
+        <flag name="italic" value="2" /></attr>
+
+
 </resources>

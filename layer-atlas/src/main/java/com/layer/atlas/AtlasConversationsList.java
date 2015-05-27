@@ -88,13 +88,13 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
         super(context);
     }
 
-    public void init(View rootView, final LayerClient layerClient, final ContactProvider contactProvider) {
+    public void init(View rootView, final LayerClient layerClient, final Atlas.ParticipantProvider participantProvider) {
         if (layerClient == null) throw new IllegalArgumentException("LayerClient cannot be null");
-        if (contactProvider == null) throw new IllegalArgumentException("ContactProvider cannot be null");
+        if (participantProvider == null) throw new IllegalArgumentException("ParticipantProvider cannot be null");
         
         this.layerClient = layerClient;
         
-        // inflate childs:
+        // inflate children:
         LayoutInflater.from(getContext()).inflate(R.layout.atlas_conversations_list, this);
         
         this.conversationsList = (ListView) rootView.findViewById(R.id.atlas_conversations_view);
@@ -121,9 +121,9 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
                         if (layerClient.getAuthenticatedUserId().equals(userId)) {
                             continue;
                         }
-                        Contact contact = contactProvider.get(userId);
-                        if (contact == null) continue;
-                        String name = allButMe.size() > 1 ? contact.getFirstAndL() : contact.getFirstAndLast();
+                        Atlas.Participant participant = participantProvider.getParticipant(userId);
+                        if (participant == null) continue;
+                        String name = allButMe.size() > 1 ? Atlas.getFirstNameLastInitial(participant) : Atlas.getFullName(participant);
                         if (sb.length() > 0) sb.append(", ");
                         sb.append(name != null ? name : userId);
                     }
@@ -137,8 +137,8 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
                 View avatarMulti = convertView.findViewById(R.id.atlas_view_conversations_list_convert_avatar_multi);
                 if (allButMe.size() < 2) {
                     String conterpartyUserId = allButMe.get(0);
-                    Contact counterParty = contactProvider.get(conterpartyUserId);
-                    if (counterParty != null) textInitials.setText(counterParty.getInitials());
+                    Atlas.Participant participant = participantProvider.getParticipant(conterpartyUserId);
+                    textInitials.setText(participant == null ? null : Atlas.getInitials(participant));
                     textInitials.setTextColor(avatarTextColor);
                     ((GradientDrawable) textInitials.getBackground()).setColor(avatarBackgroundColor);
                     avatarSingle.setVisibility(View.VISIBLE);
@@ -146,15 +146,15 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
                 } else {
                     TextView textInitialsLeft = (TextView) convertView.findViewById(R.id.atlas_view_conversations_list_convert_avatar_multi_left);
                     String leftUserId = allButMe.get(0);
-                    Contact left = contactProvider.get(leftUserId);
-                    if (left != null) textInitialsLeft.setText(left.getInitials());
+                    Atlas.Participant participant = participantProvider.getParticipant(leftUserId);
+                    textInitialsLeft.setText(participant == null ? null : Atlas.getInitials(participant));
                     textInitialsLeft.setTextColor(avatarTextColor);
                     ((GradientDrawable) textInitialsLeft.getBackground()).setColor(avatarBackgroundColor);
                     
                     TextView textInitialsRight = (TextView) convertView.findViewById(R.id.atlas_view_conversations_list_convert_avatar_multi_right);
                     String rightUserId = allButMe.get(1);
-                    Contact right = contactProvider.get(rightUserId);
-                    if (right != null) textInitialsRight.setText(right.getInitials());
+                    participant = participantProvider.getParticipant(rightUserId);
+                    textInitialsRight.setText(participant == null ? null : Atlas.getInitials(participant));
                     textInitialsRight.setTextColor(avatarTextColor);
                     ((GradientDrawable) textInitialsRight.getBackground()).setColor(avatarBackgroundColor);
                     
@@ -232,7 +232,7 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
         });
         
         // clean everything if deathenticated (client will explode on .getConversation())
-        // and rebuilt everithing back after successful authentication  
+        // and rebuilt everything back after successful authentication  
         layerClient.registerAuthenticationListener(new LayerAuthenticationListener() {
             public void onDeauthenticated(LayerClient client) {
                 if (debug) Log.w(TAG, "onDeauthenticated() ");
@@ -284,7 +284,7 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
         }
     }
 
-    public void parseStyle(Context context, AttributeSet attrs, int defStyle) {
+    private void parseStyle(Context context, AttributeSet attrs, int defStyle) {
         TypedArray ta = context.getTheme().obtainStyledAttributes(attrs, R.styleable.AtlasConversationList, R.attr.AtlasConversationList, defStyle);
         this.titleTextColor = ta.getColor(R.styleable.AtlasConversationList_titleTextColor, context.getResources().getColor(R.color.atlas_text_black));
         this.titleTextStyle = ta.getInt(R.styleable.AtlasConversationList_titleTextStyle, Typeface.NORMAL);

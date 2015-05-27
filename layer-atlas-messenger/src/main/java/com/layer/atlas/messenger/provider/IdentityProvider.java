@@ -1,6 +1,6 @@
 package com.layer.atlas.messenger.provider;
 
-import com.layer.atlas.Contact;
+import com.layer.atlas.messenger.Participant;
 import com.layer.atlas.messenger.AppIdCallback;
 
 import java.util.List;
@@ -19,7 +19,7 @@ public abstract class IdentityProvider {
         public String error;
 
         // Optional contacts provided by the identity service on successful login
-        public List<Contact> contacts;
+        public List<Participant> participants;
     }
 
     public IdentityProvider(AppIdCallback appIdCallback) {

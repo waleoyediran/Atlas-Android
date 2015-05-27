@@ -12,11 +12,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.zxing.integration.android.IntentIntegrator;
+import com.layer.atlas.Atlas;
 import com.layer.atlas.AtlasConversationsList;
 import com.layer.atlas.AtlasConversationsList.ConversationClickListener;
 import com.layer.atlas.AtlasConversationsList.ConversationLongClickListener;
 import com.layer.sdk.LayerClient.DeletionMode;
 import com.layer.sdk.messaging.Conversation;
+
+import java.util.ArrayList;
 
 /**
  * @author Oleg Orlov
@@ -33,7 +36,7 @@ public class AtlasConversationsScreen extends Activity {
 
     private View btnNewConversation;
     private AtlasConversationsList conversationsList;
-    private boolean isInialized = false;
+    private boolean isInitialized = false;
     private boolean forceLogout = false;
 
     @Override
@@ -48,9 +51,9 @@ public class AtlasConversationsScreen extends Activity {
             return;
         }
 
-        if (!isInialized) {
+        if (!isInitialized) {
             this.conversationsList = (AtlasConversationsList) findViewById(R.id.atlas_screen_conversations_conversations_list);
-            this.conversationsList.init(conversationsList, app.getLayerClient(), app.getContactProvider());
+            this.conversationsList.init(conversationsList, app.getLayerClient(), app.getParticipantProvider());
             conversationsList.setClickListener(new ConversationClickListener() {
                 public void onItemClick(Conversation conversation) {
                     openChatScreen(conversation, false);
@@ -61,7 +64,6 @@ public class AtlasConversationsScreen extends Activity {
                     conversation.delete(DeletionMode.ALL_PARTICIPANTS);
                     updateValues();
                     Toast.makeText(AtlasConversationsScreen.this, "Deleted: " + conversation, Toast.LENGTH_SHORT).show();
-                    ;
                 }
             });
 
@@ -76,7 +78,7 @@ public class AtlasConversationsScreen extends Activity {
             });
 
             prepareActionBar();
-            isInialized = true;
+            isInitialized = true;
         }
         app.getLayerClient().registerEventListener(conversationsList);
         updateValues();

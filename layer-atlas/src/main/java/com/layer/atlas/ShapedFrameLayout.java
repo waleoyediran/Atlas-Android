@@ -68,7 +68,7 @@ public class ShapedFrameLayout extends FrameLayout {
         if (refreshShape) {
             shaper.reset();
             pathRect = new RectF(0, 0, width, height);
-            float[] roundRectRadii = Atlas.getRoundRectRadii(corners, getResources().getDisplayMetrics());
+            float[] roundRectRadii = Atlas.Tools.getRoundRectRadii(corners, getResources().getDisplayMetrics());
             shaper.addRoundRect(pathRect, roundRectRadii,  Direction.CW);
             
             refreshShape = false;

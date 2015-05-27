@@ -6,7 +6,6 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -25,7 +24,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -35,7 +33,6 @@ import android.widget.Toast;
 
 import com.layer.atlas.Atlas;
 import com.layer.atlas.AtlasTypingIndicator;
-import com.layer.atlas.Contact;
 import com.layer.atlas.AtlasMessageComposer;
 import com.layer.atlas.AtlasMessagesList;
 import com.layer.atlas.AtlasMessagesList.Cell;
@@ -87,7 +84,7 @@ public class AtlasMessagesScreen extends Activity {
         }
 
         final AtlasParticipantPicker participantsPicker = (AtlasParticipantPicker) findViewById(R.id.atlas_screen_messages_participants_picker);
-        participantsPicker.init(app.getContactProvider(), new String[] {app.getLayerClient().getAuthenticatedUserId()});
+        participantsPicker.init(new String[]{app.getLayerClient().getAuthenticatedUserId()}, app.getParticipantProvider());
         if (convIsNew) {
             participantsPicker.setVisibility(View.VISIBLE);
         }
@@ -106,8 +103,8 @@ public class AtlasMessagesScreen extends Activity {
                 }
 
                 // push
-                Contact myContact = app.getContactProvider().get(app.getLayerClient().getAuthenticatedUserId());
-                String senderName = myContact.getFirstAndLast();
+                Participant myParticipant = app.getParticipantProvider().get(app.getLayerClient().getAuthenticatedUserId());
+                String senderName = Atlas.getFullName(myParticipant);
                 Map<String, String> metadata = new HashMap<String, String>();
                 boolean bug = true;
                 String text = bug ? "LayerPush! Check message!" : Atlas.Tools.toString(message);
@@ -159,7 +156,7 @@ public class AtlasMessagesScreen extends Activity {
         });
         
         messagesList = (AtlasMessagesList) findViewById(R.id.atlas_screen_messages_messages_list);
-        messagesList.init(app.getLayerClient(), app.getContactProvider());
+        messagesList.init(app.getLayerClient(), app.getParticipantProvider());
         messagesList.setConversation(conv);
         messagesList.setItemClickListener(new ItemClickListener() {
             public void onItemClick(Cell item) {
@@ -188,7 +185,7 @@ public class AtlasMessagesScreen extends Activity {
         });
         
         typingIndicator = (AtlasTypingIndicator)findViewById(R.id.atlas_typing_indicator);
-        typingIndicator.init(conv, app.getContactProvider(), null);
+        typingIndicator.init(conv, new AtlasTypingIndicator.DefaultTypingIndicatorCallback(app.getParticipantProvider()));
         
         // location manager for inserting locations:
         this.locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
@@ -215,9 +212,9 @@ public class AtlasMessagesScreen extends Activity {
             StringBuilder sb = new StringBuilder();
             for (String userId : conv.getParticipants()) {
                 if (app.getLayerClient().getAuthenticatedUserId().equals(userId)) continue;
-                Contact contact = app.getContactProvider().get(userId);
-                if (contact == null) continue;
-                String initials = conv.getParticipants().size() > 2 ? contact.getFirstAndL() : contact.getFirstAndLast();
+                Participant participant = app.getParticipantProvider().get(userId);
+                if (participant == null) continue;
+                String initials = conv.getParticipants().size() > 2 ? Atlas.getFirstNameLastInitial(participant) : Atlas.getFullName(participant);
                 if (sb.length() > 0) sb.append(", ");
                 sb.append(initials != null ? initials : userId);
             }

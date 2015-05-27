@@ -4,12 +4,12 @@ import android.app.Application;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.layer.atlas.ContactProvider;
-import com.layer.atlas.messenger.provider.DemoContactProviderCallback;
+import com.layer.atlas.messenger.provider.DemoParticipantProviderCallback;
 import com.layer.atlas.messenger.provider.DemoIdentityProvider;
-import com.layer.atlas.messenger.provider.FullContactProviderCallback;
+import com.layer.atlas.messenger.provider.FullParticipantProviderCallback;
 import com.layer.atlas.messenger.provider.FullIdentityProvider;
 import com.layer.atlas.messenger.provider.IdentityProvider;
+import com.layer.atlas.messenger.provider.ParticipantProvider;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.LayerClient.Options;
 
@@ -27,13 +27,13 @@ public class App101 extends Application implements AppIdCallback {
     public static final boolean DEMO_MODE = true;   // Enables QR code flow with user limits */
 
     // Set appId here to bypass QR code scanning.
-    private String appId = null;
-    //private String appId = "b257c416-016a-11e5-9933-84d0e30072a2"; // steven QR-code production
+    //private String appId = null;
+    private String appId = "b257c416-016a-11e5-9933-84d0e30072a2"; // steven QR-code production
     //private String appId = "9ec30af8-5591-11e4-af9e-f7a201004a3b"; // non-QR-code production
 
     private LayerClient layerClient;
     private IdentityProvider identityProvider;
-    private ContactProvider contactProvider;
+    private ParticipantProvider participantProvider;
 
     public interface keys {
         String CONVERSATION_URI = "conversation.uri";
@@ -46,10 +46,10 @@ public class App101 extends Application implements AppIdCallback {
 
         if (DEMO_MODE) {
             identityProvider = new DemoIdentityProvider(this);
-            contactProvider = new ContactProvider(this, new DemoContactProviderCallback(this));
+            participantProvider = new ParticipantProvider(this, new DemoParticipantProviderCallback(this));
         } else {
             identityProvider = new FullIdentityProvider(getApplicationContext(), this);
-            contactProvider = new ContactProvider(this, new FullContactProviderCallback(this, (FullIdentityProvider) identityProvider));
+            participantProvider = new ParticipantProvider(this, new FullParticipantProviderCallback(this, (FullIdentityProvider) identityProvider));
         }
     }
 
@@ -71,11 +71,11 @@ public class App101 extends Application implements AppIdCallback {
         if (DEBUG) Log.w(TAG, "onCreate() Layer launched");
 
         if (DEBUG) Log.d(TAG, "onCreate() Refreshing Contacts");
-        getContactProvider().refresh();
+        getParticipantProvider().refresh();
     }
 
-    public ContactProvider getContactProvider() {
-        return contactProvider;
+    public ParticipantProvider getParticipantProvider() {
+        return participantProvider;
     }
 
     public IdentityProvider getIdentityProvider() {

@@ -16,8 +16,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.layer.atlas.Atlas;
-import com.layer.atlas.Contact;
-import com.layer.sdk.internal.utils.Log;
 import com.layer.sdk.messaging.Conversation;
 
 /**
@@ -73,31 +71,31 @@ public class AtlasConversationSettingsScreen extends Activity {
         // refresh names screen
         namesList.removeAllViews();
         
-        HashSet<String> participants = new HashSet<String>(conv.getParticipants());
-        participants.remove(app101.getLayerClient().getAuthenticatedUserId());
-        Contact[] contacts = new Contact[participants.size()];
+        HashSet<String> participantSet = new HashSet<String>(conv.getParticipants());
+        participantSet.remove(app101.getLayerClient().getAuthenticatedUserId());
+        Atlas.Participant[] participants = new Atlas.Participant[participantSet.size()];
         int i = 0;
-        for (String userId : participants) {
-            Contact c = app101.getContactProvider().get(userId);
-            contacts[i++] = c;
+        for (String userId : participantSet) {
+            Participant participant = app101.getParticipantProvider().get(userId);
+            participants[i++] = participant;
         }
-        Arrays.sort(contacts, Contact.FIRST_LAST_EMAIL_ASCENDING);
+        Arrays.sort(participants);
         
-        for (int iContact = 0; iContact < contacts.length; iContact++) {
+        for (int iContact = 0; iContact < participants.length; iContact++) {
             View convert = getLayoutInflater().inflate(R.layout.atlas_screen_conversation_settings_participant_convert, namesList, false);
             
             TextView avaText = (TextView) convert.findViewById(R.id.atlas_screen_conversation_settings_convert_ava);
-            avaText.setText(contacts[iContact].getInitials());
+            avaText.setText(Atlas.getInitials(participants[iContact]));
             TextView nameText = (TextView) convert.findViewById(R.id.atlas_screen_conversation_settings_convert_name);
-            nameText.setText(contacts[iContact].getFirstAndLast());
+            nameText.setText(Atlas.getFullName(participants[iContact]));
             
-            convert.setTag(contacts[iContact]);
+            convert.setTag(participants[iContact]);
             convert.setOnLongClickListener(contactLongClickListener);
             
             namesList.addView(convert);
         }
         
-        if (participants.size() == 1) { // one-on-one
+        if (participantSet.size() == 1) { // one-on-one
             btnLeaveGroup.setVisibility(View.GONE);
         } else {                        // multi
             btnLeaveGroup.setVisibility(View.VISIBLE);
@@ -107,9 +105,9 @@ public class AtlasConversationSettingsScreen extends Activity {
     
     private OnLongClickListener contactLongClickListener = new OnLongClickListener() {
         public boolean onLongClick(View v) {
-            Contact contact = (Contact) v.getTag();
-            conv.removeParticipants(contact.userId);
-            Toast.makeText(v.getContext(), "Removing " + contact.getFirstAndLast(), Toast.LENGTH_LONG).show();
+            Participant participant = (Participant) v.getTag();
+            conv.removeParticipants(participant.userId);
+            Toast.makeText(v.getContext(), "Removing " + Atlas.getFullName(participant), Toast.LENGTH_LONG).show();
             updateValues();
             return true;
         }
@@ -127,7 +125,6 @@ public class AtlasConversationSettingsScreen extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (debug) Log.w(TAG, "onResume() conv.metadata: " + Log.toString(conv.getMetadata()));
         updateValues();
     }
     

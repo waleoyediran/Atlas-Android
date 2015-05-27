@@ -1,62 +1,231 @@
-#Android Studio
-After following this guide, you will have the **Atlas** library, `layer-atlas`, imported as a module in your Android Studio project, along with the optional **Atlas Messenger** module, `layer-atlas-messenger`.  Building and running Messenger will let you verify that the Layer SDK and Atlas integrations work properly. 
+##<a name="overview"></a>Overview
+Atlas is an open source framework of customizable UI components for use with the Layer SDK designed to get messaging tested and integrated quickly.  This repository contains the Atlas library as well as an example app.
 
-## Adding Layer Atlas with Git Submodule
-1. Add Layer's GitHub Maven repo to your root `build.gradle` (e.g. `/MyApplication/build.gradle`):
+###<a name="example_app"></a>Example App
+The Atlas example app is located in the `layer-atlas-messenger` directory.
 
-	``` groovy
-	allprojects {
-    	repositories {
-        	maven { url "https://raw.githubusercontent.com/layerhq/releases-android/master/releases/" }
-	    }
+* **Demo mode:**  To get started as fast as possible, launch the app and scan your Layer Atlas QR code.  If you need a free account, get it at <a href="https://getatlas.layer.com/">getatlas.layer.com</a>.  If you already have an Atlas App ID, you can bypass the QR code by entering it in <a href="layer-atlas-messenger/src/main/java/com/layer/atlas/messenger/App101.java">App101</a> before building.
+* **Normal mode:** If you have a normal (non Atlas) Layer App ID, you can disable demo mode by setting `DEMO_MODE=false` in <a href="layer-atlas-messenger/src/main/java/com/layer/atlas/messenger/App101.java">App101</a>.  You will also need to enter your Layer App ID and Google Cloud Messaging Sender ID there.
+
+###<a name="api_quickstart"></a>API Quickstart
+The Atlas library is located in the `layer-atlas` directory.  The table below details the most important classes in Atlas and is hyperlinked directly to the current java file.
+
+<table>
+    <tr><th colspan="2" style="text-align:center;">Views</th></tr>
+    <tr>
+        <td><a href="layer-atlas/src/main/java/com/layer/atlas/AtlasConversationsList.java">AtlasConversationsList</a></td>
+        <td>A list of Conversations</td>
+    </tr>
+    <tr>
+        <td><a href="layer-atlas/src/main/java/com/layer/atlas/AtlasMessagesList.java">AtlasMessagesList</a></td>
+        <td>A list of Messages</td>
+    </tr>
+    <tr>
+        <td><a href="layer-atlas/src/main/java/com/layer/atlas/AtlasMessageComposer.java">AtlasMessageComposer</a></td>
+        <td>A View used to compose and send Messages</td>
+    </tr>
+    <tr>
+        <td><a href="layer-atlas/src/main/java/com/layer/atlas/AtlasParticipantPicker.java">AtlasParticipantPicker</a></td>
+        <td>Participant selection with dynamic filtering</td>
+    </tr>
+    <tr>
+        <td><a href="layer-atlas/src/main/java/com/layer/atlas/AtlasTypingIndicator.java">AtlasTypingIndicator</a></td>
+        <td>Displays TypingIndicator information for a Conversation</td>
+    </tr>
+
+    <tr><th colspan="2" style="text-align:center;">Interfaces</th></tr>
+    <tr>
+        <td><a href="layer-atlas/src/main/java/com/layer/atlas/Atlas.java#L74">Participant</a></td>
+        <td>Allows Atlas classes to render Participant information</td>
+    </tr>
+    <tr>
+        <td><a href="layer-atlas/src/main/java/com/layer/atlas/Atlas.java#L124">ParticipantProvider</a></td>
+        <td>Provides Atlas classes with Participants</td>
+    </tr>
+</table>
+
+##<a name="installation"></a>Installation
+
+##<a name="getting_started"></a>Getting Started
+
+##<a name="styling"></a>Styling
+Atlas allows you to quickly style its components through code, layouts, and themes.  For a complete list of stylable component attributes, see <a href="layer-atlas/src/main/res/values/atlas-styles.xml">atlas-styles.xml</a>
+
+<!--**Dynamically adjust View styles through code (coming soon):**
+
+```java
+	AtlasMessageList messageList = (AtlasMessageList) findViewById(R.id.messageList);
+	messageList.setMyBubbleColor(Color.YELLOW);
+```
+-->
+**Set attributes on individual views within your layouts:**
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:atlas="http://schemas.android.com/apk/res-auto"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical">
+
+    <com.layer.atlas.AtlasMessagesList
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        atlas:myBubbleColor="#FF0"
+        />
+
+</LinearLayout>
+```
+
+**Customize the global Atlas theme from your `styles.xml`:**
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="AppTheme" parent="Theme.Atlas.Light">
+        <item name="AtlasMessageList">@style/CustomAtlasMessageList</item>
+    </style>
+
+    <style name="CustomAtlasMessageList" parent="AtlasMessageList">
+        <item name="myBubbleColor">#FF0</item>
+    </style>
+    
+</resources>
+```
+
+##<a name="component_details"></a>Component Details
+Atlas is divided into five basic `View` components.
+
+###AtlasConversationsList
+The `AtlasConversationList` is a list of Conversations. 
+
+```xml
+<com.layer.atlas.AtlasConversationsList
+    android:id="@+id/conversations_list"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    />
+```
+
+```java
+conversationsList = (AtlasConversationsList) findViewById(R.id.conversations_list);
+conversationsList.init(conversationsList, layerClient, participantProvider);
+conversationsList.setClickListener(new ConversationClickListener() {
+	public void onItemClick(Conversation conversation) {
+		openChatScreen(conversation, false);
 	}
-	```
+});
+```
 
-2. Add `layer-atlas` project reference to your app's `build.gradle` (e.g. `/MyApplication/app/build.gradle`):
+###AtlasMessagesList
+The `AtlasMessageList` is list of Messages, rendered as Cells.
 
-	``` groovy
-	dependencies {
-    	compile project(':layer-atlas')
+```xml
+<com.layer.atlas.AtlasMessagesList
+    android:id="@+id/messages_list"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    />
+```
+
+```java
+messagesList = (AtlasMessagesList) findViewById(R.id.messages_list);
+messagesList.init(layerClient, participantProvider);
+messagesList.setConversation(conversation);
+messagesList.setItemClickListener(new ItemClickListener() {
+	public void onItemClick(Cell item) {
+		if (Atlas.MIME_TYPE_ATLAS_LOCATION.equals(item.messagePart.getMimeType())) {
+       	String jsonLonLat = new String(item.messagePart.getData());
+       	/* launch map app */
+		}
 	}
-	```
+});
+```
 
-3. Clone this repo as a submodule in the root of your Android Studio project.
+###AtlasMessageComposer
+The `AtlasMessageComposer` is a set of buttons and a text entry area for composing messages. 
 
-	``` sh
-	git submodule add git@github.com:layerhq/Atlas-Android
-	```
-	
-	*Note: If git is not initialized, you may need to `git init`.*
+```xml
+<com.layer.atlas.AtlasMessageComposer
+    android:id="@+id/message_composer"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    />
+```
 
-4. Add `:layer-atlas` module to your project's root `settings.gradle` (e.g. `/MyApplication/settings.gradle`):
+```java
+AtlasMessageComposer messageComposer = (AtlasMessageComposer) findViewById(R.id.message_composer);
+messageComposer.init(layerClient, conversation);
+messageComposer.setListener(new AtlasMessageComposer.Listener() {
+	public boolean beforeSend(Message message) {
+		if (conversation == null) {
+			// create new one
+			conversation = layerClient.newConversation(participantsPicker.getSelectedUserIds());
+			messageComposer.setConversation(conversation);
+		}
 
-	``` groovy
-	include ':app', ':layer-atlas', ':layer-atlas-messenger'
-	project(':layer-atlas').projectDir = new File('Atlas-Android/layer-atlas')
-	project(':layer-atlas-messenger').projectDir = new File('Atlas-Android/layer-atlas-messenger')
-	```
+		// push
+		Map<String, String> metadata = new HashMap<String, String>();
+		String text = senderName + ": " + new String(message.getMessageParts().get(0).getData());
+		metadata.put(Message.ReservedMetadataKeys.PushNotificationAlertMessageKey.getKey(), text);
+		message.setMetadata(metadata);
+		return true;
+	}
+});
 
-5. Click "Sync Project with Gradle Files" in Android Studio
+messageComposer.registerMenuItem("Image", new OnClickListener() {
+	public void onClick(View v) {
+		Intent intent = new Intent().setType("image/*").setAction(Intent.ACTION_GET_CONTENT);
+		startActivityForResult(Intent.createChooser(intent, "Select Picture"), REQUEST_CODE_GALLERY);
+	}
+});
+```
 
-##Without Git Submodule
-Follow steps 1 and 2 above, clone this repo somewhere, and...
+###AtlasParticipantPicker
+The `AtlasParticipantPicker` allows the user to search and select one or more participants.
 
-1. Copy `layer-atlas` to the root of your AndroidStudio project:
+```xml
+<com.layer.atlas.AtlasParticipantPicker
+    android:id="@+id/participant_picker"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    />
+```
 
-	``` sh
-	/MyApplication/layer-atlas
-	```
+```java
+AtlasParticipantPicker participantsPicker = (AtlasParticipantPicker) findViewById(R.id.participant_picker);
+participantsPicker.init(userIdsToSkip, participantProvider);
+```
 
-2. Copy `layer-atlas-messenger` to the root of your AndroidStudio project:
+###AtlasTypingIndicator
+The `AtlasTypingIndicator` presents the user with active typers.
 
-	``` sh
-	/MyApplication/layer-atlas-messenger
-	```
+```xml
+<com.layer.atlas.AtlasTypingIndicator
+    android:id="@+id/typing_indicator"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    />
+```
 
-3. Add `:layer-atlas` and `:layer-atlas-messenger` modules to your project's root `settings.gradle` (e.g. `/MyApplication/settings.gradle`):
+```java
+typingIndicator = (AtlasTypingIndicator) findViewById(R.id.typing_indicator);
+typingIndicator.init(conv, new AtlasTypingIndicator.DefaultTypingIndicatorCallback(participantProvider));
+```
 
-	``` groovy
-	include ':app', ':layer-atlas', ':layer-atlas-messenger'
-	```
+##<a name="contributing"></a>Contributing
+Atlas is an Open Source project maintained by Layer. Feedback and contributions are always welcome and the maintainers try to process patches as quickly as possible. Feel free to open up a Pull Request or Issue on Github.
 
-4. Click "Sync Project with Gradle Files" in Android Studio
+##<a name="license"></a>License
+
+Atlas is licensed under the terms of the [Apache License, version 2.0](http://www.apache.org/licenses/LICENSE-2.0.html). Please see the [LICENSE](LICENSE) file for full details.
+
+##<a name="contact"></a>Contact
+
+Atlas was developed in San Francisco by the Layer team. If you have any technical questions or concerns about this project feel free to reach out to [Layer Support](mailto:support@layer.com).
+
+##<a name="credits"></a>Credits
+
+* [Oleg Orlov](https://github.com/oorlov)
+* [Steven Jones](https://github.com/sjones94549)

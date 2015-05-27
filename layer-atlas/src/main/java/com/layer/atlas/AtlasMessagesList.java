@@ -22,7 +22,6 @@ import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RoundRectShape;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -126,9 +125,9 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
         super(context);
     }
 
-    public void init(LayerClient layerClient, final ContactProvider contactProvider) {
+    public void init(LayerClient layerClient, final Atlas.ParticipantProvider participantProvider) {
         if (layerClient == null) throw new IllegalArgumentException("LayerClient cannot be null");
-        if (contactProvider == null) throw new IllegalArgumentException("ContactProvider cannot be null");
+        if (participantProvider == null) throw new IllegalArgumentException("ParticipantProvider cannot be null");
         
         
         this.client = layerClient;
@@ -183,7 +182,6 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
                     timeBar.setVisibility(View.GONE);
                 }
                 
-                Contact contact = contactProvider.get(userId);
                 TextView textAvatar = (TextView) convertView.findViewById(R.id.atlas_view_messages_convert_initials);
                 View spacerRight = convertView.findViewById(R.id.atlas_view_messages_convert_spacer_right);
                 if (myMessage) {
@@ -191,7 +189,8 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
                     textAvatar.setVisibility(View.INVISIBLE);
                 } else {
                     spacerRight.setVisibility(View.VISIBLE);
-                    String displayText = contact != null ? contact.getInitials() : "";
+                    Atlas.Participant participant = participantProvider.getParticipant(userId);
+                    String displayText = participant != null ? Atlas.getInitials(participant) : "";
                     textAvatar.setText(displayText);
                     textAvatar.setVisibility(View.VISIBLE);
                 }
@@ -219,7 +218,7 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
                 
                 View cellRootView = cell.onBind(cellContainer);
                 
-                boolean inContaier = false;
+                boolean inContainer = false;
                 // cleanUp container
                 cellRootView.setVisibility(View.VISIBLE);
                 for (int iChild = 0; iChild < cellContainer.getChildCount(); iChild++) {
@@ -227,10 +226,10 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
                     if (child != cellRootView) {
                         child.setVisibility(View.GONE);
                     } else {
-                        inContaier = true;
+                        inContainer = true;
                     }
                 }
-                if (!inContaier) {
+                if (!inContainer) {
                     cellContainer.addView(cellRootView);
                 }
             }
@@ -566,7 +565,7 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
                     stubHeight = messagesList.getHeight();
                 }
                 
-                final RoundRectShape roundRectShape = new RoundRectShape(Atlas.getRoundRectRadii(new float[] {16,16,16,16}, cellContainer.getResources().getDisplayMetrics()), null, null);
+                final RoundRectShape roundRectShape = new RoundRectShape(Atlas.Tools.getRoundRectRadii(new float[]{16, 16, 16, 16}, cellContainer.getResources().getDisplayMetrics()), null, null);
                 ShapeDrawable shapeDrawable = new ShapeDrawable(roundRectShape);
                 shapeDrawable.getPaint().setColor(cellContainer.getResources().getColor(R.color.atlas_background_gray));
                 //shapeDrawable.setBounds(0, 0, stubWidth, stubHeight);
@@ -669,7 +668,7 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
         if (debug) Log.w(TAG, "requestBitmap() cache: " + imageCache.size() + ", queue: " + queue.size());
     }
     
-    public static Bitmap decodeBitmap(MessagePart messagePart, int requiredWidth, int requiredHeight) {
+    private static Bitmap decodeBitmap(MessagePart messagePart, int requiredWidth, int requiredHeight) {
         // load
         long started = System.currentTimeMillis();
         BitmapFactory.Options opts = new BitmapFactory.Options();

@@ -3,6 +3,9 @@ package com.layer.atlas;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.TreeSet;
 
 import android.content.Context;
@@ -38,17 +41,19 @@ public class AtlasParticipantPicker extends FrameLayout {
     // participants picker
     private View rootView;
     private EditText textFilter;
-    private ListView contactsList;
-    private ViewGroup selectedContactsContainer;
+    private ListView participantsList;
+    private ViewGroup selectedParticipantsContainer;
 
-    private BaseAdapter contactsAdapter;
-    
+    private Atlas.ParticipantProvider participantProvider;
+
     private TreeSet<String> skipUserIds = new TreeSet<String>();
-    private ArrayList<Contact> selectedContacts = new ArrayList<Contact>();
-    
-    private Contact[] allContacts = null;
-    private final ArrayList<Contact> contactsToSelect = new ArrayList<Contact>();
-    
+    private final Map<String, Atlas.Participant> allParticipantMap = new HashMap<String, Atlas.Participant>();
+    private final Map<String, Atlas.Participant> filterParticipantMap = new HashMap<String, Atlas.Participant>();
+    private ArrayList<ParticipantEntry> selectedParticipants = new ArrayList<ParticipantEntry>();
+    private final ArrayList<ParticipantEntry> participantsForAdapter = new ArrayList<ParticipantEntry>();
+
+    private BaseAdapter participantsAdapter;
+
     // styles
     private int inputTextColor;
     private Typeface inputTextTypeface;
@@ -60,7 +65,7 @@ public class AtlasParticipantPicker extends FrameLayout {
     private int chipTextColor;
     private Typeface chipTextTypeface;
     private int chipTextStyle;
-    
+
     public AtlasParticipantPicker(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         parseStyle(context, attrs, defStyle);
@@ -74,26 +79,20 @@ public class AtlasParticipantPicker extends FrameLayout {
         super(context);
     }
 
-    public void init(final ContactProvider contactProvider, String[] userIdToSkip) {
-        if (contactProvider == null) throw new IllegalArgumentException("ContactProvider cannot be null");
+    public void init(String[] userIdToSkip, Atlas.ParticipantProvider participantProvider) {
+        if (participantProvider == null) throw new IllegalArgumentException("ParticipantProvider cannot be null");
         
         LayoutInflater.from(getContext()).inflate(R.layout.atlas_participants_picker, this);
-        
+
+        this.participantProvider = participantProvider;
         if (userIdToSkip != null) skipUserIds.addAll(Arrays.asList(userIdToSkip));
-
-        this.allContacts = contactProvider.getAll().toArray(new Contact[contactProvider.getAll().size()]);
-        Arrays.sort(allContacts, Contact.FIRST_LAST_EMAIL_ASCENDING);
+        participantProvider.getParticipants(null, allParticipantMap);
         
-        for (Contact contact : allContacts) {
-            if (skipUserIds.contains(contact.userId)) continue;
-            contactsToSelect.add(contact);
-        }
-
         // START OF -------------------- Participant Picker ----------------------------------------
         this.rootView = this;
         textFilter = (EditText) rootView.findViewById(R.id.atlas_participants_picker_text);
-        contactsList = (ListView) rootView.findViewById(R.id.atlas_participants_picker_list);
-        selectedContactsContainer = (ViewGroup) rootView.findViewById(R.id.atlas_participants_picker_names);
+        participantsList = (ListView) rootView.findViewById(R.id.atlas_participants_picker_list);
+        selectedParticipantsContainer = (ViewGroup) rootView.findViewById(R.id.atlas_participants_picker_names);
 
         if (rootView.getVisibility() == View.VISIBLE) {
             textFilter.requestFocus();
@@ -107,7 +106,7 @@ public class AtlasParticipantPicker extends FrameLayout {
                 if (debug) Log.w(TAG, "scroller.onFocusChange() hasFocus: " + hasFocus);
             }
         });
-        selectedContactsContainer.setOnFocusChangeListener(new OnFocusChangeListener() {
+        selectedParticipantsContainer.setOnFocusChangeListener(new OnFocusChangeListener() {
             public void onFocusChange(View v, boolean hasFocus) {
                 if (debug) Log.w(TAG, "names.onFocusChange()    hasFocus: " + hasFocus);
             }
@@ -116,7 +115,7 @@ public class AtlasParticipantPicker extends FrameLayout {
         // If filter.requestFocus is called from .onClickListener - filter receives focus, but
         // NamesLayout receives it immediately after that. So filter lose it.
         // XXX: scroller also receives focus 
-        selectedContactsContainer.setOnTouchListener(new OnTouchListener() {
+        selectedParticipantsContainer.setOnTouchListener(new OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (debug) Log.w(TAG, "names.onTouch() event: " + event);
@@ -128,22 +127,22 @@ public class AtlasParticipantPicker extends FrameLayout {
 
         textFilter.setOnFocusChangeListener(new OnFocusChangeListener() {
             public void onFocusChange(View v, boolean hasFocus) {
-                View focused = selectedContactsContainer.hasFocus() ? selectedContactsContainer : selectedContactsContainer.findFocus();
+                View focused = selectedParticipantsContainer.hasFocus() ? selectedParticipantsContainer : selectedParticipantsContainer.findFocus();
                 if (debug) Log.w(TAG, "filter.onFocusChange()   hasFocus: " + hasFocus + ", focused: " + focused);
                 if (hasFocus) {
-                    contactsList.setVisibility(View.VISIBLE);
+                    participantsList.setVisibility(View.VISIBLE);
                 }
                 v.post(new Runnable() { // check focus runnable
                     @Override
                     public void run() {
                         if (debug) Log.w(TAG, "filter.onFocusChange.run()   filter.focus: " + textFilter.hasFocus());
-                        if (debug) Log.w(TAG, "filter.onFocusChange.run()    names.focus: " + selectedContactsContainer.hasFocus());
+                        if (debug) Log.w(TAG, "filter.onFocusChange.run()    names.focus: " + selectedParticipantsContainer.hasFocus());
                         if (debug) Log.w(TAG, "filter.onFocusChange.run() scroller.focus: " + scroller.hasFocus());
 
                         // check focus is on any descendants and hide list otherwise  
-                        View focused = selectedContactsContainer.hasFocus() ? selectedContactsContainer : selectedContactsContainer.findFocus();
+                        View focused = selectedParticipantsContainer.hasFocus() ? selectedParticipantsContainer : selectedParticipantsContainer.findFocus();
                         if (focused == null) {
-                            contactsList.setVisibility(View.GONE);
+                            participantsList.setVisibility(View.GONE);
                             textFilter.setText("");
                         }
                     }
@@ -151,7 +150,7 @@ public class AtlasParticipantPicker extends FrameLayout {
             }
         });
 
-        contactsList.setAdapter(contactsAdapter = new BaseAdapter() {
+        participantsList.setAdapter(participantsAdapter = new BaseAdapter() {
             public View getView(int position, View convertView, ViewGroup parent) {
                 if (convertView == null) {
                     convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.atlas_view_participants_picker_convert, parent, false);
@@ -159,10 +158,15 @@ public class AtlasParticipantPicker extends FrameLayout {
 
                 TextView name = (TextView) convertView.findViewById(R.id.atlas_view_participants_picker_convert_name);
                 TextView avatarText = (TextView) convertView.findViewById(R.id.atlas_view_participants_picker_convert_ava);
-                Contact contact = contactsToSelect.get(position);
+                ParticipantEntry entry = participantsForAdapter.get(position);
 
-                name.setText(contact.getFirstAndLast());
-                avatarText.setText(contact.getInitials());
+                if (entry != null) {
+                    name.setText(Atlas.getFullName(entry.participant));
+                    avatarText.setText(Atlas.getInitials(entry.participant));
+                } else {
+                    name.setText(null);
+                    avatarText.setText(null);
+                }
                 
                 // apply styles
                 name.setTextColor(listTextColor);
@@ -173,31 +177,31 @@ public class AtlasParticipantPicker extends FrameLayout {
             }
 
             public long getItemId(int position) {
-                return contactsToSelect.get(position).userId.hashCode();
+                return participantsForAdapter.get(position).id.hashCode();
             }
 
             public Object getItem(int position) {
-                return contactsToSelect.get(position);
+                return participantsForAdapter.get(position);
             }
 
             public int getCount() {
-                return contactsToSelect.size();
+                return participantsForAdapter.size();
             }
         });
 
-        contactsList.setOnItemClickListener(new OnItemClickListener() {
+        participantsList.setOnItemClickListener(new OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Contact contact = contactsToSelect.get(position);
-                selectedContacts.add(contact);
-                refreshParticipants(selectedContacts);
+                ParticipantEntry entry = participantsForAdapter.get(position);
+                selectedParticipants.add(entry);
+                refreshParticipants(selectedParticipants);
                 textFilter.setText("");
                 textFilter.requestFocus();
-                filterContacts("");                 // refresh contactList
+                filterParticipants("");                 // refresh participantList
             }
 
         });
 
-        // track text and filter contact list
+        // track text and filter participant list
         textFilter.addTextChangedListener(new TextWatcher() {
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
                 if (debug) Log.w(TAG, "beforeTextChanged() s: " + s + " start: " + start + " count: " + count + " after: " + after);
@@ -207,7 +211,7 @@ public class AtlasParticipantPicker extends FrameLayout {
                 if (debug) Log.w(TAG, "onTextChanged()     s: " + s + " start: " + start + " before: " + before + " count: " + count);
 
                 final String filter = s.toString().toLowerCase();
-                filterContacts(filter);
+                filterParticipants(filter);
             }
 
             public void afterTextChanged(Editable s) {
@@ -219,84 +223,75 @@ public class AtlasParticipantPicker extends FrameLayout {
         textFilter.setOnKeyListener(new OnKeyListener() {
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 if (debug) Log.w(TAG, "onKey() keyCode: " + keyCode + ", event: " + event);
-                if (keyCode == KeyEvent.KEYCODE_DEL && event.getAction() == KeyEvent.ACTION_DOWN && textFilter.getText().length() == 0 && selectedContacts.size() > 0) {
+                if (keyCode == KeyEvent.KEYCODE_DEL && event.getAction() == KeyEvent.ACTION_DOWN && textFilter.getText().length() == 0 && selectedParticipants.size() > 0) {
 
-                    selectedContacts.remove(selectedContacts.size() - 1);
-                    refreshParticipants(selectedContacts);
-                    filterContacts("");
+                    selectedParticipants.remove(selectedParticipants.size() - 1);
+                    refreshParticipants(selectedParticipants);
+                    filterParticipants("");
                     textFilter.requestFocus();
                 }
                 return false;
             }
         });
+
+        filterParticipants("");
         // END OF ---------------------- Participant Picker ---------------------------------------- 
 
         applyStyle();
     }
 
-    public void refreshParticipants(final ArrayList<Contact> selectedContacts) {
+    private void refreshParticipants(final ArrayList<ParticipantEntry> selectedParticipants) {
 
         // remove name_converts first. Better to keep editText in place rather than add/remove that force keyboard to blink
-        for (int i = selectedContactsContainer.getChildCount() - 1; i >= 0; i--) {
-            View child = selectedContactsContainer.getChildAt(i);
+        for (int i = selectedParticipantsContainer.getChildCount() - 1; i >= 0; i--) {
+            View child = selectedParticipantsContainer.getChildAt(i);
             if (child != textFilter) {
-                selectedContactsContainer.removeView(child);
+                selectedParticipantsContainer.removeView(child);
             }
         }
-        if (debug) Log.w(TAG, "refreshParticipants() childs left: " + selectedContactsContainer.getChildCount());
-        for (Contact contactToAdd : selectedContacts) {
-            View contactView = LayoutInflater.from(selectedContactsContainer.getContext()).inflate(R.layout.atlas_view_participants_picker_name_convert, selectedContactsContainer, false);
+        if (debug) Log.w(TAG, "refreshParticipants() childs left: " + selectedParticipantsContainer.getChildCount());
+        for (ParticipantEntry entryToAdd : selectedParticipants) {
+            View participantView = LayoutInflater.from(selectedParticipantsContainer.getContext()).inflate(R.layout.atlas_view_participants_picker_name_convert, selectedParticipantsContainer, false);
 
-            TextView avaText = (TextView) contactView.findViewById(R.id.atlas_view_participants_picker_name_convert_ava);
-            avaText.setText(contactToAdd.getInitials());
-            TextView nameText = (TextView) contactView.findViewById(R.id.atlas_view_participants_picker_name_convert_name);
-            nameText.setText(contactToAdd.getFirstAndLast());
-            contactView.setTag(contactToAdd);
+            TextView avaText = (TextView) participantView.findViewById(R.id.atlas_view_participants_picker_name_convert_ava);
+            avaText.setText(Atlas.getInitials(entryToAdd.participant));
+            TextView nameText = (TextView) participantView.findViewById(R.id.atlas_view_participants_picker_name_convert_name);
+            nameText.setText(Atlas.getFullName(entryToAdd.participant));
+            participantView.setTag(entryToAdd);
 
-            selectedContactsContainer.addView(contactView, selectedContactsContainer.getChildCount() - 1);
-            if (debug) Log.w(TAG, "refreshParticipants() child added: " + contactView + ", for: " + contactToAdd);
+            selectedParticipantsContainer.addView(participantView, selectedParticipantsContainer.getChildCount() - 1);
+            if (debug) Log.w(TAG, "refreshParticipants() child added: " + participantView + ", for: " + entryToAdd);
             
             // apply styles
             avaText.setTextColor(chipTextColor);
             avaText.setTypeface(chipTextTypeface, chipTextStyle);
             nameText.setTextColor(chipTextColor);
             nameText.setTypeface(chipTextTypeface, chipTextStyle);
-            View container = contactView.findViewById(R.id.atlas_view_participants_picker_name_convert);
+            View container = participantView.findViewById(R.id.atlas_view_participants_picker_name_convert);
             GradientDrawable drawable = (GradientDrawable) container.getBackground();
             drawable.setColor(chipBackgroundColor);
             
         }
-        if (selectedContacts.size() == 0) {
+        if (selectedParticipants.size() == 0) {
             LayoutParams params = new LayoutParams(textFilter.getLayoutParams());
             params.width = LayoutParams.MATCH_PARENT;
         }
-        selectedContactsContainer.requestLayout();
+        selectedParticipantsContainer.requestLayout();
     }
     
-    private void filterContacts(final String filter) {
-        contactsToSelect.clear();
-        for (Contact contact : allContacts) {
-            if (selectedContacts.contains(contact)) continue;
-            if (skipUserIds.contains(contact.userId)) continue;
-        
-            if (contact.firstName != null && contact.firstName.toLowerCase().contains(filter)) {
-                contactsToSelect.add(contact);
-                continue;
-            }
-            if (contact.lastName != null && contact.lastName.toLowerCase().contains(filter)) {
-                contactsToSelect.add(contact);
-                continue;
-            }
-            if (contact.email != null && contact.email.toLowerCase().contains(filter)) {
-                contactsToSelect.add(contact);
-                continue;
-            }
+    private void filterParticipants(final String filter) {
+        participantProvider.getParticipants(filter, filterParticipantMap);
+        participantsForAdapter.clear();
+        for (Map.Entry<String, Atlas.Participant> entry : filterParticipantMap.entrySet()) {
+            if (selectedParticipants.contains(entry.getValue())) continue;
+            if (skipUserIds.contains(entry.getKey())) continue;
+            participantsForAdapter.add(new ParticipantEntry(entry.getValue(), entry.getKey()));
         }
-        Collections.sort(contactsToSelect, new Contact.FilteringComparator(filter));
-        contactsAdapter.notifyDataSetChanged();
+        Collections.sort(participantsForAdapter, new ParticipantEntryFilteringComparator(filter));
+        participantsAdapter.notifyDataSetChanged();
     }
 
-    public void parseStyle(Context context, AttributeSet attrs, int defStyle) {
+    private void parseStyle(Context context, AttributeSet attrs, int defStyle) {
         TypedArray ta = context.getTheme().obtainStyledAttributes(attrs, R.styleable.AtlasParticipantPicker, R.attr.AtlasParticipantPicker, defStyle);
         this.inputTextColor = ta.getColor(R.styleable.AtlasParticipantPicker_inputTextColor, context.getResources().getColor(R.color.atlas_text_black));
         this.inputTextStyle = ta.getInt(R.styleable.AtlasParticipantPicker_inputTextStyle, Typeface.NORMAL);
@@ -317,17 +312,17 @@ public class AtlasParticipantPicker extends FrameLayout {
     }
     
     private void applyStyle() {
-        refreshParticipants(selectedContacts);
-        contactsAdapter.notifyDataSetChanged();
+        refreshParticipants(selectedParticipants);
+        participantsAdapter.notifyDataSetChanged();
         textFilter.setTextColor(inputTextColor);
         textFilter.setTypeface(inputTextTypeface, inputTextStyle);
     }
 
-
     public String[] getSelectedUserIds() {
-        String[] userIds = new String[selectedContacts.size()];
-        for (int i = 0; i < selectedContacts.size(); i++) {
-            userIds[i] = selectedContacts.get(i).userId;
+        String[] userIds = new String[selectedParticipants.size()];
+        int i = 0;
+        for (ParticipantEntry entry : selectedParticipants) {
+            userIds[i++] = entry.id;
         }
         return userIds;
     }
@@ -336,6 +331,60 @@ public class AtlasParticipantPicker extends FrameLayout {
         super.setVisibility(visibility);
         if (visibility == View.VISIBLE) {
             textFilter.requestFocus();
+        }
+    }
+
+    private static final class FilteringComparator implements Comparator<Atlas.Participant> {
+        private final String filter;
+
+        /**
+         * @param filter - the less indexOf(filter) the less order of participant
+         */
+        public FilteringComparator(String filter) {
+            this.filter = filter;
+        }
+
+        @Override
+        public int compare(Atlas.Participant lhs, Atlas.Participant rhs) {
+            int result = subCompareCaseInsensitive(lhs.getFirstName(), rhs.getFirstName());
+            if (result != 0) return result;
+            return subCompareCaseInsensitive(lhs.getLastName(), rhs.getLastName());
+        }
+
+        private int subCompareCaseInsensitive(String lhs, String rhs) {
+            int left = lhs != null ? lhs.toLowerCase().indexOf(filter) : -1;
+            int right = rhs != null ? rhs.toLowerCase().indexOf(filter) : -1;
+
+            if (left == -1 && right == -1) return 0;
+            if (left != -1 && right == -1) return -1;
+            if (left == -1 && right != -1) return 1;
+            if (left - right != 0) return left - right;
+            return String.CASE_INSENSITIVE_ORDER.compare(lhs, rhs);
+        }
+    }
+
+    private static final class ParticipantEntryFilteringComparator implements Comparator<ParticipantEntry> {
+        FilteringComparator comparator;
+
+        public ParticipantEntryFilteringComparator(String filter) {
+            this.comparator = new FilteringComparator(filter);
+        }
+
+        @Override
+        public int compare(ParticipantEntry lhs, ParticipantEntry rhs) {
+            return comparator.compare(lhs.participant, rhs.participant);
+        }
+    }
+    
+    private static class ParticipantEntry {
+        final Atlas.Participant participant;
+        final String id;
+
+        public ParticipantEntry(Atlas.Participant participant, String id) {
+            if (participant == null) throw new IllegalArgumentException("Atlas.Participant cannot be null");
+            if (id == null) throw new IllegalArgumentException("ID cannot be null");
+            this.participant = participant;
+            this.id = id;
         }
     }
 

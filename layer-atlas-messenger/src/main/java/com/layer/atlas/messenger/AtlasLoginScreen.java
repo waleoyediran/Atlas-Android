@@ -66,8 +66,8 @@ public class AtlasLoginScreen extends Activity {
                                         return;
                                     }
                                     layerClient.answerAuthenticationChallenge(result.identityToken);
-                                    if (result.contacts != null) {
-                                        app.getContactProvider().set(result.contacts);
+                                    if (result.participants != null) {
+                                        app.getParticipantProvider().set(result.participants);
                                     }
                                 } catch (Exception e) {
                                     e.printStackTrace();

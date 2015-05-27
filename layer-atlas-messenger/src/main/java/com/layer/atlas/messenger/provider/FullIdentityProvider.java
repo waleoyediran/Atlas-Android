@@ -17,7 +17,7 @@ import org.json.JSONObject;
 /**
  * Created by steven on 5/24/15.
  */
-public class FullIdentityProvider extends IdentityProvider implements FullContactProviderCallback.Callback {
+public class FullIdentityProvider extends IdentityProvider implements FullParticipantProviderCallback.Callback {
     private final String TAG = FullIdentityProvider.class.getSimpleName();
     private SharedPreferences mSharedPreferences;
 

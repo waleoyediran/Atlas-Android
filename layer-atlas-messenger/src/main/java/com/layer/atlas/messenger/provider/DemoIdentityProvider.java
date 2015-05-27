@@ -2,7 +2,7 @@ package com.layer.atlas.messenger.provider;
 
 import android.util.Log;
 
-import com.layer.atlas.Contact;
+import com.layer.atlas.messenger.Participant;
 import com.layer.atlas.messenger.AppIdCallback;
 
 import org.apache.http.HttpResponse;
@@ -53,15 +53,15 @@ public class DemoIdentityProvider extends IdentityProvider {
             result.error = jsonResp.optString("error", null);
             result.identityToken = jsonResp.optString("identity_token");
             JSONArray atlasIdentities = jsonResp.getJSONArray("atlas_identities");
-            List<Contact> contacts = new ArrayList<Contact>(atlasIdentities.length());
+            List<Participant> participants = new ArrayList<Participant>(atlasIdentities.length());
             for (int i = 0; i < atlasIdentities.length(); i++) {
                 JSONObject identity = atlasIdentities.getJSONObject(i);
-                Contact contact = new Contact();
-                contact.firstName = identity.getString("name");
-                contact.userId = identity.getString("id");
-                contacts.add(contact);
+                Participant participant = new Participant();
+                participant.firstName = identity.getString("name");
+                participant.userId = identity.getString("id");
+                participants.add(participant);
             }
-            result.contacts = contacts;
+            result.participants = participants;
             return result;
         } catch (Exception e) {
             Log.e(TAG, "Error when fetching identity token", e);
