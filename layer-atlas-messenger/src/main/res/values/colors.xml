@@ -7,4 +7,6 @@
     <color name="color3_controls">#B7FF84</color>
     <color name="color4_dark">#EAEAEA</color>
     
+    <color name="messenger_background_actionbar_blue">#FF2588B7</color>
+    
 </resources>

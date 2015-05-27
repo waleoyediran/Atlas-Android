@@ -205,19 +205,24 @@ public class AtlasMessagesScreen extends Activity {
         }
         
         messagesList.updateValues();
-        
-        // update buddies:
-        StringBuilder sb = new StringBuilder();
-        for (String userId : conv.getParticipants()) {
-            if (app.getLayerClient().getAuthenticatedUserId().equals(userId)) continue;
-            Contact contact = app.getContactProvider().get(userId);
-            if (contact == null) continue;
-            String initials = conv.getParticipants().size() > 2 ? contact.getFirstAndL() : contact.getFirstAndLast();
-            if (sb.length() > 0) sb.append(", ");
-            sb.append(initials != null ? initials : userId);
-        }
+
         TextView titleText = (TextView) findViewById(R.id.atlas_actionbar_title_text);
-        titleText.setText(sb);
+        String conversationTitle = (String) conv.getMetadata().get(Atlas.METADATA_KEY_CONVERSATION_TITLE);
+        if (conversationTitle != null && conversationTitle.trim().length() > 0) {
+            titleText.setText(conversationTitle.trim());
+        } else {
+            // update buddies:
+            StringBuilder sb = new StringBuilder();
+            for (String userId : conv.getParticipants()) {
+                if (app.getLayerClient().getAuthenticatedUserId().equals(userId)) continue;
+                Contact contact = app.getContactProvider().get(userId);
+                if (contact == null) continue;
+                String initials = conv.getParticipants().size() > 2 ? contact.getFirstAndL() : contact.getFirstAndLast();
+                if (sb.length() > 0) sb.append(", ");
+                sb.append(initials != null ? initials : userId);
+            }
+            titleText.setText(sb);
+        }
     }
     
     @Override

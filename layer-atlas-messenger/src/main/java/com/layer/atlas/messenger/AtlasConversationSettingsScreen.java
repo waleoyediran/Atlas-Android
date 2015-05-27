@@ -1,29 +1,24 @@
 package com.layer.atlas.messenger;
 
+import java.util.Arrays;
+import java.util.HashSet;
+
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.layer.atlas.Atlas;
 import com.layer.atlas.Contact;
+import com.layer.sdk.internal.utils.Log;
 import com.layer.sdk.messaging.Conversation;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
 
 /**
  * @author Oleg Orlov
@@ -35,51 +30,19 @@ public class AtlasConversationSettingsScreen extends Activity {
 
     private static final int REQUEST_CODE_ADD_PARTICIPANT = 999;
     
-    private App101 app101;
-    
     public static Conversation conv;
     private ViewGroup namesList;
+    
+    private View btnLeaveGroup;
+    private EditText textGroupName;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.atlas_screen_conversation_settings);
         
-        this.app101 = (App101) getApplication();
-        
-        CheckBox notificationsCheck = (CheckBox) findViewById(R.id.atlas_screen_conversation_settings_notifications_switch);
-        notificationsCheck.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (debug) Log.w(TAG, "onCheckedChanged() ");
-            }
-        });
-        
-        View btnBlockPerson = findViewById(R.id.atlas_screen_conversation_settings_block_person);
-        View btnLeaveGroup = findViewById(R.id.atlas_screen_conversation_settings_leave_group);
-        EditText textGroupName = (EditText) findViewById(R.id.atlas_screen_conversation_settings_groupname_text);
-        
-        HashSet<String> participants = new HashSet<String>(conv.getParticipants());
-        participants.remove(app101.getLayerClient().getAuthenticatedUserId());
-        if (participants.size() == 1) { // one-on-one
-            btnBlockPerson.setVisibility(View.VISIBLE);
-            btnLeaveGroup.setVisibility(View.GONE);
-            textGroupName.setVisibility(View.GONE);
-        } else {                        // multi
-            btnBlockPerson.setVisibility(View.GONE);
-            btnLeaveGroup.setVisibility(View.VISIBLE);
-            textGroupName.setVisibility(View.VISIBLE);
-        }
-        
-        ImageView galleryView = (ImageView) findViewById(R.id.atlas_screen_conversation_settings_gallery);
-        Bitmap bmp;
-        try {
-            bmp = BitmapFactory.decodeStream(getAssets().open("gallery.png"));
-            galleryView.setImageBitmap(bmp);
-            galleryView.getLayoutParams().height = getWindowManager().getDefaultDisplay().getWidth();
-            galleryView.setLayoutParams(galleryView.getLayoutParams());
-        } catch (IOException e) {
-            Log.e(TAG, "onCreate() Cannot show gallery", e);
-        }
+        btnLeaveGroup = findViewById(R.id.atlas_screen_conversation_settings_leave_group);
+        textGroupName = (EditText) findViewById(R.id.atlas_screen_conversation_settings_groupname_text);
         
         View btnAddParticipant = findViewById(R.id.atlas_screen_conversation_settings_add_participant);
         btnAddParticipant.setOnClickListener(new OnClickListener() {
@@ -98,12 +61,23 @@ public class AtlasConversationSettingsScreen extends Activity {
 
     private void updateValues() {
         
+        App101 app101 = (App101) getApplication();
+        
+        String conversationTitle = (String) conv.getMetadata().get(Atlas.METADATA_KEY_CONVERSATION_TITLE);
+        if (conversationTitle != null && conversationTitle.trim().length() > 0) {
+            textGroupName.setText(conversationTitle.trim());
+        } else {
+            textGroupName.setText("");
+        }
+        
         // refresh names screen
         namesList.removeAllViews();
         
-        Contact[] contacts = new Contact[conv.getParticipants().size()];
+        HashSet<String> participants = new HashSet<String>(conv.getParticipants());
+        participants.remove(app101.getLayerClient().getAuthenticatedUserId());
+        Contact[] contacts = new Contact[participants.size()];
         int i = 0;
-        for (String userId : conv.getParticipants()) {
+        for (String userId : participants) {
             Contact c = app101.getContactProvider().get(userId);
             contacts[i++] = c;
         }
@@ -123,6 +97,12 @@ public class AtlasConversationSettingsScreen extends Activity {
             namesList.addView(convert);
         }
         
+        if (participants.size() == 1) { // one-on-one
+            btnLeaveGroup.setVisibility(View.GONE);
+        } else {                        // multi
+            btnLeaveGroup.setVisibility(View.VISIBLE);
+        }
+
     }
     
     private OnLongClickListener contactLongClickListener = new OnLongClickListener() {
@@ -147,8 +127,15 @@ public class AtlasConversationSettingsScreen extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (debug) Log.w(TAG, "onResume() ");
+        if (debug) Log.w(TAG, "onResume() conv.metadata: " + Log.toString(conv.getMetadata()));
         updateValues();
+    }
+    
+    protected void onPause() {
+        super.onPause();
+        
+        String title = textGroupName.getText().toString().trim();
+        conv.putMetadataAtKeyPath(Atlas.METADATA_KEY_CONVERSATION_TITLE, title);
     }
     
     private void prepareActionBar() {

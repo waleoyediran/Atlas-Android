@@ -111,19 +111,25 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
                 ArrayList<String> allButMe = new ArrayList<String>(conv.getParticipants());
                 allButMe.remove(layerClient.getAuthenticatedUserId());
                 
-                StringBuilder sb = new StringBuilder();
-                for (String userId : conv.getParticipants()) {
-                    if (layerClient.getAuthenticatedUserId().equals(userId)) {
-                        continue;
+                TextView textTitle = (TextView) convertView.findViewById(R.id.atlas_conversation_view_convert_participant);
+                String conversationTitle = (String) conv.getMetadata().get(Atlas.METADATA_KEY_CONVERSATION_TITLE);
+                if (conversationTitle != null && conversationTitle.trim().length() > 0) {
+                    textTitle.setText(conversationTitle.trim());
+                } else {
+                    StringBuilder sb = new StringBuilder();
+                    for (String userId : conv.getParticipants()) {
+                        if (layerClient.getAuthenticatedUserId().equals(userId)) {
+                            continue;
+                        }
+                        Contact contact = contactProvider.get(userId);
+                        if (contact == null) continue;
+                        String name = allButMe.size() > 1 ? contact.getFirstAndL() : contact.getFirstAndLast();
+                        if (sb.length() > 0) sb.append(", ");
+                        sb.append(name != null ? name : userId);
                     }
-                    Contact contact = contactProvider.get(userId);
-                    if (contact == null) continue;
-                    String name = allButMe.size() > 1 ? contact.getFirstAndL() : contact.getFirstAndLast();
-                    if (sb.length() > 0) sb.append(", ");
-                    sb.append(name != null ? name : userId);
+                    
+                    textTitle.setText(sb);
                 }
-                TextView participants = (TextView) convertView.findViewById(R.id.atlas_conversation_view_convert_participant);
-                participants.setText(sb);
                 
                 // avatar icons... 
                 TextView textInitials = (TextView) convertView.findViewById(R.id.atlas_view_conversations_list_convert_avatar_single_text);
@@ -172,22 +178,22 @@ public class AtlasConversationsList extends FrameLayout implements LayerChangeEv
                     String userId = last.getSender().getUserId();                   // could be null for system messages 
                     String myId = layerClient.getAuthenticatedUserId();
                     if ((userId != null) && !userId.equals(myId) && last.getRecipientStatus(myId) != RecipientStatus.READ) {
-                        participants.setTextColor(titleUnreadTextColor);
-                        participants.setTypeface(titleUnreadTextTypeface, titleUnreadTextStyle);
+                        textTitle.setTextColor(titleUnreadTextColor);
+                        textTitle.setTypeface(titleUnreadTextTypeface, titleUnreadTextStyle);
                         textLastMessage.setTypeface(subtitleUnreadTextTypeface, subtitleUnreadTextStyle);
                         textLastMessage.setTextColor(subtitleUnreadTextColor);
                         convertView.setBackgroundColor(cellUnreadBackgroundColor);
                     } else {
-                        participants.setTextColor(titleTextColor);
-                        participants.setTypeface(titleTextTypeface, titleTextStyle);
+                        textTitle.setTextColor(titleTextColor);
+                        textTitle.setTypeface(titleTextTypeface, titleTextStyle);
                         textLastMessage.setTypeface(subtitleTextTypeface, subtitleTextStyle);
                         textLastMessage.setTextColor(subtitleTextColor);
                         convertView.setBackgroundColor(cellBackgroundColor);
                     }
                 } else {
                     textLastMessage.setText("");
-                    participants.setTextColor(titleTextColor);
-                    participants.setTypeface(titleTextTypeface, titleTextStyle);
+                    textTitle.setTextColor(titleTextColor);
+                    textTitle.setTypeface(titleTextTypeface, titleTextStyle);
                     textLastMessage.setTypeface(subtitleTextTypeface, subtitleTextStyle);
                     textLastMessage.setTextColor(subtitleTextColor);
                     convertView.setBackgroundColor(cellBackgroundColor);

@@ -19,6 +19,8 @@ import java.util.HashMap;
  */
 public class Atlas {
 
+    public static final String METADATA_KEY_CONVERSATION_TITLE = "conversationName";
+    
     public static final String MIME_TYPE_ATLAS_LOCATION = "location/coordinate";
     public static final String MIME_TYPE_TEXT = "text/plain";
     public static final String MIME_TYPE_IMAGE_JPEG = "image/jpeg";

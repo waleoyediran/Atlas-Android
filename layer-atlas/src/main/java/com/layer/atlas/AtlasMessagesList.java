@@ -56,6 +56,8 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
     private static final SimpleDateFormat sdf = new SimpleDateFormat("HH:mm a"); // TODO: localization required
     private static final SimpleDateFormat sdfDayOfWeek = new SimpleDateFormat("EEEE, LLL dd,"); // TODO: localization required
 
+    private static final boolean CLUSTERED_BUBBLES = false;
+    
     private ListView messagesList;
     private BaseAdapter messagesAdapter;
 
@@ -97,7 +99,7 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
         this.otherTextTypeface  = otherTextTypefaceName != null ? Typeface.create(otherTextTypefaceName, otherTextStyle) : null;
         //this.otherTextSize = ta.getDimension(R.styleable.AtlasMessageList_theirTextSize, context.getResources().getDimension(R.dimen.atlas_text_size_general));
         
-        this.myBubbleColor  = ta.getColor(R.styleable.AtlasMessageList_myBubbleColor, context.getResources().getColor(R.color.atlas_background_blue));
+        this.myBubbleColor  = ta.getColor(R.styleable.AtlasMessageList_myBubbleColor, context.getResources().getColor(R.color.atlas_bubble_blue));
         this.otherBubbleColor = ta.getColor(R.styleable.AtlasMessageList_theirBubbleColor, context.getResources().getColor(R.color.atlas_background_gray));
 
         this.dateTextColor = ta.getColor(R.styleable.AtlasMessageList_dateTextColor, context.getResources().getColor(R.color.atlas_text_gray)); 
@@ -476,12 +478,15 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
                 textOther.setVisibility(View.GONE);
                 
                 textMy.setBackgroundResource(R.drawable.atlas_shape_rounded16_blue);
-                if (cell.clusterHeadItemId == cell.clusterItemId && !cell.clusterTail) {
-                    textMy.setBackgroundResource(R.drawable.atlas_shape_rounded16_blue_no_bottom_right);
-                } else if (cell.clusterTail && cell.clusterHeadItemId != cell.clusterItemId) {
-                    textMy.setBackgroundResource(R.drawable.atlas_shape_rounded16_blue_no_top_right);
-                } else if (cell.clusterHeadItemId != cell.clusterItemId && !cell.clusterTail) {
-                    textMy.setBackgroundResource(R.drawable.atlas_shape_rounded16_blue_no_right);
+                
+                if (CLUSTERED_BUBBLES) {
+                    if (cell.clusterHeadItemId == cell.clusterItemId && !cell.clusterTail) {
+                        textMy.setBackgroundResource(R.drawable.atlas_shape_rounded16_blue_no_bottom_right);
+                    } else if (cell.clusterTail && cell.clusterHeadItemId != cell.clusterItemId) {
+                        textMy.setBackgroundResource(R.drawable.atlas_shape_rounded16_blue_no_top_right);
+                    } else if (cell.clusterHeadItemId != cell.clusterItemId && !cell.clusterTail) {
+                        textMy.setBackgroundResource(R.drawable.atlas_shape_rounded16_blue_no_right);
+                    }
                 }
                 ((GradientDrawable)textMy.getBackground()).setColor(myBubbleColor);
                 textMy.setTextColor(myTextColor);
@@ -493,12 +498,14 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
                 textMy.setVisibility(View.GONE);
                 
                 textOther.setBackgroundResource(R.drawable.atlas_shape_rounded16_gray);
-                if (cell.clusterHeadItemId == cell.clusterItemId && !cell.clusterTail) {
-                    textOther.setBackgroundResource(R.drawable.atlas_shape_rounded16_gray_no_bottom_left);
-                } else if (cell.clusterTail && cell.clusterHeadItemId != cell.clusterItemId) {
-                    textOther.setBackgroundResource(R.drawable.atlas_shape_rounded16_gray_no_top_left);
-                } else if (cell.clusterHeadItemId != cell.clusterItemId && !cell.clusterTail) {
-                    textOther.setBackgroundResource(R.drawable.atlas_shape_rounded16_gray_no_left);
+                if (CLUSTERED_BUBBLES) {
+                    if (cell.clusterHeadItemId == cell.clusterItemId && !cell.clusterTail) {
+                        textOther.setBackgroundResource(R.drawable.atlas_shape_rounded16_gray_no_bottom_left);
+                    } else if (cell.clusterTail && cell.clusterHeadItemId != cell.clusterItemId) {
+                        textOther.setBackgroundResource(R.drawable.atlas_shape_rounded16_gray_no_top_left);
+                    } else if (cell.clusterHeadItemId != cell.clusterItemId && !cell.clusterTail) {
+                        textOther.setBackgroundResource(R.drawable.atlas_shape_rounded16_gray_no_left);
+                    }
                 }
                 ((GradientDrawable)textOther.getBackground()).setColor(otherBubbleColor);
                 textOther.setTextColor(otherTextColor);
@@ -584,6 +591,7 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
             Cell cell = this;
             // clustering
             cellCustom.setCornerRadiusDp(16, 16, 16, 16);
+            if (!CLUSTERED_BUBBLES) return rootView;
             boolean myMessage = client.getAuthenticatedUserId().equals(cell.messagePart.getMessage().getSender().getUserId());
             if (myMessage) {
                 if (cell.clusterHeadItemId == cell.clusterItemId && !cell.clusterTail) {

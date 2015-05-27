@@ -207,7 +207,7 @@
     </style>
 
     <style name="AtlasMessageList">
-        <item name="myBubbleColor"          >@color/atlas_background_blue</item>
+        <item name="myBubbleColor"          >@color/atlas_bubble_blue</item>
         <item name="myTextColor"            >@color/atlas_text_white</item>
         <item name="myTextSize"             >@dimen/atlas_text_size_general</item>
         <item name="myTextTypeface"         >normal</item>
