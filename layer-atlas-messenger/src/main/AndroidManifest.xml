@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.layer.atlas.messenger"
-    android:versionCode="5"
-    android:versionName="0.9.5" >
+    android:versionCode="6"
+    android:versionName="0.9.6" >
 
     <uses-sdk
         android:minSdkVersion="14"
@@ -58,12 +58,14 @@
 
         <activity
             android:name=".AtlasConversationSettingsScreen"
+            android:windowSoftInputMode="stateHidden"
             android:configChanges="orientation|keyboardHidden"
             android:label="@string/atlas_screen_messages_title" >
         </activity>
 
         <activity
             android:name=".AtlasSettingsScreen"
+            android:windowSoftInputMode="stateHidden"
             android:label="@string/atlas_screen_settings_title" >
         </activity>
 
