@@ -65,7 +65,6 @@
 
         <activity
             android:name=".AtlasSettingsScreen"
-            android:windowSoftInputMode="stateHidden"
             android:label="@string/atlas_screen_settings_title" >
         </activity>
 
