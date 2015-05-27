@@ -201,108 +201,108 @@
                 <!-- -->
             <!--</LinearLayout>-->
             
-            <!--<LinearLayout -->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="88dp"-->
-                <!--android:orientation="vertical"-->
-                <!--android:paddingLeft="@dimen/atlas_messenger_activity_horizontal_margin"-->
-                <!--android:paddingRight="@dimen/atlas_messenger_activity_horizontal_margin"-->
-                <!-->-->
-                <!-- -->
-                <!--<TextView-->
-                    <!--android:layout_width="wrap_content"-->
-                    <!--android:layout_height="0dp"-->
-                    <!--android:layout_weight="1"-->
-                    <!--android:gravity="bottom"-->
-                    <!--android:textSize="@dimen/atlas_text_size_general"-->
-                    <!--android:textColor="@color/atlas_text_black"-->
-                    <!--android:text="Version"/>-->
-                <!-- -->
-                <!--<TextView-->
-                    <!--android:id="@+id/atlas_settings_debug_version_app_text"-->
-                    <!--android:layout_width="wrap_content"-->
-                    <!--android:layout_height="wrap_content"-->
-                    <!--android:textSize="@dimen/atlas_text_size_smaller"-->
-                    <!--android:textColor="@color/atlas_text_gray"-->
-                    <!--android:text="LayerAtlas v0.1"/>-->
-                <!-- -->
-                <!--<TextView-->
-                    <!--android:id="@+id/atlas_settings_debug_version_sdk_text"-->
-                    <!--android:layout_width="wrap_content"-->
-                    <!--android:layout_height="0dp"-->
-                    <!--android:layout_weight="1"-->
-                    <!--android:gravity="top"-->
-                    <!--android:textSize="@dimen/atlas_text_size_smaller"-->
-                    <!--android:textColor="@color/atlas_text_gray"-->
-                    <!--android:text="LayerSDK v0.11.3"/>-->
-                <!-- -->
-            <!--</LinearLayout>-->
+            <LinearLayout 
+                android:layout_width="match_parent"
+                android:layout_height="88dp"
+                android:orientation="vertical"
+                android:paddingLeft="@dimen/atlas_messenger_activity_horizontal_margin"
+                android:paddingRight="@dimen/atlas_messenger_activity_horizontal_margin"
+                >
+                 
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:gravity="bottom"
+                    android:textSize="@dimen/atlas_text_size_general"
+                    android:textColor="@color/atlas_text_black"
+                    android:text="Version"/>
+                 
+                <TextView
+                    android:id="@+id/atlas_settings_debug_version_app_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/atlas_text_size_smaller"
+                    android:textColor="@color/atlas_text_gray"
+                    android:text="LayerAtlas v0.1"/>
+                 
+                <TextView
+                    android:id="@+id/atlas_settings_debug_version_sdk_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:gravity="top"
+                    android:textSize="@dimen/atlas_text_size_smaller"
+                    android:textColor="@color/atlas_text_gray"
+                    android:text="LayerSDK v0.13.3"/>
+                 
+            </LinearLayout>
             
-            <!--<LinearLayout -->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="72dp"-->
-                <!--android:orientation="vertical"-->
-                <!--android:paddingLeft="@dimen/atlas_messenger_activity_horizontal_margin"-->
-                <!--android:paddingRight="@dimen/atlas_messenger_activity_horizontal_margin"-->
-                <!-->-->
-                <!-- -->
-                <!--<TextView-->
-                    <!--android:layout_width="wrap_content"-->
-                    <!--android:layout_height="0dp"-->
-                    <!--android:layout_weight="1"-->
-                    <!--android:gravity="bottom"-->
-                    <!--android:textSize="@dimen/atlas_text_size_general"-->
-                    <!--android:textColor="@color/atlas_text_black"-->
-                    <!--android:text="LayerKit Version"/>-->
-                <!-- -->
-                <!--<TextView-->
-                    <!--android:id="@+id/atlas_settings_debug_layersdk_text"-->
-                    <!--android:layout_width="wrap_content"-->
-                    <!--android:layout_height="0dp"-->
-                    <!--android:layout_weight="1"-->
-                    <!--android:gravity="top"-->
-                    <!--android:textSize="@dimen/atlas_text_size_smaller"-->
-                    <!--android:textColor="@color/atlas_text_gray"-->
-                    <!--android:text="LayerSDK v0.11.3"/>-->
-                <!-- -->
-            <!--</LinearLayout>-->
+            <LinearLayout 
+                android:layout_width="match_parent"
+                android:layout_height="72dp"
+                android:orientation="vertical"
+                android:paddingLeft="@dimen/atlas_messenger_activity_horizontal_margin"
+                android:paddingRight="@dimen/atlas_messenger_activity_horizontal_margin"
+                >
+                 
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:gravity="bottom"
+                    android:textSize="@dimen/atlas_text_size_general"
+                    android:textColor="@color/atlas_text_black"
+                    android:text="LayerKit Version"/>
+                 
+                <TextView
+                    android:id="@+id/atlas_settings_debug_layersdk_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:gravity="top"
+                    android:textSize="@dimen/atlas_text_size_smaller"
+                    android:textColor="@color/atlas_text_gray"
+                    android:text="LayerSDK v0.11.3"/>
+                 
+            </LinearLayout>
             
-            <!--<LinearLayout -->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="88dp"-->
-                <!--android:orientation="vertical"-->
-                <!--android:paddingLeft="@dimen/atlas_messenger_activity_horizontal_margin"-->
-                <!--android:paddingRight="@dimen/atlas_messenger_activity_horizontal_margin"-->
-                <!-->-->
-                <!-- -->
-                <!--<TextView-->
-                    <!--android:layout_width="wrap_content"-->
-                    <!--android:layout_height="0dp"-->
-                    <!--android:layout_weight="1"-->
-                    <!--android:gravity="bottom"-->
-                    <!--android:textSize="@dimen/atlas_text_size_general"-->
-                    <!--android:textColor="@color/atlas_text_black"-->
-                    <!--android:text="Build"/>-->
-                <!-- -->
-                <!--<TextView-->
-                    <!--android:id="@+id/atlas_settings_debug_build1_text"-->
-                    <!--android:layout_width="wrap_content"-->
-                    <!--android:layout_height="wrap_content"-->
-                    <!--android:textSize="@dimen/atlas_text_size_smaller"-->
-                    <!--android:textColor="@color/atlas_text_gray"-->
-                    <!--android:text="LayerAtlas v0.1"/>-->
-                <!-- -->
-                <!--<TextView-->
-                    <!--android:id="@+id/atlas_settings_debug_build2_text"-->
-                    <!--android:layout_width="wrap_content"-->
-                    <!--android:layout_height="0dp"-->
-                    <!--android:layout_weight="1"-->
-                    <!--android:gravity="top"-->
-                    <!--android:textSize="@dimen/atlas_text_size_smaller"-->
-                    <!--android:textColor="@color/atlas_text_gray"-->
-                    <!--android:text="LayerSDK v0.11.3"/>-->
-                <!-- -->
-            <!--</LinearLayout>-->
+            <LinearLayout 
+                android:layout_width="match_parent"
+                android:layout_height="88dp"
+                android:orientation="vertical"
+                android:paddingLeft="@dimen/atlas_messenger_activity_horizontal_margin"
+                android:paddingRight="@dimen/atlas_messenger_activity_horizontal_margin"
+                >
+                 
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:gravity="bottom"
+                    android:textSize="@dimen/atlas_text_size_general"
+                    android:textColor="@color/atlas_text_black"
+                    android:text="Build"/>
+                 
+                <TextView
+                    android:id="@+id/atlas_settings_debug_build1_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/atlas_text_size_smaller"
+                    android:textColor="@color/atlas_text_gray"
+                    android:text="LayerAtlas v0.1"/>
+                 
+                <TextView
+                    android:id="@+id/atlas_settings_debug_build2_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:gravity="top"
+                    android:textSize="@dimen/atlas_text_size_smaller"
+                    android:textColor="@color/atlas_text_gray"
+                    android:text="LayerSDK v0.13.3"/>
+                 
+            </LinearLayout>
             
             <!--<LinearLayout -->
                 <!--android:layout_width="match_parent"-->
