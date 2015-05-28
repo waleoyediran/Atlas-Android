@@ -39,7 +39,7 @@ public class App101PushReceiver extends BroadcastReceiver {
         Notification.Builder bld = new Notification.Builder(context);
         bld.setContentTitle("Atlas Messenger")
             .setContentInfo("Content Info!")
-            .setContentText("Message: " + msg)
+            .setContentText(msg)
             .setSmallIcon(R.drawable.ic_launcher)
             .setAutoCancel(true)
             .setLights(Color.rgb(0, 255, 0), 100, 1900)
