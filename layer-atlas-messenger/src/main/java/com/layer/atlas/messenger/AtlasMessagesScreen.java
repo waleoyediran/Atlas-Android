@@ -3,6 +3,8 @@ package com.layer.atlas.messenger;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -17,6 +19,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -32,12 +35,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.layer.atlas.Atlas;
-import com.layer.atlas.AtlasTypingIndicator;
 import com.layer.atlas.AtlasMessageComposer;
 import com.layer.atlas.AtlasMessagesList;
 import com.layer.atlas.AtlasMessagesList.Cell;
 import com.layer.atlas.AtlasMessagesList.ItemClickListener;
 import com.layer.atlas.AtlasParticipantPicker;
+import com.layer.atlas.AtlasTypingIndicator;
 import com.layer.atlas.messenger.App101.keys;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.messaging.Conversation;
@@ -122,6 +125,11 @@ public class AtlasMessagesScreen extends Activity {
         messageComposer.registerMenuItem("Photo", new OnClickListener() {
             public void onClick(View v) {
                 Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+                String fileName = "cameraOutput" + System.currentTimeMillis() + ".jpg";
+                photoFile = new File(getExternalFilesDir(android.os.Environment.DIRECTORY_PICTURES), fileName);
+                final Uri outputUri = Uri.fromFile(photoFile);
+                cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, outputUri);
+                if (debug) Log.w(TAG, "onClick() requesting photo to file: " + fileName + ", uri: " + outputUri);
                 startActivityForResult(cameraIntent, REQUEST_CODE_CAMERA);
             }
         });
@@ -222,6 +230,9 @@ public class AtlasMessagesScreen extends Activity {
         }
     }
     
+    /** used to take photos from camera */
+    private File photoFile = null; 
+    
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (debug) Log.w(TAG, "onActivityResult() requestCode: " + requestCode
@@ -230,18 +241,103 @@ public class AtlasMessagesScreen extends Activity {
                     + ", data: " + (data == null ? "" : App101.toString(data.getExtras())) );
         
         if (resultCode != Activity.RESULT_OK) return;
-        if (data == null) {
-            if (debug) Log.w(TAG, "onActivityResult() no data... :( ");
-            return;
-        }
         
         switch (requestCode) {
             case REQUEST_CODE_CAMERA  :
-                Bitmap bmp = (Bitmap) data.getExtras().get("data"); 
-                if (debug) Log.w(TAG, "onActivityResult() camera bitmap: " + bmp.getWidth() + "x" + bmp.getHeight() + ", " + bmp.getByteCount() + " bytes ");
                 
+                if (photoFile == null) {
+                    if (debug) Log.w(TAG, "onActivityResult() taking photo, but output is undefined... ");
+                    return;
+                }
+                if (!photoFile.exists()) {
+                    if (debug) Log.w(TAG, "onActivityResult() taking photo, but photo file doesn't exist: " + photoFile.getPath());
+                    return;
+                }
+                if (photoFile.length() == 0) {
+                    if (debug) Log.w(TAG, "onActivityResult() taking photo, but photo file is empty: " + photoFile.getPath());
+                    return;
+                }
+                
+                try {
+                    BitmapFactory.Options optOriginal = new BitmapFactory.Options();
+                    optOriginal.inJustDecodeBounds = true;
+                    BitmapFactory.decodeFile(photoFile.getAbsolutePath(), optOriginal);
+                    if (debug) Log.w(TAG, "onActivityResult() original: " + optOriginal.outWidth + "x" + optOriginal.outHeight);
+                    int previewWidthMax = 512;
+                    int previewHeightMax = 512;
+                    int previewWidth;
+                    int previewHeight;
+                    int sampleSize;
+                    if (optOriginal.outWidth > optOriginal.outHeight) {
+                        sampleSize = optOriginal.outWidth / previewWidthMax;
+                        previewWidth = 512;
+                        previewHeight = (int) (1.0 * previewWidth * optOriginal.outHeight / optOriginal.outWidth);
+                        if (debug) Log.w(TAG, "onActivityResult() sampleSize: " + sampleSize + ", orig: " + optOriginal.outWidth + "x" + optOriginal.outHeight + ", preview: " + previewWidth + "x" + previewHeight);
+                    } else {
+                        sampleSize = optOriginal.outHeight / previewHeightMax;
+                        previewHeight = 512;
+                        previewWidth = (int) (1.0 * previewHeight * optOriginal.outWidth / optOriginal.outHeight);
+                        if (debug) Log.w(TAG, "onActivityResult() sampleSize: " + sampleSize + ", orig: " + optOriginal.outWidth + "x" + optOriginal.outHeight + ", preview: " + previewWidth + "x" + previewHeight);
+                    }
+                    
+                    BitmapFactory.Options optsPreview = new BitmapFactory.Options();
+                    optsPreview.inSampleSize = sampleSize;
+                    Bitmap decodedBmp = BitmapFactory.decodeFile(photoFile.getAbsolutePath(), optsPreview);
+                    if (decodedBmp == null) {
+                        if (debug) Log.w(TAG, "onActivityResult() taking photo, but photo file cannot be decoded: " + photoFile.getPath());
+                        return;
+                    }
+                    if (debug) Log.w(TAG, "onActivityResult() decoded bitmap: " + decodedBmp.getWidth() + "x" + decodedBmp.getHeight() + ", " + decodedBmp.getByteCount() + " bytes ");
+                    Bitmap bmp = Bitmap.createScaledBitmap(decodedBmp, previewWidth, previewHeight, false);
+                    if (debug) Log.w(TAG, "onActivityResult() preview bitmap: " + bmp.getWidth() + "x" + bmp.getHeight() + ", " + bmp.getByteCount() + " bytes ");
+                    
+                    String fileName = "cameraPreview" + System.currentTimeMillis() + ".jpg";
+                    final File previewFile = new File(getCacheDir(), fileName); 
+                    FileOutputStream fos = new FileOutputStream(previewFile);
+                    bmp.compress(Bitmap.CompressFormat.JPEG, 70, fos);
+                    fos.close();
+                    
+                    LayerClient layerClient = ((App101) getApplication()).getLayerClient();
+                    // send original
+                    final File originalFile = photoFile;
+                    FileInputStream fisOriginal = new FileInputStream(photoFile) {
+                        public void close() throws IOException {
+                            super.close();
+                            boolean deleted = originalFile.delete();
+                            if (debug) Log.w(TAG, "close() original file is " + (!deleted ? "not" : "") + " removed: " + originalFile.getName());
+                            photoFile = null;
+                        }
+                    };
+                    final MessagePart originalPart = layerClient.newMessagePart(Atlas.MIME_TYPE_IMAGE_JPEG, fisOriginal, photoFile.length());
+                    // send preview
+                    FileInputStream fisPreview = new FileInputStream(previewFile) {
+                        public void close() throws IOException {
+                            super.close();
+                            boolean deleted = previewFile.delete();
+                            if (debug) Log.w(TAG, "close() preview file is " + (!deleted ? "not" : "") + " removed: " + previewFile.getName());
+                        }
+                    };
+                    final MessagePart previewPart = layerClient.newMessagePart(Atlas.MIME_TYPE_IMAGE_JPEG_PREVIEW, fisPreview, previewFile.length());
+                    // send dimensions
+                    JSONObject joDimensions = new JSONObject();
+                    joDimensions.put("width", optOriginal.outWidth);
+                    joDimensions.put("height", optOriginal.outHeight);
+                    joDimensions.put("orientation", 0);
+                    if (debug) Log.w(TAG, "onActivityResult() dimensions: " + joDimensions);
+                    final MessagePart dimensionsPart = layerClient.newMessagePart(Atlas.MIME_TYPE_IMAGE_DIMENSIONS, joDimensions.toString().getBytes() );
+                    
+                    Message msg = layerClient.newMessage(originalPart, previewPart, dimensionsPart);
+                    if (debug) Log.w(TAG, "onActivityResult() sending photo... ");
+                    conv.send(msg);
+                } catch (Exception e) {
+                    Log.e(TAG, "onActivityResult() cannot insert photo" + e);
+                }
                 break;
             case REQUEST_CODE_GALLERY :
+                if (data == null) {
+                    if (debug) Log.w(TAG, "onActivityResult() insert from gallery: no data... :( ");
+                    return;
+                }
                 // first check media gallery
                 Uri selectedImageUri = data.getData();
                 // TODO: Mi4 requires READ_EXTERNAL_STORAGE permission for such operation
