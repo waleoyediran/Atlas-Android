@@ -551,9 +551,9 @@ public class AtlasMessagesList extends FrameLayout implements LayerChangeEventLi
             // BitmapDrawable EMPTY_DRAWABLE = new BitmapDrawable(Bitmap.createBitmap(new int[] { Color.TRANSPARENT }, 1, 1, Bitmap.Config.ALPHA_8));
             int requiredWidth = cellContainer.getWidth() > 0 ? cellContainer.getWidth() : messagesList.getWidth();
             int requiredHeight = cellContainer.getHeight() > 0 ? cellContainer.getHeight() : messagesList.getHeight();
-            MessagePart workingPart = previewPart != null ? previewPart : fullPart;
+            MessagePart workingPart = /*previewPart != null ? previewPart :*/ fullPart;
             Bitmap bmp = imageCache.get(workingPart.getId().toString());
-            if (bmp != null && bmp.getWidth() >= requiredWidth / 2) {
+            if (bmp != null /*&& bmp.getWidth() >= requiredWidth / 2*/) {
                 imageView.setImageBitmap(bmp);
                 if (debug) Log.i(TAG, "getBitmap() returned from cache! " + bmp.getWidth() + "x" + bmp.getHeight() + " " + bmp.getByteCount() + " bytes" + " req: " + requiredWidth + "x" + requiredHeight + " for " + messagePart.getId());
             } else {
