@@ -69,7 +69,7 @@ The Atlas library is located in the `layer-atlas` directory.  The table below de
 </table>
 
 ##<a name="installation"></a>Installation
-Maven publication coming soon.  In the meantime, you can follow the instructions below to include this reporsitory as a git submodule. For example, check [Atlas Messenger](https://github.com/layerhq/Atlas-Android-Messenger). 
+You can follow the instructions below to include this reporsitory as a git submodule. For example, check [Atlas Messenger](https://github.com/layerhq/Atlas-Android-Messenger). 
 
     	1. Create a new Android  Application Project via Android Studio
     		○ Use default settings and create a project with a blank activity.
