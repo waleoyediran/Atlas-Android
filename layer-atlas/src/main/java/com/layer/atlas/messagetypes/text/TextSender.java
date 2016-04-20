@@ -32,6 +32,7 @@ public class TextSender extends MessageSender {
         // Send message
         MessagePart part = getLayerClient().newMessagePart(text);
         Message message = getLayerClient().newMessage(new MessageOptions().pushNotificationMessage(notificationString), part);
+        if (Log.isLoggable(Log.VERBOSE)) Log.v("Sending text message. Message: " + text + " . Notification String: " + notificationString);
         return send(message);
     }
 }
