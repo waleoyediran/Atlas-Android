@@ -1,5 +1,14 @@
 # Atlas Android
 
+## 0.2.9
+
+### Major Changes
+  * Updated to Layer Android SDK Version 0.21.0
+  * Removed `Util.waitForContent` as that is now supported in the Layer SDK
+
+### Features
+  * Allowing customization of attachment menu background via `attachmentSendersBackground`
+
 ## 0.2.8
 
 ### Major Changes
