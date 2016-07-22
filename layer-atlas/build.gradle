@@ -41,7 +41,7 @@ ext {
 
 dependencies {
     // Layer SDK
-    compile('com.layer.sdk:layer-sdk:0.21.2') {
+    compile('com.layer.sdk:layer-sdk:0.21.3') {
         exclude group: 'com.google.android.gms', module: 'play-services-gcm'
     }
     compile 'org.slf4j:slf4j-nop:1.7.2'
@@ -163,35 +163,40 @@ def getUploadCommand(filename) {
             "--file releases/$groupFolder/$artifactIdName/$version/$filename"
 }
 
-task uploadReleaseNotes(type: Exec) {
-    workingDir "$rootDir"
-    commandLine "bash", "-c", "tools/github-release release " +
-            "--security-token ${getGitHubToken()} " +
-            "--user $org " +
-            "--repo $repo " +
-            "--tag $version " +
-            "--description \"${getReleaseNotes("$version")}\""
+afterEvaluate { project ->
+    // Only add publishing tasks if preconditions are met so this can be used as a submodule
+    if (!getGitHubToken().isEmpty() && new File('./CHANGELOG.md').exists()) {
+        task uploadReleaseNotes(type: Exec) {
+            workingDir "$rootDir"
+            commandLine "bash", "-c", "tools/github-release release " +
+                    "--security-token ${getGitHubToken()} " +
+                    "--user $org " +
+                    "--repo $repo " +
+                    "--tag $version " +
+                    "--description \"${getReleaseNotes("$version")}\""
+        }
+
+        task uploadReleaseAar(type: Exec, dependsOn: [uploadReleaseNotes, publishAar]) {
+            workingDir "$rootDir"
+
+            def filename = "$artifactIdName-${version}.aar"
+            commandLine "bash", "-c", getUploadCommand(filename)
+        }
+
+        task uploadReleaseSources(type: Exec, dependsOn: [uploadReleaseNotes, publishAar]) {
+            workingDir "$rootDir"
+
+            def filename = "$artifactIdName-${version}-sources.jar"
+            commandLine "bash", "-c", getUploadCommand(filename)
+        }
+
+        task uploadReleaseJavadoc(type: Exec, dependsOn: [uploadReleaseNotes, publishAar]) {
+            workingDir "$rootDir"
+
+            def filename = "$artifactIdName-${version}-javadoc.jar"
+            commandLine "bash", "-c", getUploadCommand(filename)
+        }
+
+        task publishReleaseToGitHub(dependsOn: [uploadReleaseNotes, uploadReleaseAar, uploadReleaseSources, uploadReleaseJavadoc])
+    }
 }
-
-task uploadReleaseAar(type: Exec, dependsOn: [uploadReleaseNotes, publishAar]) {
-    workingDir "$rootDir"
-
-    def filename = "$artifactIdName-${version}.aar"
-    commandLine "bash", "-c", getUploadCommand(filename)
-}
-
-task uploadReleaseSources(type: Exec, dependsOn: [uploadReleaseNotes, publishAar]) {
-    workingDir "$rootDir"
-
-    def filename = "$artifactIdName-${version}-sources.jar"
-    commandLine "bash", "-c", getUploadCommand(filename)
-}
-
-task uploadReleaseJavadoc(type: Exec, dependsOn: [uploadReleaseNotes, publishAar]) {
-    workingDir "$rootDir"
-
-    def filename = "$artifactIdName-${version}-javadoc.jar"
-    commandLine "bash", "-c", getUploadCommand(filename)
-}
-
-task publishReleaseToGitHub(dependsOn:[uploadReleaseNotes, uploadReleaseAar, uploadReleaseSources, uploadReleaseJavadoc])
