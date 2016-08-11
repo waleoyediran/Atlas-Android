@@ -16,6 +16,7 @@ import com.layer.atlas.AtlasTypingIndicator;
 import com.layer.atlas.R;
 import com.layer.atlas.provider.ParticipantProvider;
 import com.layer.sdk.listeners.LayerTypingIndicatorListener;
+import com.layer.sdk.messaging.Identity;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -85,7 +86,7 @@ public class AvatarTypingIndicatorFactory implements AtlasTypingIndicator.Typing
     }
 
     @Override
-    public void onBindView(LinearLayout l, Map<String, LayerTypingIndicatorListener.TypingIndicator> typingUserIds) {
+    public void onBindView(LinearLayout l, Map<Identity, LayerTypingIndicatorListener.TypingIndicator> typingUserIds) {
         @SuppressWarnings("unchecked")
         Tag tag = (Tag) l.getTag();
 
@@ -94,9 +95,9 @@ public class AvatarTypingIndicatorFactory implements AtlasTypingIndicator.Typing
 
         // Iterate over existing typists and remove non-typists
         List<AtlasAvatar> newlyFinished = new ArrayList<AtlasAvatar>();
-        Set<String> newlyActives = new HashSet<String>(typingUserIds.keySet());
+        Set<Identity> newlyActives = new HashSet<>(typingUserIds.keySet());
         for (AtlasAvatar avatar : tag.mActives) {
-            String existingTypist = avatar.getParticipants().iterator().next();
+            Identity existingTypist = avatar.getParticipants().iterator().next();
             if (!typingUserIds.containsKey(existingTypist) || (typingUserIds.get(existingTypist) == LayerTypingIndicatorListener.TypingIndicator.FINISHED)) {
                 // Newly finished
                 newlyFinished.add(avatar);
@@ -113,7 +114,7 @@ public class AvatarTypingIndicatorFactory implements AtlasTypingIndicator.Typing
         }
 
         // Add new typists
-        for (String typist : newlyActives) {
+        for (Identity typist : newlyActives) {
             AtlasAvatar avatar = tag.mPassives.poll();
             if (avatar == null) {
                 // TODO: allow styling

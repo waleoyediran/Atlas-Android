@@ -11,11 +11,10 @@ import android.widget.Toast;
 
 import com.layer.atlas.R;
 import com.layer.atlas.messagetypes.AtlasCellFactory;
-import com.layer.atlas.provider.Participant;
 import com.layer.atlas.provider.ParticipantProvider;
 import com.layer.atlas.util.Util;
 import com.layer.sdk.LayerClient;
-import com.layer.sdk.messaging.Actor;
+import com.layer.sdk.messaging.Identity;
 import com.layer.sdk.messaging.Message;
 import com.layer.sdk.messaging.MessagePart;
 
@@ -60,12 +59,11 @@ public class TextCellFactory extends AtlasCellFactory<TextCellFactory.CellHolder
         MessagePart part = message.getMessageParts().get(0);
         String text = part.isContentReady() ? new String(part.getData()) : "";
         String name;
-        Actor sender = message.getSender();
-        if (sender.getName() != null) {
-            name = sender.getName() + ": ";
+        Identity sender = message.getSender();
+        if (sender.getDisplayName() != null) {
+            name = sender.getDisplayName() + ": ";
         } else {
-            Participant participant = participantProvider.getParticipant(sender.getUserId());
-            name = participant == null ? "" : (participant.getName() + ": ");
+            name = "";
         }
         return new TextInfo(text, name);
     }

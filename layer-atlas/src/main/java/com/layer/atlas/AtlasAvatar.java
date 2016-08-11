@@ -7,20 +7,20 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.layer.atlas.provider.Participant;
 import com.layer.atlas.provider.ParticipantProvider;
 import com.layer.atlas.util.AvatarStyle;
 import com.layer.atlas.util.Util;
 import com.layer.atlas.util.picasso.transformations.CircleTransform;
+import com.layer.sdk.messaging.Identity;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -58,11 +58,11 @@ public class AtlasAvatar extends View {
 
     private ParticipantProvider mParticipantProvider;
     private Picasso mPicasso;
-    private Set<String> mParticipants = new LinkedHashSet<String>();
+    private Set<Identity> mParticipants = new LinkedHashSet<>();
 
     // Initials and Picasso image targets by user ID
-    private final Map<String, ImageTarget> mImageTargets = new HashMap<String, ImageTarget>();
-    private final Map<String, String> mInitials = new HashMap<String, String>();
+    private final Map<Identity, ImageTarget> mImageTargets = new HashMap<>();
+    private final Map<Identity, String> mInitials = new HashMap<>();
     private final List<ImageTarget> mPendingLoads = new ArrayList<ImageTarget>();
 
     // Sizing set in setClusterSizes() and used in onDraw()
@@ -113,11 +113,9 @@ public class AtlasAvatar extends View {
         return this;
     }
 
-    public AtlasAvatar setParticipants(String... participantIds) {
+    public AtlasAvatar setParticipants(Identity... participants) {
         mParticipants.clear();
-        for (String participantId : participantIds) {
-            mParticipants.add(participantId);
-        }
+        mParticipants.addAll(Arrays.asList(participants));
         update();
         return this;
     }
@@ -125,33 +123,32 @@ public class AtlasAvatar extends View {
     /**
      * Should be called from UI thread.
      */
-    public AtlasAvatar setParticipants(Set<String> participantIds) {
+    public AtlasAvatar setParticipants(Set<Identity> participants) {
         mParticipants.clear();
-        mParticipants.addAll(participantIds);
+        mParticipants.addAll(participants);
         update();
         return this;
     }
 
-    public Set<String> getParticipants() {
-        return new LinkedHashSet<String>(mParticipants);
+    public Set<Identity> getParticipants() {
+        return new LinkedHashSet<>(mParticipants);
     }
 
     private void update() {
         // Limit to MAX_AVATARS valid avatars, prioritizing participants with avatars.
         if (mParticipants.size() > MAX_AVATARS) {
-            Queue<String> withAvatars = new LinkedList<String>();
-            Queue<String> withoutAvatars = new LinkedList<String>();
-            for (String participantId : mParticipants) {
-                Participant participant = mParticipantProvider.getParticipant(participantId);
+            Queue<Identity> withAvatars = new LinkedList<>();
+            Queue<Identity> withoutAvatars = new LinkedList<>();
+            for (Identity participant : mParticipants) {
                 if (participant == null) continue;
-                if (participant.getAvatarUrl() != null) {
-                    withAvatars.add(participantId);
+                if (participant.getAvatarImageUrl() != null) {
+                    withAvatars.add(participant);
                 } else {
-                    withoutAvatars.add(participantId);
+                    withoutAvatars.add(participant);
                 }
             }
 
-            mParticipants = new LinkedHashSet<String>();
+            mParticipants = new LinkedHashSet<>();
             int numWithout = Math.min(MAX_AVATARS - withAvatars.size(), withoutAvatars.size());
             for (int i = 0; i < numWithout; i++) {
                 mParticipants.add(withoutAvatars.remove());
@@ -166,7 +163,7 @@ public class AtlasAvatar extends View {
         List<ImageTarget> toLoad = new ArrayList<ImageTarget>(mParticipants.size());
 
         List<ImageTarget> recyclableTargets = new ArrayList<ImageTarget>();
-        for (String removed : diff.removed) {
+        for (Identity removed : diff.removed) {
             mInitials.remove(removed);
             ImageTarget target = mImageTargets.remove(removed);
             if (target != null) {
@@ -175,10 +172,9 @@ public class AtlasAvatar extends View {
             }
         }
 
-        for (String added : diff.added) {
-            Participant participant = mParticipantProvider.getParticipant(added);
-            if (participant == null) continue;
-            mInitials.put(added, Util.getInitials(participant));
+        for (Identity added : diff.added) {
+            if (added == null) return;
+            mInitials.put(added, Util.getInitials(added));
 
             final ImageTarget target;
             if (recyclableTargets.isEmpty()) {
@@ -186,16 +182,15 @@ public class AtlasAvatar extends View {
             } else {
                 target = recyclableTargets.remove(0);
             }
-            target.setUrl(participant.getAvatarUrl());
+            target.setUrl(added.getAvatarImageUrl());
             mImageTargets.put(added, target);
             toLoad.add(target);
         }
 
         // Cancel existing in case the size or anything else changed.
         // TODO: make caching intelligent wrt sizing
-        for (String existing : diff.existing) {
-            Participant participant = mParticipantProvider.getParticipant(existing);
-            if (participant == null) continue;
+        for (Identity existing : diff.existing) {
+            if (existing == null) continue;
             ImageTarget existingTarget = mImageTargets.get(existing);
             mPicasso.cancelRequest(existingTarget);
             toLoad.add(existingTarget);
@@ -268,7 +263,7 @@ public class AtlasAvatar extends View {
         float cx = mCenterX;
         float cy = mCenterY;
         mContentRect.set(cx - contentRadius, cy - contentRadius, cx + contentRadius, cy + contentRadius);
-        for (Map.Entry<String, String> entry : mInitials.entrySet()) {
+        for (Map.Entry<Identity, String> entry : mInitials.entrySet()) {
             // Border / background
             if (hasBorder) canvas.drawCircle(cx, cy, mOuterRadius, mPaintBorder);
 
@@ -296,7 +291,7 @@ public class AtlasAvatar extends View {
         private final static AtomicLong sCounter = new AtomicLong(0);
         private final long mId;
         private final AtlasAvatar mCluster;
-        private Uri mUrl;
+        private String mUrl;
         private Bitmap mBitmap;
 
         public ImageTarget(AtlasAvatar cluster) {
@@ -304,12 +299,12 @@ public class AtlasAvatar extends View {
             mCluster = cluster;
         }
 
-        public ImageTarget setUrl(Uri url) {
+        public ImageTarget setUrl(String url) {
             mUrl = url;
             return this;
         }
 
-        public Uri getUrl() {
+        public String getUrl() {
             return mUrl;
         }
 
@@ -348,16 +343,16 @@ public class AtlasAvatar extends View {
         }
     }
 
-    private static Diff diff(Set<String> oldSet, Set<String> newSet) {
+    private static Diff diff(Set<Identity> oldSet, Set<Identity> newSet) {
         Diff diff = new Diff();
-        for (String old : oldSet) {
+        for (Identity old : oldSet) {
             if (newSet.contains(old)) {
                 diff.existing.add(old);
             } else {
                 diff.removed.add(old);
             }
         }
-        for (String newItem : newSet) {
+        for (Identity newItem : newSet) {
             if (!oldSet.contains(newItem)) {
                 diff.added.add(newItem);
             }
@@ -366,8 +361,8 @@ public class AtlasAvatar extends View {
     }
 
     private static class Diff {
-        public List<String> existing = new ArrayList<String>();
-        public List<String> added = new ArrayList<String>();
-        public List<String> removed = new ArrayList<String>();
+        public List<Identity> existing = new ArrayList<>();
+        public List<Identity> added = new ArrayList<>();
+        public List<Identity> removed = new ArrayList<>();
     }
 }

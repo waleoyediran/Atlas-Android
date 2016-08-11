@@ -14,6 +14,7 @@ import android.widget.LinearLayout;
 import com.layer.atlas.AtlasTypingIndicator;
 import com.layer.atlas.R;
 import com.layer.sdk.listeners.LayerTypingIndicatorListener;
+import com.layer.sdk.messaging.Identity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -77,7 +78,7 @@ public class BubbleTypingIndicatorFactory implements AtlasTypingIndicator.Typing
     }
 
     @Override
-    public void onBindView(LinearLayout l, Map<String, LayerTypingIndicatorListener.TypingIndicator> typingUserIds) {
+    public void onBindView(LinearLayout l, Map<Identity, LayerTypingIndicatorListener.TypingIndicator> typingUserIds) {
         @SuppressWarnings("unchecked")
         List<View> dots = (List<View>) l.getTag();
         View dot1 = dots.get(0);

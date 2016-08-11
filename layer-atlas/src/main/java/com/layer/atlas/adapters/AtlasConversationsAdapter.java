@@ -14,6 +14,7 @@ import com.layer.atlas.util.ConversationStyle;
 import com.layer.atlas.util.Util;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.messaging.Conversation;
+import com.layer.sdk.messaging.Identity;
 import com.layer.sdk.messaging.Message;
 import com.layer.sdk.query.Predicate;
 import com.layer.sdk.query.Query;
@@ -154,10 +155,10 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
         Context context = viewHolder.itemView.getContext();
 
         viewHolder.setConversation(conversation);
-        HashSet<String> participantIds = new HashSet<String>(conversation.getParticipants());
-        participantIds.remove(mLayerClient.getAuthenticatedUserId());
+        HashSet<Identity> participantIds = new HashSet<>(conversation.getParticipants());
+        participantIds.remove(mLayerClient.getAuthenticatedUser());
         viewHolder.mAvatarCluster.setParticipants(participantIds);
-        viewHolder.mTitleView.setText(Util.getConversationTitle(mLayerClient, mParticipantProvider, conversation));
+        viewHolder.mTitleView.setText(Util.getConversationTitle(mLayerClient, conversation));
         viewHolder.applyStyle(conversation.getTotalUnreadMessageCount() > 0);
 
         if (lastMessage == null) {

@@ -1,6 +1,7 @@
 package com.layer.atlas.util;
 
 import android.graphics.Typeface;
+import android.support.annotation.ColorInt;
 
 public final class ConversationStyle {
 
@@ -62,6 +63,7 @@ public final class ConversationStyle {
         this.mDateTextTypeface = dateTextTypeface;
     }
 
+    @ColorInt
     public int getTitleTextColor() {
         return mTitleTextColor;
     }
@@ -74,6 +76,7 @@ public final class ConversationStyle {
         return mTitleTextTypeface;
     }
 
+    @ColorInt
     public int getTitleUnreadTextColor() {
         return mTitleUnreadTextColor;
     }
@@ -86,6 +89,7 @@ public final class ConversationStyle {
         return mTitleUnreadTextTypeface;
     }
 
+    @ColorInt
     public int getSubtitleTextColor() {
         return mSubtitleTextColor;
     }
@@ -98,6 +102,7 @@ public final class ConversationStyle {
         return mSubtitleTextTypeface;
     }
 
+    @ColorInt
     public int getSubtitleUnreadTextColor() {
         return mSubtitleUnreadTextColor;
     }
@@ -110,10 +115,12 @@ public final class ConversationStyle {
         return mSubtitleUnreadTextTypeface;
     }
 
+    @ColorInt
     public int getCellBackgroundColor() {
         return mCellBackgroundColor;
     }
 
+    @ColorInt
     public int getCellUnreadBackgroundColor() {
         return mCellUnreadBackgroundColor;
     }
@@ -122,6 +129,7 @@ public final class ConversationStyle {
         return mDateTextTypeface;
     }
 
+    @ColorInt
     public int getDateTextColor() {
         return mDateTextColor;
     }
@@ -152,7 +160,7 @@ public final class ConversationStyle {
         public Builder() {
         }
 
-        public Builder titleTextColor(int val) {
+        public Builder titleTextColor(@ColorInt int val) {
             titleTextColor = val;
             return this;
         }
@@ -167,7 +175,7 @@ public final class ConversationStyle {
             return this;
         }
 
-        public Builder titleUnreadTextColor(int val) {
+        public Builder titleUnreadTextColor(@ColorInt int val) {
             titleUnreadTextColor = val;
             return this;
         }
@@ -182,7 +190,7 @@ public final class ConversationStyle {
             return this;
         }
 
-        public Builder subtitleTextColor(int val) {
+        public Builder subtitleTextColor(@ColorInt int val) {
             subtitleTextColor = val;
             return this;
         }
@@ -197,7 +205,7 @@ public final class ConversationStyle {
             return this;
         }
 
-        public Builder subtitleUnreadTextColor(int val) {
+        public Builder subtitleUnreadTextColor(@ColorInt int val) {
             subtitleUnreadTextColor = val;
             return this;
         }
@@ -212,12 +220,12 @@ public final class ConversationStyle {
             return this;
         }
 
-        public Builder cellBackgroundColor(int val) {
+        public Builder cellBackgroundColor(@ColorInt int val) {
             cellBackgroundColor = val;
             return this;
         }
 
-        public Builder cellUnreadBackgroundColor(int val) {
+        public Builder cellUnreadBackgroundColor(@ColorInt int val) {
             cellUnreadBackgroundColor = val;
             return this;
         }
@@ -227,7 +235,7 @@ public final class ConversationStyle {
             return this;
         }
 
-        public Builder dateTextColor(int val) {
+        public Builder dateTextColor(@ColorInt int val) {
             dateTextColor = val;
             return this;
         }

@@ -23,6 +23,7 @@ import android.widget.FrameLayout;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.listeners.LayerTypingIndicatorListener;
 import com.layer.sdk.messaging.Conversation;
+import com.layer.sdk.messaging.Identity;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -34,7 +35,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * needed.  AtlasTypingIndicator can provide a default UI updater if desired.
  */
 public class AtlasTypingIndicator extends FrameLayout implements LayerTypingIndicatorListener.Weak {
-    private final ConcurrentHashMap<String, TypingIndicator> mTypists = new ConcurrentHashMap<String, TypingIndicator>();
+    private final ConcurrentHashMap<Identity, TypingIndicator> mTypists = new ConcurrentHashMap<>();
 
     private volatile Conversation mConversation;
     private volatile TypingActivityListener mActivityListener;
@@ -138,16 +139,16 @@ public class AtlasTypingIndicator extends FrameLayout implements LayerTypingIndi
     }
 
     @Override
-    public void onTypingIndicator(LayerClient layerClient, Conversation conversation, String userId, TypingIndicator typingIndicator) {
+    public void onTypingIndicator(LayerClient layerClient, Conversation conversation, Identity user, TypingIndicator typingIndicator) {
         // Only monitor typing in this indicator's conversation.
         if (mConversation != conversation) return;
 
         // Notify ActivityListener to active/inactive typists.
         boolean empty;
         if (typingIndicator == TypingIndicator.FINISHED) {
-            mTypists.remove(userId);
+            mTypists.remove(user);
         } else {
-            mTypists.put(userId, typingIndicator);
+            mTypists.put(user, typingIndicator);
         }
         empty = mTypists.isEmpty();
         if (empty && mActive) {
@@ -179,9 +180,9 @@ public class AtlasTypingIndicator extends FrameLayout implements LayerTypingIndi
          * Notifies the callback to typist updates.
          *
          * @param view          The View previously created by onCreateView
-         * @param typingUserIds The set of currently-active typist user IDs
+         * @param typingUserIds The set of currently-active typist users
          */
-        void onBindView(T view, Map<String, TypingIndicator> typingUserIds);
+        void onBindView(T view, Map<Identity, TypingIndicator> typingUserIds);
     }
 
     /**

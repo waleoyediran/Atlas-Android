@@ -29,7 +29,7 @@ android {
 }
 
 repositories {
-    maven { url "https://raw.githubusercontent.com/layerhq/releases-android/master/releases/" }
+    maven { url "/Users/work/.gitRepos/layerhq/releases-android/releases/" }
     jcenter()
 }
 
@@ -41,7 +41,7 @@ ext {
 
 dependencies {
     // Layer SDK
-    compile('com.layer.sdk:layer-sdk:0.21.3') {
+    compile('com.layer.sdk:layer-sdk:0.22.0') {
         exclude group: 'com.google.android.gms', module: 'play-services-gcm'
     }
     compile 'org.slf4j:slf4j-nop:1.7.2'

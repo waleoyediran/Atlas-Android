@@ -17,11 +17,10 @@ import com.layer.atlas.AtlasAvatar;
 import com.layer.atlas.R;
 import com.layer.atlas.messagetypes.AtlasCellFactory;
 import com.layer.atlas.messagetypes.MessageStyle;
-import com.layer.atlas.provider.Participant;
 import com.layer.atlas.provider.ParticipantProvider;
 import com.layer.atlas.util.Util;
 import com.layer.sdk.LayerClient;
-import com.layer.sdk.messaging.Actor;
+import com.layer.sdk.messaging.Identity;
 import com.layer.sdk.messaging.Message;
 import com.layer.sdk.query.ListViewController;
 import com.layer.sdk.query.Query;
@@ -225,7 +224,8 @@ public class AtlasMessagesAdapter extends RecyclerView.Adapter<AtlasMessagesAdap
     public int getItemViewType(int position) {
         if (mFooterView != null && position == mFooterPosition) return VIEW_TYPE_FOOTER;
         Message message = getItem(position);
-        boolean isMe = mLayerClient.getAuthenticatedUserId().equals(message.getSender().getUserId());
+        Identity authenticatedUser = mLayerClient.getAuthenticatedUser();
+        boolean isMe = authenticatedUser != null && authenticatedUser.equals(message.getSender());
         for (AtlasCellFactory factory : mCellFactories) {
             if (!factory.isBindable(message)) continue;
             return isMe ? mMyViewTypesByCell.get(factory) : mTheirViewTypesByCell.get(factory);
@@ -325,12 +325,11 @@ public class AtlasMessagesAdapter extends RecyclerView.Adapter<AtlasMessagesAdap
             message.markAsRead();
             // Sender name, only for first message in cluster
             if (!oneOnOne && (cluster.mClusterWithPrevious == null || cluster.mClusterWithPrevious == ClusterType.NEW_SENDER)) {
-                Actor sender = message.getSender();
-                if (sender.getName() != null) {
-                    viewHolder.mUserName.setText(sender.getName());
+                Identity sender = message.getSender();
+                if (sender.getDisplayName() != null) {
+                    viewHolder.mUserName.setText(sender.getDisplayName());
                 } else {
-                    Participant participant = mParticipantProvider.getParticipant(sender.getUserId());
-                    viewHolder.mUserName.setText(participant != null ? participant.getName() : viewHolder.itemView.getResources().getString(R.string.atlas_message_item_unknown_user));
+                    viewHolder.mUserName.setText(R.string.atlas_message_item_unknown_user);
                 }
                 viewHolder.mUserName.setVisibility(View.VISIBLE);
             } else {
@@ -344,7 +343,7 @@ public class AtlasMessagesAdapter extends RecyclerView.Adapter<AtlasMessagesAdap
             } else if (cluster.mClusterWithNext == null || cluster.mClusterWithNext != ClusterType.LESS_THAN_MINUTE) {
                 // Last message in cluster
                 viewHolder.mAvatar.setVisibility(View.VISIBLE);
-                viewHolder.mAvatar.setParticipants(message.getSender().getUserId());
+                viewHolder.mAvatar.setParticipants(message.getSender());
             } else {
                 // Invisible for clustered messages to preserve proper spacing
                 viewHolder.mAvatar.setVisibility(View.INVISIBLE);
@@ -479,18 +478,23 @@ public class AtlasMessagesAdapter extends RecyclerView.Adapter<AtlasMessagesAdap
 
     // TODO: find clever way to prevent worst-case O(n) -- perhaps based on visible positions?
     private void updateReceipts() {
-        final String userId = mLayerClient.getAuthenticatedUserId();
+        final Identity user = mLayerClient.getAuthenticatedUser();
+        if (user == null) {
+            // Nothing to do if not authenticated
+            return;
+        }
+
         Map<Message.RecipientStatus, MessagePosition> receiptMap = new HashMap<Message.RecipientStatus, MessagePosition>();
         for (int position = getItemCount(); position >= 0; position--) {
             Message message = getItem(position);
             if (message == null) continue;
 
             // Only display receipts for our own messages
-            if (!userId.equals(message.getSender().getUserId())) continue;
+            if (!user.equals(message.getSender())) continue;
 
-            for (Map.Entry<String, Message.RecipientStatus> entry : message.getRecipientStatus().entrySet()) {
+            for (Map.Entry<Identity, Message.RecipientStatus> entry : message.getRecipientStatus().entrySet()) {
                 // Only show receipts for other members
-                if (entry.getKey().equals(userId)) continue;
+                if (entry.getKey().equals(user)) continue;
 
                 // Only the latest entry for this RecipientStatus matters
                 if (receiptMap.containsKey(entry.getValue())) continue;
