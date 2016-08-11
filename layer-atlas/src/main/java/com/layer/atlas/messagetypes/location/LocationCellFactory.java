@@ -12,7 +12,6 @@ import android.widget.ImageView;
 
 import com.layer.atlas.R;
 import com.layer.atlas.messagetypes.AtlasCellFactory;
-import com.layer.atlas.provider.ParticipantProvider;
 import com.layer.atlas.util.Log;
 import com.layer.atlas.util.Util;
 import com.layer.atlas.util.picasso.transformations.RoundedTransform;
@@ -66,7 +65,7 @@ public class LocationCellFactory extends AtlasCellFactory<LocationCellFactory.Ce
     }
 
     @Override
-    public Location parseContent(LayerClient layerClient, ParticipantProvider participantProvider, Message message) {
+    public Location parseContent(LayerClient layerClient, Message message) {
         try {
             JSONObject o = new JSONObject(new String(message.getMessageParts().get(0).getData()));
             Location c = new Location();

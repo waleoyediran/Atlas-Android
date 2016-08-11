@@ -18,7 +18,6 @@ import android.widget.ImageView;
 
 import com.layer.atlas.R;
 import com.layer.atlas.messagetypes.AtlasCellFactory;
-import com.layer.atlas.provider.ParticipantProvider;
 import com.layer.atlas.util.Log;
 import com.layer.atlas.util.Util;
 import com.layer.atlas.util.imagepopup.AtlasImagePopupActivity;
@@ -72,7 +71,7 @@ public class ThreePartImageCellFactory extends AtlasCellFactory<ThreePartImageCe
     }
 
     @Override
-    public Info parseContent(LayerClient layerClient, ParticipantProvider participantProvider, Message message) {
+    public Info parseContent(LayerClient layerClient, Message message) {
         return getInfo(message);
     }
 

@@ -26,7 +26,6 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import com.layer.atlas.adapters.AtlasConversationsAdapter;
-import com.layer.atlas.provider.ParticipantProvider;
 import com.layer.atlas.util.AvatarStyle;
 import com.layer.atlas.util.ConversationStyle;
 import com.layer.atlas.util.itemanimators.NoChangeAnimator;
@@ -54,7 +53,7 @@ public class AtlasConversationsRecyclerView extends RecyclerView {
         super(context);
     }
 
-    public AtlasConversationsRecyclerView init(LayerClient layerClient, ParticipantProvider participantProvider, Picasso picasso) {
+    public AtlasConversationsRecyclerView init(LayerClient layerClient, Picasso picasso) {
         // Linear layout manager
         LinearLayoutManager manager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
         manager.setStackFromEnd(false);
@@ -63,7 +62,7 @@ public class AtlasConversationsRecyclerView extends RecyclerView {
         // Don't flash items when changing content
         setItemAnimator(new NoChangeAnimator());
 
-        mAdapter = new AtlasConversationsAdapter(getContext(), layerClient, participantProvider, picasso);
+        mAdapter = new AtlasConversationsAdapter(getContext(), layerClient, picasso);
         mAdapter.setStyle(conversationStyle);
         super.setAdapter(mAdapter);
         refresh();

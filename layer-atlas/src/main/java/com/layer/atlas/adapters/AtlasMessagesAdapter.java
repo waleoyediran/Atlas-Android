@@ -17,7 +17,6 @@ import com.layer.atlas.AtlasAvatar;
 import com.layer.atlas.R;
 import com.layer.atlas.messagetypes.AtlasCellFactory;
 import com.layer.atlas.messagetypes.MessageStyle;
-import com.layer.atlas.provider.ParticipantProvider;
 import com.layer.atlas.util.Util;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.messaging.Identity;
@@ -63,7 +62,6 @@ public class AtlasMessagesAdapter extends RecyclerView.Adapter<AtlasMessagesAdap
     private final static int VIEW_TYPE_FOOTER = 0;
 
     protected final LayerClient mLayerClient;
-    protected final ParticipantProvider mParticipantProvider;
     protected final Picasso mPicasso;
     private final RecyclerViewController<Message> mQueryController;
     protected final LayoutInflater mLayoutInflater;
@@ -94,9 +92,8 @@ public class AtlasMessagesAdapter extends RecyclerView.Adapter<AtlasMessagesAdap
 
     private RecyclerView mRecyclerView;
 
-    public AtlasMessagesAdapter(Context context, LayerClient layerClient, ParticipantProvider participantProvider, Picasso picasso) {
+    public AtlasMessagesAdapter(Context context, LayerClient layerClient, Picasso picasso) {
         mLayerClient = layerClient;
-        mParticipantProvider = participantProvider;
         mPicasso = picasso;
         mLayoutInflater = LayoutInflater.from(context);
         mUiThreadHandler = new Handler(Looper.getMainLooper());
@@ -110,7 +107,7 @@ public class AtlasMessagesAdapter extends RecyclerView.Adapter<AtlasMessagesAdap
             public void onCache(ListViewController listViewController, Message message) {
                 for (AtlasCellFactory factory : mCellFactories) {
                     if (factory.isBindable(message)) {
-                        factory.getParsedContent(mLayerClient, mParticipantProvider, message);
+                        factory.getParsedContent(mLayerClient, message);
                         break;
                     }
                 }
@@ -241,7 +238,7 @@ public class AtlasMessagesAdapter extends RecyclerView.Adapter<AtlasMessagesAdap
 
         CellType cellType = mCellTypesByViewType.get(viewType);
         int rootResId = cellType.mMe ? CellViewHolder.RESOURCE_ID_ME : CellViewHolder.RESOURCE_ID_THEM;
-        CellViewHolder rootViewHolder = new CellViewHolder(mLayoutInflater.inflate(rootResId, parent, false), mParticipantProvider, mPicasso);
+        CellViewHolder rootViewHolder = new CellViewHolder(mLayoutInflater.inflate(rootResId, parent, false), mPicasso);
         rootViewHolder.mCellHolder = cellType.mCellFactory.createCellHolder(rootViewHolder.mCell, cellType.mMe, mLayoutInflater);
         rootViewHolder.mCellHolderSpecs = new AtlasCellFactory.CellHolderSpecs();
         return rootViewHolder;
@@ -369,7 +366,7 @@ public class AtlasMessagesAdapter extends RecyclerView.Adapter<AtlasMessagesAdap
         viewHolder.mCellHolderSpecs.position = position;
         viewHolder.mCellHolderSpecs.maxWidth = maxWidth;
         viewHolder.mCellHolderSpecs.maxHeight = maxHeight;
-        cellType.mCellFactory.bindCellHolder(cellHolder, cellType.mCellFactory.getParsedContent(mLayerClient, mParticipantProvider, message), message, viewHolder.mCellHolderSpecs);
+        cellType.mCellFactory.bindCellHolder(cellHolder, cellType.mCellFactory.getParsedContent(mLayerClient, message), message, viewHolder.mCellHolderSpecs);
     }
 
     @Override
@@ -632,7 +629,7 @@ public class AtlasMessagesAdapter extends RecyclerView.Adapter<AtlasMessagesAdap
         protected AtlasCellFactory.CellHolder mCellHolder;
         protected AtlasCellFactory.CellHolderSpecs mCellHolderSpecs;
 
-        public CellViewHolder(View itemView, ParticipantProvider participantProvider, Picasso picasso) {
+        public CellViewHolder(View itemView, Picasso picasso) {
             super(itemView);
             mUserName = (TextView) itemView.findViewById(R.id.sender);
             mTimeGroup = itemView.findViewById(R.id.time_group);
@@ -643,7 +640,7 @@ public class AtlasMessagesAdapter extends RecyclerView.Adapter<AtlasMessagesAdap
             mReceipt = (TextView) itemView.findViewById(R.id.receipt);
 
             mAvatar = ((AtlasAvatar) itemView.findViewById(R.id.avatar));
-            if (mAvatar != null) mAvatar.init(participantProvider, picasso);
+            if (mAvatar != null) mAvatar.init(picasso);
         }
     }
 

@@ -11,7 +11,6 @@ import android.widget.Toast;
 
 import com.layer.atlas.R;
 import com.layer.atlas.messagetypes.AtlasCellFactory;
-import com.layer.atlas.provider.ParticipantProvider;
 import com.layer.atlas.util.Util;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.messaging.Identity;
@@ -55,7 +54,7 @@ public class TextCellFactory extends AtlasCellFactory<TextCellFactory.CellHolder
     }
 
     @Override
-    public TextInfo parseContent(LayerClient layerClient, ParticipantProvider participantProvider, Message message) {
+    public TextInfo parseContent(LayerClient layerClient, Message message) {
         MessagePart part = message.getMessageParts().get(0);
         String text = part.isContentReady() ? new String(part.getData()) : "";
         String name;

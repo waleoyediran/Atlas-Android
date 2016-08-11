@@ -14,7 +14,6 @@ import android.widget.LinearLayout;
 import com.layer.atlas.AtlasAvatar;
 import com.layer.atlas.AtlasTypingIndicator;
 import com.layer.atlas.R;
-import com.layer.atlas.provider.ParticipantProvider;
 import com.layer.sdk.listeners.LayerTypingIndicatorListener;
 import com.layer.sdk.messaging.Identity;
 import com.squareup.picasso.Picasso;
@@ -34,11 +33,9 @@ public class AvatarTypingIndicatorFactory implements AtlasTypingIndicator.Typing
     private static final long ANIMATION_PERIOD = 600;
     private static final long ANIMATION_OFFSET = ANIMATION_PERIOD / 3;
 
-    private final ParticipantProvider mParticipantProvider;
     private final Picasso mPicasso;
 
-    public AvatarTypingIndicatorFactory(ParticipantProvider participantProvider, Picasso picasso) {
-        mParticipantProvider = participantProvider;
+    public AvatarTypingIndicatorFactory(Picasso picasso) {
         mPicasso = picasso;
     }
 
@@ -118,7 +115,7 @@ public class AvatarTypingIndicatorFactory implements AtlasTypingIndicator.Typing
             AtlasAvatar avatar = tag.mPassives.poll();
             if (avatar == null) {
                 // TODO: allow styling
-                avatar = new AtlasAvatar(l.getContext()).init(mParticipantProvider, mPicasso);
+                avatar = new AtlasAvatar(l.getContext()).init(mPicasso);
                 LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(avatarDim, avatarDim);
                 params.setMargins(0, 0, avatarSpace, 0);
                 avatar.setLayoutParams(params);

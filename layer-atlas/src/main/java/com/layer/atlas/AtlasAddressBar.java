@@ -21,7 +21,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.layer.atlas.provider.ParticipantProvider;
 import com.layer.atlas.util.AvatarStyle;
 import com.layer.atlas.util.EditTextUtil;
 import com.layer.atlas.util.views.EmptyDelEditText;
@@ -45,7 +44,6 @@ import java.util.Set;
 
 public class AtlasAddressBar extends LinearLayout {
     private LayerClient mLayerClient;
-    private ParticipantProvider mParticipantProvider;
     private Picasso mPicasso;
 
     private OnConversationClickListener mOnConversationClickListener;
@@ -92,9 +90,8 @@ public class AtlasAddressBar extends LinearLayout {
         setOrientation(VERTICAL);
     }
 
-    public AtlasAddressBar init(LayerClient layerClient, ParticipantProvider participantProvider, Picasso picasso) {
+    public AtlasAddressBar init(LayerClient layerClient, Picasso picasso) {
         mLayerClient = layerClient;
-        mParticipantProvider = participantProvider;
         mPicasso = picasso;
 
         RecyclerView.LayoutManager manager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
@@ -202,7 +199,7 @@ public class AtlasAddressBar extends LinearLayout {
         if (mSelectedParticipants.contains(participant)) return true;
         if (mSelectedParticipants.size() >= 24) return false;
         mSelectedParticipants.add(participant);
-        ParticipantChip chip = new ParticipantChip(getContext(), mParticipantProvider, participant, mPicasso);
+        ParticipantChip chip = new ParticipantChip(getContext(), participant, mPicasso);
         mSelectedParticipantLayout.addView(chip, mSelectedParticipantLayout.getChildCount() - 1);
         mFilter.setText(null);
         refresh();
@@ -368,7 +365,7 @@ public class AtlasAddressBar extends LinearLayout {
         private TextView mName;
         private ImageView mRemove;
 
-        public ParticipantChip(Context context, ParticipantProvider participantProvider, Identity participant, Picasso picasso) {
+        public ParticipantChip(Context context, Identity participant, Picasso picasso) {
             super(context);
             LayoutInflater inflater = LayoutInflater.from(context);
             Resources r = getContext().getResources();
@@ -394,7 +391,7 @@ public class AtlasAddressBar extends LinearLayout {
 
             // Initialize participant data
             mName.setText(participant.getDisplayName());
-            mAvatar.init(participantProvider, picasso)
+            mAvatar.init(picasso)
                     .setStyle(mAvatarStyle)
                     .setParticipants(participant);
 
@@ -533,7 +530,7 @@ public class AtlasAddressBar extends LinearLayout {
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             ViewHolder viewHolder = new ViewHolder(parent);
             viewHolder.mAvatar
-                    .init(mParticipantProvider, mPicasso)
+                    .init(mPicasso)
                     .setStyle(mAvatarStyle);
             return viewHolder;
         }

@@ -11,7 +11,6 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.layer.atlas.provider.ParticipantProvider;
 import com.layer.atlas.util.AvatarStyle;
 import com.layer.atlas.util.Util;
 import com.layer.atlas.util.picasso.transformations.CircleTransform;
@@ -56,7 +55,6 @@ public class AtlasAvatar extends View {
         PAINT_BITMAP.setAntiAlias(true);
     }
 
-    private ParticipantProvider mParticipantProvider;
     private Picasso mPicasso;
     private Set<Identity> mParticipants = new LinkedHashSet<>();
 
@@ -89,8 +87,7 @@ public class AtlasAvatar extends View {
         super(context, attrs, defStyleAttr);
     }
 
-    public AtlasAvatar init(ParticipantProvider participantProvider, Picasso picasso) {
-        mParticipantProvider = participantProvider;
+    public AtlasAvatar init(Picasso picasso) {
         mPicasso = picasso;
 
         mPaintInitials.setAntiAlias(true);

@@ -15,7 +15,6 @@ import android.widget.ImageView;
 
 import com.layer.atlas.R;
 import com.layer.atlas.messagetypes.AtlasCellFactory;
-import com.layer.atlas.provider.ParticipantProvider;
 import com.layer.atlas.util.imagepopup.AtlasImagePopupActivity;
 import com.layer.atlas.util.picasso.transformations.RoundedTransform;
 import com.layer.sdk.LayerClient;
@@ -107,7 +106,7 @@ public class SinglePartImageCellFactory extends AtlasCellFactory<SinglePartImage
     }
 
     @Override
-    public PartId parseContent(LayerClient layerClient, ParticipantProvider participantProvider, Message message) {
+    public PartId parseContent(LayerClient layerClient, Message message) {
         for (MessagePart part : message.getMessageParts()) {
             if (part.getMimeType().startsWith("image/")) return new PartId(part.getId());
         }

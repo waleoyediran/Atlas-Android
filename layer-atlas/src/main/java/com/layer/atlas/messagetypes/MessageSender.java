@@ -2,7 +2,6 @@ package com.layer.atlas.messagetypes;
 
 import android.content.Context;
 
-import com.layer.atlas.provider.ParticipantProvider;
 import com.layer.atlas.util.Log;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.messaging.Conversation;
@@ -17,12 +16,10 @@ public abstract class MessageSender {
 
     private Context mContext;
     private LayerClient mLayerClient;
-    private ParticipantProvider mParticipantProvider;
 
-    public void init(Context context, LayerClient layerClient, ParticipantProvider participantProvider) {
+    public void init(Context context, LayerClient layerClient) {
         mContext = context;
         mLayerClient = layerClient;
-        mParticipantProvider = participantProvider;
     }
 
     /**
@@ -54,10 +51,6 @@ public abstract class MessageSender {
         return mLayerClient;
     }
 
-    protected ParticipantProvider getParticipantProvider() {
-        return mParticipantProvider;
-    }
-
     /**
      * Sends the given Message to this MessageSender's Conversation.  If a Callback is registered,
      * the Callback may add options or abort sending.
@@ -66,7 +59,7 @@ public abstract class MessageSender {
      * @return `true` if the Message was queued for sending, or `false` if aborted.
      */
     protected boolean send(Message message) {
-        if ((mCallback == null) || mCallback.beforeSend(this, mLayerClient, mParticipantProvider, mConversation, message)) {
+        if ((mCallback == null) || mCallback.beforeSend(this, mLayerClient, mConversation, message)) {
             mConversation.send(message);
             if (Log.isLoggable(Log.VERBOSE)) Log.v("Message sent by " + getClass().getSimpleName());
             return true;
@@ -89,13 +82,12 @@ public abstract class MessageSender {
          *
          * @param sender              The MessageSender reporting Message creation.
          * @param layerClient         The LayerClient doing the sending.
-         * @param participantProvider The ParticipantProvider for constructing notifications.
          * @param conversation        The Conversation the new Message will be sent to.
          * @param message             The new Message created.
          * @return `true` to continue sending, or `false` to prevent sending
          * @see com.layer.sdk.messaging.Message
          * @see com.layer.sdk.listeners.LayerChangeEventListener
          */
-        boolean beforeSend(MessageSender sender, LayerClient layerClient, ParticipantProvider participantProvider, Conversation conversation, Message message);
+        boolean beforeSend(MessageSender sender, LayerClient layerClient, Conversation conversation, Message message);
     }
 }

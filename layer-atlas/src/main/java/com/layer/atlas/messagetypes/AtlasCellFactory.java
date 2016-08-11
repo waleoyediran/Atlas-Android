@@ -5,7 +5,6 @@ import android.util.LruCache;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
-import com.layer.atlas.provider.ParticipantProvider;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.messaging.Message;
 
@@ -62,11 +61,10 @@ public abstract class AtlasCellFactory<Tholder extends AtlasCellFactory.CellHold
      * may still get called on the main thread just prior to binding under heavy load.
      *
      * @param layerClient         Active LayerClient
-     * @param participantProvider Active ParticipantProvider
      * @param message             Message to parse
      * @return Cacheable parsed object generated from the given Message
      */
-    public abstract Tcache parseContent(LayerClient layerClient, ParticipantProvider participantProvider, Message message);
+    public abstract Tcache parseContent(LayerClient layerClient, Message message);
 
     /**
      * Renders a Message by applying data to the provided CellHolder.  The CellHolder was previously
@@ -103,11 +101,11 @@ public abstract class AtlasCellFactory<Tholder extends AtlasCellFactory.CellHold
      * @param message Message to return parsed content object for.
      * @return Parsed content object for the given Message.
      */
-    public Tcache getParsedContent(LayerClient layerClient, ParticipantProvider participantProvider, Message message) {
+    public Tcache getParsedContent(LayerClient layerClient, Message message) {
         String id = message.getId().toString();
         Tcache value = mCache.get(id);
         if (value != null) return value;
-        value = parseContent(layerClient, participantProvider, message);
+        value = parseContent(layerClient, message);
         if (value != null) mCache.put(id, value);
         return value;
     }

@@ -8,7 +8,6 @@ import android.widget.TextView;
 
 import com.layer.atlas.R;
 import com.layer.atlas.messagetypes.AtlasCellFactory;
-import com.layer.atlas.provider.ParticipantProvider;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.messaging.Message;
 import com.layer.sdk.messaging.MessagePart;
@@ -52,7 +51,7 @@ public class GenericCellFactory extends AtlasCellFactory<GenericCellFactory.Cell
     }
 
     @Override
-    public ParsedContent parseContent(LayerClient layerClient, ParticipantProvider participantProvider, Message message) {
+    public ParsedContent parseContent(LayerClient layerClient, Message message) {
         StringBuilder builder = new StringBuilder();
         int i = 0;
         for (MessagePart part : message.getMessageParts()) {
