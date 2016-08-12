@@ -1,5 +1,10 @@
 # Atlas Android
 
+## 0.2.13
+
+### Major Changes
+  * Update to Layer Android SDK Version 0.21.3
+
 ## 0.2.12
 
 ### Major Changes
