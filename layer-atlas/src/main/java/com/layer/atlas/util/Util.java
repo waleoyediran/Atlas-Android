@@ -125,8 +125,11 @@ public class Util {
                 return getInitials(first) + getInitials(last);
             }
             return getInitials(first);
+        } if (!TextUtils.isEmpty(last)) {
+            return getInitials(last);
+        } else {
+            return getInitials(user.getDisplayName());
         }
-        return getInitials(last);
     }
 
     private static String getInitials(String name) {
