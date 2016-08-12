@@ -1,5 +1,13 @@
 # Atlas Android
 
+## 0.2.14
+
+### Major Changes
+  * Updating to Google Play Services 9.2.0
+
+### Bug Fixes
+  * Attachment sender background is set even when an Atlas theme is not used (APPS-2536)
+
 ## 0.2.13
 
 ### Major Changes

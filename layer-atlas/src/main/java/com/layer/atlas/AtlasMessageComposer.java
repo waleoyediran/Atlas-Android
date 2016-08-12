@@ -21,11 +21,11 @@ import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.graphics.Typeface;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -284,6 +284,9 @@ public class AtlasMessageComposer extends FrameLayout {
         this.mUnderlineColor = ta.getColor(R.styleable.AtlasMessageComposer_inputUnderlineColor, context.getResources().getColor(R.color.atlas_color_primary_blue));
         this.mCursorColor = ta.getColor(R.styleable.AtlasMessageComposer_inputCursorColor, context.getResources().getColor(R.color.atlas_color_primary_blue));
         this.mAttachmentSendersBackground = ta.getDrawable(R.styleable.AtlasMessageComposer_attachmentSendersBackground);
+        if (mAttachmentSendersBackground == null) {
+            mAttachmentSendersBackground = ContextCompat.getDrawable(context, R.drawable.atlas_popup_background);
+        }
         ta.recycle();
     }
 
