@@ -188,6 +188,8 @@ public class AtlasAvatar extends View {
         // TODO: make caching intelligent wrt sizing
         for (Identity existing : diff.existing) {
             if (existing == null) continue;
+            mInitials.put(existing, Util.getInitials(existing));
+
             ImageTarget existingTarget = mImageTargets.get(existing);
             mPicasso.cancelRequest(existingTarget);
             toLoad.add(existingTarget);
@@ -234,14 +236,23 @@ public class AtlasAvatar extends View {
         synchronized (mPendingLoads) {
             if (!mPendingLoads.isEmpty()) {
                 int size = Math.round(hasBorder ? (mInnerRadius * 2f) : (mOuterRadius * 2f));
+                boolean needManualInvalidate = true;
                 for (ImageTarget imageTarget : mPendingLoads) {
                     mPicasso.load(imageTarget.getUrl())
                             .tag(AtlasAvatar.TAG).noPlaceholder().noFade()
                             .centerCrop().resize(size, size)
                             .transform((avatarCount > 1) ? MULTI_TRANSFORM : SINGLE_TRANSFORM)
                             .into(imageTarget);
+
+                    // If a URL exists then the callback in the image target will handle invalidation
+                    if (imageTarget.getUrl() != null) {
+                        needManualInvalidate = false;
+                    }
                 }
                 mPendingLoads.clear();
+                if (needManualInvalidate) {
+                    invalidate();
+                }
             }
         }
         return true;

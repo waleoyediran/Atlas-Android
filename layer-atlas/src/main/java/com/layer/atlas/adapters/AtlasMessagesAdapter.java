@@ -17,6 +17,7 @@ import com.layer.atlas.AtlasAvatar;
 import com.layer.atlas.R;
 import com.layer.atlas.messagetypes.AtlasCellFactory;
 import com.layer.atlas.messagetypes.MessageStyle;
+import com.layer.atlas.util.IdentityRecyclerViewEventListener;
 import com.layer.atlas.util.Util;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.messaging.Identity;
@@ -27,6 +28,7 @@ import com.layer.sdk.query.RecyclerViewController;
 import com.squareup.picasso.Picasso;
 
 import java.text.DateFormat;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -68,6 +70,7 @@ public class AtlasMessagesAdapter extends RecyclerView.Adapter<AtlasMessagesAdap
     protected final Handler mUiThreadHandler;
     protected OnMessageAppendListener mAppendListener;
     protected final DisplayMetrics mDisplayMetrics;
+    private final IdentityRecyclerViewEventListener mIdentityEventListener;
 
     // Cells
     protected int mViewTypeCount = VIEW_TYPE_FOOTER;
@@ -115,6 +118,9 @@ public class AtlasMessagesAdapter extends RecyclerView.Adapter<AtlasMessagesAdap
         });
 
         setHasStableIds(false);
+
+        mIdentityEventListener = new IdentityRecyclerViewEventListener(this);
+        mLayerClient.registerEventListener(mIdentityEventListener);
     }
 
     /**
@@ -133,6 +139,13 @@ public class AtlasMessagesAdapter extends RecyclerView.Adapter<AtlasMessagesAdap
      */
     public void refresh() {
         mQueryController.execute();
+    }
+
+    /**
+     * Performs cleanup when the Activity/Fragment using the adapter is destroyed.
+     */
+    public void onDestroy() {
+        mLayerClient.unregisterEventListener(mIdentityEventListener);
     }
 
     public AtlasMessagesAdapter setRecyclerView(RecyclerView recyclerView) {
@@ -329,6 +342,9 @@ public class AtlasMessagesAdapter extends RecyclerView.Adapter<AtlasMessagesAdap
                     viewHolder.mUserName.setText(R.string.atlas_message_item_unknown_user);
                 }
                 viewHolder.mUserName.setVisibility(View.VISIBLE);
+
+                // Add the position to the positions map for Identity updates
+                mIdentityEventListener.addIdentityPosition(position, Collections.singleton(sender));
             } else {
                 viewHolder.mUserName.setVisibility(View.GONE);
             }
@@ -341,6 +357,9 @@ public class AtlasMessagesAdapter extends RecyclerView.Adapter<AtlasMessagesAdap
                 // Last message in cluster
                 viewHolder.mAvatar.setVisibility(View.VISIBLE);
                 viewHolder.mAvatar.setParticipants(message.getSender());
+
+                // Add the position to the positions map for Identity updates
+                mIdentityEventListener.addIdentityPosition(position, Collections.singleton(message.getSender()));
             } else {
                 // Invisible for clustered messages to preserve proper spacing
                 viewHolder.mAvatar.setVisibility(View.INVISIBLE);

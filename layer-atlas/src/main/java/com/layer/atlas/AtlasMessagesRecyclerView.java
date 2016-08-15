@@ -95,6 +95,13 @@ public class AtlasMessagesRecyclerView extends RecyclerView {
     }
 
     /**
+     * Performs cleanup when the Activity/Fragment using the adapter is destroyed.
+     */
+    public void onDestroy() {
+        mAdapter.onDestroy();
+    }
+
+    /**
      * Automatically refresh on resume
      */
     @Override

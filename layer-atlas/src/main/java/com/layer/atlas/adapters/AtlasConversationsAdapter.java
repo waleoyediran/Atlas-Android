@@ -10,6 +10,7 @@ import android.widget.TextView;
 import com.layer.atlas.AtlasAvatar;
 import com.layer.atlas.R;
 import com.layer.atlas.util.ConversationStyle;
+import com.layer.atlas.util.IdentityRecyclerViewEventListener;
 import com.layer.atlas.util.Util;
 import com.layer.sdk.LayerClient;
 import com.layer.sdk.messaging.Conversation;
@@ -38,6 +39,7 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
     private final DateFormat mDateFormat;
     private final DateFormat mTimeFormat;
     private ConversationStyle conversationStyle;
+    private final IdentityRecyclerViewEventListener mIdentityEventListener;
 
     public AtlasConversationsAdapter(Context context, LayerClient client, Picasso picasso) {
         this(context, client, picasso, null);
@@ -71,6 +73,9 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
             }
         };
         setHasStableIds(false);
+
+        mIdentityEventListener = new IdentityRecyclerViewEventListener(this);
+        mLayerClient.registerEventListener(mIdentityEventListener);
     }
 
     /**
@@ -78,6 +83,13 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
      */
     public void refresh() {
         mQueryController.execute();
+    }
+
+    /**
+     * Performs cleanup when the Activity/Fragment using the adapter is destroyed.
+     */
+    public void onDestroy() {
+        mLayerClient.unregisterEventListener(mIdentityEventListener);
     }
 
 
@@ -152,9 +164,13 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
         Context context = viewHolder.itemView.getContext();
 
         viewHolder.setConversation(conversation);
-        HashSet<Identity> participantIds = new HashSet<>(conversation.getParticipants());
-        participantIds.remove(mLayerClient.getAuthenticatedUser());
-        viewHolder.mAvatarCluster.setParticipants(participantIds);
+        HashSet<Identity> participants = new HashSet<>(conversation.getParticipants());
+        participants.remove(mLayerClient.getAuthenticatedUser());
+
+        // Add the position to the positions map for Identity updates
+        mIdentityEventListener.addIdentityPosition(position, participants);
+
+        viewHolder.mAvatarCluster.setParticipants(participants);
         viewHolder.mTitleView.setText(Util.getConversationTitle(mLayerClient, conversation));
         viewHolder.applyStyle(conversation.getTotalUnreadMessageCount() > 0);
 
