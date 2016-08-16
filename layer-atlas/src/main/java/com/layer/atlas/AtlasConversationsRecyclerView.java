@@ -79,7 +79,9 @@ public class AtlasConversationsRecyclerView extends RecyclerView {
      * Performs cleanup when the Activity/Fragment using the adapter is destroyed.
      */
     public void onDestroy() {
-        mAdapter.onDestroy();
+        if (mAdapter != null) {
+            mAdapter.onDestroy();
+        }
     }
 
     /**

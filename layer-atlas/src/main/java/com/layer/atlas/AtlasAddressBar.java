@@ -23,6 +23,7 @@ import android.widget.TextView;
 
 import com.layer.atlas.util.AvatarStyle;
 import com.layer.atlas.util.EditTextUtil;
+import com.layer.atlas.util.IdentityDisplayNameComparator;
 import com.layer.atlas.util.views.EmptyDelEditText;
 import com.layer.atlas.util.views.FlowLayout;
 import com.layer.atlas.util.views.MaxHeightScrollView;
@@ -37,6 +38,7 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -171,7 +173,7 @@ public class AtlasAddressBar extends LinearLayout {
         return this;
     }
 
-    public Set<Identity> getSelectedParticipantIds() {
+    public Set<Identity> getSelectedParticipants() {
         return new LinkedHashSet<>(mSelectedParticipants);
     }
 
@@ -415,13 +417,10 @@ public class AtlasAddressBar extends LinearLayout {
      * Participants.
      */
     private class AvailableConversationAdapter extends RecyclerView.Adapter<AvailableConversationAdapter.ViewHolder> implements RecyclerViewController.Callback {
-        protected final LayerClient mLayerClient;
-        protected final Picasso mPicasso;
+        private final LayerClient mLayerClient;
+        private final Picasso mPicasso;
         private final RecyclerViewController<Conversation> mQueryController;
 
-//        private final ArrayList<String> mParticipantIds = new ArrayList<String>();
-//        private final ArrayList<Participant> mParticipants = new ArrayList<Participant>();
-//        private final Map<String, Participant> mParticipantMap = new HashMap<String, Participant>();
         private final List<Identity> mParticipants = new ArrayList<>();
         private final List<Identity> mAllParticipants = new ArrayList<>();
 
@@ -475,8 +474,8 @@ public class AtlasAddressBar extends LinearLayout {
                 filteredIdentities.remove(selectedParticipant);
             }
             mParticipants.clear();
-            // TODO add sorting
             mParticipants.addAll(filteredIdentities);
+            Collections.sort(mParticipants, new IdentityDisplayNameComparator());
 
             // TODO: compute add/remove/move and notify those instead of complete notify
             notifyDataSetChanged();
