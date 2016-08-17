@@ -56,6 +56,8 @@ public class AtlasAddressBar extends LinearLayout {
     private RecyclerView mParticipantList;
     private AvailableConversationAdapter mAvailableConversationAdapter;
     private final Set<Identity> mSelectedParticipants = new LinkedHashSet<>();
+    private Set<Identity> mIdentities;
+    private List<String> mRestoredParticipantIds;
 
     private boolean mShowConversations;
 
@@ -130,6 +132,10 @@ public class AtlasAddressBar extends LinearLayout {
                 refresh();
             }
         });
+
+        // Fetch identities from database
+        IdentityFetcher identityFetcher = new IdentityFetcher(layerClient);
+        identityFetcher.fetchIdentities(new IdentitiesFetchedCallback());
         return this;
     }
 
@@ -198,13 +204,19 @@ public class AtlasAddressBar extends LinearLayout {
     }
 
     private boolean selectParticipant(Identity participant) {
+        return selectParticipant(participant, false);
+    }
+
+    private boolean selectParticipant(Identity participant, boolean skipRefresh) {
         if (mSelectedParticipants.contains(participant)) return true;
         if (mSelectedParticipants.size() >= 24) return false;
         mSelectedParticipants.add(participant);
         ParticipantChip chip = new ParticipantChip(getContext(), participant, mPicasso);
         mSelectedParticipantLayout.addView(chip, mSelectedParticipantLayout.getChildCount() - 1);
         mFilter.setText(null);
-        refresh();
+        if (!skipRefresh) {
+            refresh();
+        }
         if (mOnParticipantSelectionChangeListener != null) {
             mOnParticipantSelectionChangeListener.onParticipantSelectionChanged(this, new ArrayList<>(mSelectedParticipants));
         }
@@ -301,8 +313,13 @@ public class AtlasAddressBar extends LinearLayout {
         Parcelable superState = super.onSaveInstanceState();
         if (mSelectedParticipants.isEmpty()) return superState;
         SavedState savedState = new SavedState(superState);
-        // TODO save off selected participants
-//        savedState.mSelectedParticipantIds = new ArrayList<>(mSelectedParticipants);
+        if (!mSelectedParticipants.isEmpty()) {
+            List<String> participantIds = new ArrayList<>(mSelectedParticipants.size());
+            for (Identity participant : mSelectedParticipants) {
+                participantIds.add(participant.getUserId());
+            }
+            savedState.mSelectedParticipantIds = participantIds;
+        }
         return savedState;
     }
 
@@ -319,13 +336,37 @@ public class AtlasAddressBar extends LinearLayout {
         SavedState savedState = (SavedState) state;
         super.onRestoreInstanceState(savedState.getSuperState());
 
-        // TODO restore selected participants
-//        if (savedState.mSelectedParticipantIds != null) {
-//            mSelectedParticipants.clear();
-//            for (String participantId : savedState.mSelectedParticipantIds) {
-//                selectParticipant(participantId);
-//            }
-//        }
+        if (savedState.mSelectedParticipantIds != null) {
+            mSelectedParticipants.clear();
+            mRestoredParticipantIds = savedState.mSelectedParticipantIds;
+            // Only need to restore if identities have already been loaded. Else they will be
+            // restored in the load callback
+            if (mIdentities != null) {
+                restoreSavedSelectedParticipants();
+                refresh();
+            }
+        }
+    }
+
+    private void restoreSavedSelectedParticipants() {
+        if (mRestoredParticipantIds != null) {
+            for (Identity identity : mIdentities) {
+                if (mRestoredParticipantIds.contains(identity.getUserId())) {
+                    selectParticipant(identity, true);
+                }
+            }
+            mRestoredParticipantIds = null;
+        }
+    }
+
+    private class IdentitiesFetchedCallback implements IdentityFetcher.IdentityFetcherCallback {
+        @Override
+        public void identitiesFetched(Set<Identity> identities) {
+            mIdentities = identities;
+            mAvailableConversationAdapter.setAllIdentities(identities);
+            restoreSavedSelectedParticipants();
+            refresh();
+        }
     }
 
     private static class SavedState extends BaseSavedState {
@@ -412,32 +453,16 @@ public class AtlasAddressBar extends LinearLayout {
     }
 
     /**
-     * AvailableConversationAdapter provides items for individual Participants and existing
-     * Conversations.  Items are filtered by a participant filter string and by a set of selected
-     * Participants.
+     * Helper class that handles loading identities from the database via a {@link Query}.
      */
-    private class AvailableConversationAdapter extends RecyclerView.Adapter<AvailableConversationAdapter.ViewHolder> implements RecyclerViewController.Callback {
+    private static class IdentityFetcher {
         private final LayerClient mLayerClient;
-        private final Picasso mPicasso;
-        private final RecyclerViewController<Conversation> mQueryController;
 
-        private final List<Identity> mParticipants = new ArrayList<>();
-        private final List<Identity> mAllParticipants = new ArrayList<>();
-
-        public AvailableConversationAdapter(LayerClient client, Picasso picasso) {
-            this(client, picasso, null);
-        }
-
-        public AvailableConversationAdapter(LayerClient client, Picasso picasso, Collection<String> updateAttributes) {
-            mQueryController = client.newRecyclerViewController(null, updateAttributes, this);
+        IdentityFetcher(LayerClient client) {
             mLayerClient = client;
-            mPicasso = picasso;
-            setHasStableIds(false);
-
-            initIdentities();
         }
 
-        private void initIdentities() {
+        private void fetchIdentities(final IdentityFetcherCallback callback) {
             Identity currentUser = mLayerClient.getAuthenticatedUser();
             Query.Builder<Identity> builder = Query.builder(Identity.class);
             if (currentUser != null) {
@@ -454,18 +479,49 @@ public class AtlasAddressBar extends LinearLayout {
 
                 @Override
                 protected void onPostExecute(List<Identity> identities) {
-                    mAllParticipants.clear();
-                    mAllParticipants.addAll(identities);
-                    AtlasAddressBar.this.refresh();
+                    callback.identitiesFetched(new HashSet<>(identities));
                 }
             }.execute();
+        }
+
+        interface IdentityFetcherCallback {
+            void identitiesFetched(Set<Identity> identities);
+        }
+    }
+
+    /**
+     * AvailableConversationAdapter provides items for individual Participants and existing
+     * Conversations.  Items are filtered by a participant filter string and by a set of selected
+     * Participants.
+     */
+    private class AvailableConversationAdapter extends RecyclerView.Adapter<AvailableConversationAdapter.ViewHolder> implements RecyclerViewController.Callback {
+        private final LayerClient mLayerClient;
+        private final Picasso mPicasso;
+        private final RecyclerViewController<Conversation> mQueryController;
+
+        private final List<Identity> mParticipants = new ArrayList<>();
+        private Set<Identity> mAllIdentities;
+
+        AvailableConversationAdapter(LayerClient client, Picasso picasso) {
+            this(client, picasso, null);
+        }
+
+        AvailableConversationAdapter(LayerClient client, Picasso picasso, Collection<String> updateAttributes) {
+            mQueryController = client.newRecyclerViewController(null, updateAttributes, this);
+            mLayerClient = client;
+            mPicasso = picasso;
+            setHasStableIds(false);
+        }
+
+        void setAllIdentities(Set<Identity> identities) {
+            mAllIdentities = identities;
         }
 
         /**
          * Refreshes this adapter by filtering Conversations to return only those Conversations with
          * the given set of selected Participants.
          */
-        public void refresh(String filter, Set<Identity> selectedParticipants) {
+        void refresh(String filter, Set<Identity> selectedParticipants) {
             // Apply text search filter to available participants
             Set<Identity> filteredIdentities = filter(filter);
 
@@ -486,15 +542,19 @@ public class AtlasAddressBar extends LinearLayout {
         }
 
         private Set<Identity> filter(String filter) {
+            if (mAllIdentities == null || mAllIdentities.isEmpty()) {
+                return new HashSet<>();
+            }
+
             // With no filter, return all Participants
             if (filter == null) {
-                return new HashSet<>(mAllParticipants);
+                return new HashSet<>(mAllIdentities);
             }
 
             Set<Identity> result = new HashSet<>();
             // Filter participants by substring matching first- and last- names
             filter = filter.toLowerCase();
-            for (Identity participant : mAllParticipants) {
+            for (Identity participant : mAllIdentities) {
                 boolean matches = false;
                 if (participant.getDisplayName() != null && participant.getDisplayName().toLowerCase().contains(filter))
                     matches = true;
