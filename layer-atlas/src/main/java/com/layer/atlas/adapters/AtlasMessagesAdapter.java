@@ -520,7 +520,8 @@ public class AtlasMessagesAdapter extends RecyclerView.Adapter<AtlasMessagesAdap
             }
         }
         for (MessagePosition message : previousReceiptsToRefresh) {
-            notifyItemChanged(getPosition(message.mMessage, message.mPosition));
+            // TODO: This is a huge source of our problems. Need to investigate.
+            //notifyItemChanged(getPosition(message.mMessage, message.mPosition));
         }
 
         mReceiptMap = receiptMap;

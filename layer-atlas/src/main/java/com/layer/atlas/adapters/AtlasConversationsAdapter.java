@@ -102,7 +102,11 @@ public class AtlasConversationsAdapter extends RecyclerView.Adapter<AtlasConvers
             public void run() {
                 long desiredHistory = mInitialHistory;
                 if (desiredHistory <= 0) return;
-                for (int i = start; i < start + length; i++) {
+                long countOfConversations = length;
+                if (length > 100) {
+                    countOfConversations = 100;
+                }
+                for (int i = start; i < start + countOfConversations; i++) {
                     try {
                         final Conversation conversation = getItem(i);
                         if (conversation == null || conversation.getHistoricSyncStatus() != Conversation.HistoricSyncStatus.MORE_AVAILABLE) {
