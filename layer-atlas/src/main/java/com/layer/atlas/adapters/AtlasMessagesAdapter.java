@@ -31,7 +31,6 @@ import com.squareup.picasso.Picasso;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -84,11 +83,10 @@ public class AtlasMessagesAdapter extends RecyclerView.Adapter<AtlasMessagesAdap
     private final DateFormat mDateFormat;
     private final DateFormat mTimeFormat;
 
-    // Read and delivery receipts
-    private Map<Message.RecipientStatus, MessagePosition> mReceiptMap = new HashMap<Message.RecipientStatus, MessagePosition>();
-
     private View mFooterView;
     private int mFooterPosition = 0;
+
+    private Integer mRecipientStatusPosition;
 
     //Stye
     private MessageStyle mMessageStyle;
@@ -301,19 +299,7 @@ public class AtlasMessagesAdapter extends RecyclerView.Adapter<AtlasMessagesAdap
 
         // Sender-dependent elements
         if (cellType.mMe) {
-            // Read and delivery receipts
-            MessagePosition read = mReceiptMap.get(Message.RecipientStatus.READ);
-            MessagePosition delivered = mReceiptMap.get(Message.RecipientStatus.DELIVERED);
-
-            if (read != null && message == read.mMessage) {
-                viewHolder.mReceipt.setVisibility(View.VISIBLE);
-                viewHolder.mReceipt.setText(R.string.atlas_message_item_read);
-            } else if (delivered != null && message == delivered.mMessage) {
-                viewHolder.mReceipt.setVisibility(View.VISIBLE);
-                viewHolder.mReceipt.setText(R.string.atlas_message_item_delivered);
-            } else {
-                viewHolder.mReceipt.setVisibility(View.GONE);
-            }
+            updateViewHolderForRecipientStatus(viewHolder, position, message);
 
             // Unsent and sent
             if (!message.isSent()) {
@@ -371,6 +357,44 @@ public class AtlasMessagesAdapter extends RecyclerView.Adapter<AtlasMessagesAdap
         viewHolder.mCellHolderSpecs.maxWidth = maxWidth;
         viewHolder.mCellHolderSpecs.maxHeight = maxHeight;
         cellType.mCellFactory.bindCellHolder(cellHolder, cellType.mCellFactory.getParsedContent(mLayerClient, mParticipantProvider, message), message, viewHolder.mCellHolderSpecs);
+    }
+
+    private void updateViewHolderForRecipientStatus(CellViewHolder viewHolder, int position, Message message) {
+        if (mRecipientStatusPosition != null && mRecipientStatusPosition == position) {
+            int readCount = 0;
+            boolean delivered = false;
+            Map<String, Message.RecipientStatus> statuses = message.getRecipientStatus();
+            for (Map.Entry<String, Message.RecipientStatus> entry : statuses.entrySet()) {
+                // Only show receipts for other members
+                if (entry.getKey().equals(mLayerClient.getAuthenticatedUserId())) continue;
+                switch (entry.getValue()) {
+                    case READ:
+                        readCount++;
+                        break;
+                    case DELIVERED:
+                        delivered = true;
+                        break;
+                }
+            }
+            if (readCount > 0) {
+                viewHolder.mReceipt.setVisibility(View.VISIBLE);
+                // Use 2 to include one other participant plus the current user
+                if (statuses.size() > 2) {
+                    String quantityString = viewHolder.mReceipt.getResources()
+                            .getQuantityString(R.plurals.atlas_message_item_read_muliple_participants, readCount, readCount);
+                    viewHolder.mReceipt.setText(quantityString);
+                } else {
+                    viewHolder.mReceipt.setText(R.string.atlas_message_item_read);
+                }
+            } else if (delivered) {
+                viewHolder.mReceipt.setVisibility(View.VISIBLE);
+                viewHolder.mReceipt.setText(R.string.atlas_message_item_delivered);
+            } else {
+                viewHolder.mReceipt.setVisibility(View.GONE);
+            }
+        } else {
+            viewHolder.mReceipt.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -477,53 +501,13 @@ public class AtlasMessagesAdapter extends RecyclerView.Adapter<AtlasMessagesAdap
     // Read and delivery receipts
     //==============================================================================================
 
-    // TODO: find clever way to prevent worst-case O(n) -- perhaps based on visible positions?
-    private void updateReceipts() {
-        final String userId = mLayerClient.getAuthenticatedUserId();
-        Map<Message.RecipientStatus, MessagePosition> receiptMap = new HashMap<Message.RecipientStatus, MessagePosition>();
-        for (int position = getItemCount(); position >= 0; position--) {
-            Message message = getItem(position);
-            if (message == null) continue;
-
-            // Only display receipts for our own messages
-            if (!userId.equals(message.getSender().getUserId())) continue;
-
-            for (Map.Entry<String, Message.RecipientStatus> entry : message.getRecipientStatus().entrySet()) {
-                // Only show receipts for other members
-                if (entry.getKey().equals(userId)) continue;
-
-                // Only the latest entry for this RecipientStatus matters
-                if (receiptMap.containsKey(entry.getValue())) continue;
-
-                // Found the latest entry for this RecipientStatus
-                receiptMap.put(entry.getValue(), new MessagePosition(message, position));
-            }
-            if (receiptMap.containsKey(Message.RecipientStatus.READ) && receiptMap.containsKey(Message.RecipientStatus.DELIVERED)) {
-                break;
-            }
+    private void updateRecipientStatusPosition() {
+        Integer oldPosition = mRecipientStatusPosition;
+        // Set new position to last in the list
+        mRecipientStatusPosition = mQueryController.getItemCount() - 1;
+        if (oldPosition != null) {
+            notifyItemChanged(oldPosition);
         }
-
-        // Refresh previously-marked messages
-        Set<MessagePosition> previousReceiptsToRefresh = new HashSet<MessagePosition>();
-        for (Message.RecipientStatus status : Message.RecipientStatus.values()) {
-            MessagePosition current = (mReceiptMap == null) ? null : mReceiptMap.get(status);
-            MessagePosition next = receiptMap.get(status);
-            if (current != null && next != null && current.mMessage != next.mMessage) {
-                previousReceiptsToRefresh.add(current);
-                previousReceiptsToRefresh.add(next);
-            }
-            if (current != null && next == null) {
-                previousReceiptsToRefresh.add(current);
-            }
-            if (current == null && next != null) {
-                previousReceiptsToRefresh.add(next);
-            }
-        }
-        for (MessagePosition message : previousReceiptsToRefresh) {
-            notifyItemChanged(getPosition(message.mMessage, message.mPosition));
-        }
-
-        mReceiptMap = receiptMap;
     }
 
 
@@ -534,26 +518,24 @@ public class AtlasMessagesAdapter extends RecyclerView.Adapter<AtlasMessagesAdap
     @Override
     public void onQueryDataSetChanged(RecyclerViewController controller) {
         mFooterPosition = mQueryController.getItemCount();
-        updateReceipts();
+        updateRecipientStatusPosition();
         notifyDataSetChanged();
     }
 
     @Override
     public void onQueryItemChanged(RecyclerViewController controller, int position) {
-        updateReceipts();
         notifyItemChanged(position);
     }
 
     @Override
     public void onQueryItemRangeChanged(RecyclerViewController controller, int positionStart, int itemCount) {
-        updateReceipts();
         notifyItemRangeChanged(positionStart, itemCount);
     }
 
     @Override
     public void onQueryItemInserted(RecyclerViewController controller, int position) {
         mFooterPosition++;
-        updateReceipts();
+        updateRecipientStatusPosition();
         notifyItemInserted(position);
         if (mAppendListener != null && (position + 1) == getItemCount()) {
             mAppendListener.onMessageAppend(this, getItem(position));
@@ -563,7 +545,7 @@ public class AtlasMessagesAdapter extends RecyclerView.Adapter<AtlasMessagesAdap
     @Override
     public void onQueryItemRangeInserted(RecyclerViewController controller, int positionStart, int itemCount) {
         mFooterPosition += itemCount;
-        updateReceipts();
+        updateRecipientStatusPosition();
         notifyItemRangeInserted(positionStart, itemCount);
         int positionEnd = positionStart + itemCount;
         if (mAppendListener != null && (positionEnd + 1) == getItemCount()) {
@@ -574,20 +556,20 @@ public class AtlasMessagesAdapter extends RecyclerView.Adapter<AtlasMessagesAdap
     @Override
     public void onQueryItemRemoved(RecyclerViewController controller, int position) {
         mFooterPosition--;
-        updateReceipts();
+        updateRecipientStatusPosition();
         notifyItemRemoved(position);
     }
 
     @Override
     public void onQueryItemRangeRemoved(RecyclerViewController controller, int positionStart, int itemCount) {
         mFooterPosition -= itemCount;
-        updateReceipts();
+        updateRecipientStatusPosition();
         notifyItemRangeRemoved(positionStart, itemCount);
     }
 
     @Override
     public void onQueryItemMoved(RecyclerViewController controller, int fromPosition, int toPosition) {
-        updateReceipts();
+        updateRecipientStatusPosition();
         notifyItemMoved(fromPosition, toPosition);
     }
 

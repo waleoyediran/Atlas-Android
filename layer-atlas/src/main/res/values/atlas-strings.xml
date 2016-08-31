@@ -17,6 +17,10 @@
     <string name="atlas_message_item_unknown_user">Unknown</string>
 
     <string name="atlas_message_item_read">Read</string>
+    <plurals name="atlas_message_item_read_muliple_participants">
+        <item quantity="one">Read by %d participant</item>
+        <item quantity="other">Read by %d participants</item>
+    </plurals>
     <string name="atlas_message_item_delivered">Delivered</string>
 
     <string name="atlas_notification_text">%1$s: %2$s</string>
