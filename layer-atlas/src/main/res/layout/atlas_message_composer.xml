@@ -27,7 +27,7 @@
         android:layout_marginLeft="@dimen/atlas_icon_button_side_padding"
         android:layout_marginRight="@dimen/atlas_icon_button_side_padding"
         android:scaleType="center"
-        android:src="@drawable/ic_add_white_24dp"
+        android:src="@drawable/ic_attach_file_white_24dp"
         />
 
     <EditText
